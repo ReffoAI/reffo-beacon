@@ -13,7 +13,8 @@ export function renderUI(): string {
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; line-height: 1.5; }
     .container { max-width: 900px; margin: 0 auto; padding: 20px; }
-    h1 { font-size: 1.6rem; margin-bottom: 4px; }
+    h1 { font-size: 1.6rem; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+    .bolt { display: inline-block; filter: drop-shadow(0 0 6px #ff2d95) drop-shadow(0 0 12px #ff2d95); }
     .subtitle { color: #666; font-size: 0.9rem; margin-bottom: 24px; }
     h2 { font-size: 1.2rem; margin-bottom: 12px; color: #222; border-bottom: 2px solid #4a90d9; padding-bottom: 4px; }
     section { background: #fff; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
@@ -44,7 +45,7 @@ export function renderUI(): string {
 </head>
 <body>
   <div class="container">
-    <h1>Reffo Beacon</h1>
+    <h1><svg class="bolt" width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h7l-2 8 9-12h-7l2-8z" fill="#ff2d95" stroke="#ff2d95" stroke-width="1" stroke-linejoin="round"/></svg> Reffo Beacon</h1>
     <p class="subtitle">Decentralized commerce &mdash; your node, your inventory</p>
 
     <!-- List an Item -->
