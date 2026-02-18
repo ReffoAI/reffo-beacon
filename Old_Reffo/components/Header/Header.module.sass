@@ -1,0 +1,193 @@
+@import ../../styles/helpers
+
+.header
+    position: sticky
+    width: 100%
+    top: 0px
+    z-index: 10
+    padding: 15px 0
+    background: $n8
+
+    &.wide
+        .container
+            max-width: 100%
+
+.headerBorder
+    box-shadow: inset 0 -1px 0 0 $n6
+
+
+.container
+    display: flex
+    align-items: center
+    max-width: 2200px
+
+.logo
+    margin-right: 40px
+    cursor: pointer
+    +d
+        margin-right: 32px
+    +m
+        position: relative
+        z-index: 15
+        margin-right: auto
+    img
+        width: 106px
+    
+.wrapper
+    display: flex
+    align-items: center
+    flex-grow: 1
+    padding-left: 10px
+    border-left: 1px solid $n6
+    transition: all 0.5s ease
+    &.hide
+        opacity:0
+    +d
+        padding-left: 32px
+    +t
+        padding-left: 0
+        border: none
+    +m
+        position: absolute
+        top: 0
+        left: 0
+        right: 0
+        z-index: 10
+        flex-direction: column
+        align-items: stretch
+        height: 100vh
+        min-height: auto
+        padding: 132px 32px 48px
+        background: $n8
+        visibility: hidden
+        opacity: 0
+        pointer-events: none
+        transition: all .3s
+        &.active
+            visibility: visible
+            opacity: 1
+            pointer-events: all
+    & > div
+        &:first-child
+            +t
+                margin-right: auto
+            +m
+                margin: 0
+
+.dropdown
+    margin-left: auto
+
+.link
+    margin-right: 50px
+    cursor: pointer
+    +button-2
+    color: $n3
+    transition: color .2s
+    font-weight: 500
+    +t
+        display: none
+    +m
+        display: flex
+        align-items: center
+        margin: 0 -32px
+        padding: 0 32px
+        height: 64px
+        +poppins
+        font-size: 24px
+        font-weight: 600
+    &:hover,
+    &.active
+        color: $n1
+        +m
+            background: none
+            box-shadow: inset 2px 0 0 $p1
+    
+.language
+    margin-left: 40px
+    +t
+        margin-left: 32px
+    +m
+        display: none
+
+.buttonDark
+    +t
+        margin-left: 32px
+    +m
+        width: 100%
+        max-width: 300px
+        height: 48px
+        margin: auto 0 0
+    +s
+        padding: 0 5px !important
+        margin-left: 70px
+        font-size: 10px !important
+        height: 35px !important
+
+    &.active
+        background: $n1
+        box-shadow: inset 0 0 0 2px $n2
+        color: $n8
+
+.notification,
+.user,
+.login
+    
+    background:$n7
+    border-radius: 50%
+
+.login
+    width: 40px
+    height: 40px
+    border-radius: 50%
+    background: $p4
+    transition: background .2s
+    svg
+        fill: $n8
+    &:hover
+        background: darken($p4, 8)
+
+.burger
+    display: none
+    +m
+        display: block
+        position: relative
+        z-index: 15
+        margin-left: 20px
+        width: 32px
+        height: 32px
+        background: none
+        -webkit-tap-highlight-color: rgba(0,0,0,0)
+        &.active
+            &:before
+                transform: translateY(0) rotate(-45deg)
+            &:after
+                transform: translateY(0) rotate(45deg)
+        &:before,
+        &:after
+            content: ''
+            position: absolute
+            top: 16px
+            left: 6px
+            width: 20px
+            height: 2px
+            background: $n4
+            border-radius: 2px
+            transition: transform .2s
+        &:before
+            transform: translateY(-4px)
+        &:after
+            transform: translateY(3px)
+    +s
+        margin-left: 10px
+
+
+.pic
+    background-size: contain
+
+.authContainer
+    padding: 5px
+    border: 1px solid $n9
+    border-radius: 30px
+    display: flex
+    justify-content: space-between
+    width: 100px

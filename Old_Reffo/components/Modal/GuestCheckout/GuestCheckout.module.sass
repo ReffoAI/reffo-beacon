@@ -1,0 +1,82 @@
+@import ../../../styles/helpers
+
+.container
+    width: 300px
+    margin: auto
+
+.titleContainer
+        display: flex
+        flex-direction: row
+        align-items: center
+
+
+
+.title
+    font-size: 18px
+    font-weight: 500
+
+.subtitle
+    +caption-1
+    margin-top: 5px
+    margin-bottom: 30px
+
+.inputContainer
+    display: flex
+    flex-direction: row
+    align-items: center
+    justify-content: center
+    margin-top: 20px
+    margin-bottom: 20px
+    input 
+        border: 2px solid $n6
+        padding: 20px
+        min-width: 320px
+        border-radius: 10px
+        font-size: 16px
+        &:focus
+            border: 2px solid $n4
+            transition: all .3s
+
+.buttonsContainer
+    display: flex
+    flex-direction: row
+    align-items: center
+    justify-content: space-between
+    button
+        flex: 1
+
+
+.button
+    height: 45px
+    width: 45px
+    border-radius: 10px
+    display: flex
+    justify-content: center
+    align-items: center
+    cursor: pointer
+    transition: all .3s
+    background-color: $n7
+    &:hover
+        background-color: $n6
+        transition: all .3s
+    img
+        width: 20px
+        filter: grayscale(100%)
+
+.errorMessage
+  color: $danger
+  margin-bottom: 30px
+  text-align: center
+
+.footerText
+    font-size: 14px
+    font-weight: 500
+    margin-top: 30px
+    text-align: center
+    color: $n4
+
+.termsContainer
+        display: flex
+        flex-direction: row
+        justify-content: center
+        padding: 15px 20px

@@ -1,0 +1,105 @@
+@import ../../styles/helpers
+
+.modal
+  display: flex
+  position: fixed
+  top: 0
+  left: 0
+  width: 100%
+  height: 100%
+  padding: 0 56px
+  background: rgba(0,0,0,.9)
+  opacity: 0
+  animation: showModal .4s forwards
+  overflow: auto
+  z-index: 999
+  +m
+    padding: 24px 16px
+
+@keyframes showModal
+  0%
+    opacity: 0
+  100%
+    opacity: 1
+
+.outer
+  width: 100%
+  & > div
+    display: flex
+    align-items: center
+    height: 100%
+
+.container
+  position: relative
+  width: 100%
+  max-width: 1280px  
+  margin: auto
+  padding: 56px 0
+  z-index: 2
+  +m
+    position: static
+
+.control
+  position: relative
+  display: flex
+  align-items: center
+  margin-bottom: 48px
+  flex-direction: row
+  justify-content: space-between
+  +m
+    margin-bottom: 24px
+  & > .button
+    margin-right: auto
+    box-shadow: inset 0 0 0 2px $n4
+    color: $n8
+    svg
+      fill: $n8
+    &:hover
+      background: $n4
+    
+.counter
+  position: absolute
+  top: 50%
+  left: 50%
+  transform: translate(-50%,-50%)
+  +button-2
+  color: $n4
+  +m
+    left: 60%
+
+.btns
+  display: flex
+  .button
+    box-shadow: inset 0 0 0 2px $n3
+    svg
+      fill: $n4
+    &:hover
+      svg
+        fill: $n8
+
+.share
+    margin-right: 16px
+
+.wrapper
+  margin: 0 auto
+  padding: 0 56px
+  +m
+    padding: 0
+    
+.preview
+  display: flex
+  justify-content: center
+  align-items: center
+  height: 100%
+  img
+    max-width: 100%
+    max-height: 600px
+  
+.title
+  margin-top: 32px
+  text-align: center
+  +body-bold-2
+  color: $n8
+  +m
+    margin-top: 24px
+

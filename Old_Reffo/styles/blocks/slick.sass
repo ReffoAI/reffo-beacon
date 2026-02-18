@@ -1,0 +1,553 @@
+.slick-slider
+    position: relative
+    display: block
+    box-sizing: border-box
+    -webkit-user-select: none
+    -moz-user-select: none
+    -ms-user-select: none
+    user-select: none
+    -webkit-touch-callout: none
+    -khtml-user-select: none
+    -ms-touch-action: pan-y
+    touch-action: pan-y
+    -webkit-tap-highlight-color: transparent
+    width:100%
+
+.slick-list
+    position: relative
+    display: block
+    overflow: hidden
+    margin: 0
+    padding: 0
+
+    &:focus
+        outline: none
+
+    &.dragging
+        cursor: pointer
+        cursor: hand
+
+.slick-slider
+    .slick-track, .slick-list
+        -webkit-transform: translate3d(0, 0, 0)
+        -moz-transform: translate3d(0, 0, 0)
+        -ms-transform: translate3d(0, 0, 0)
+        -o-transform: translate3d(0, 0, 0)
+        transform: translate3d(0, 0, 0)
+
+.slick-track
+    position: relative
+    top: 0
+    left: 0
+    display: block
+    margin-left: auto
+    margin-right: auto
+
+    &:before
+        display: table
+        content: ''
+
+    &:after
+        display: table
+        content: ''
+        clear: both
+
+.slick-loading .slick-track
+    visibility: hidden
+
+.slick-slide
+    display: none
+    float: left
+    height: 100%
+    min-height: 1px
+
+[dir='rtl'] .slick-slide
+    float: right
+
+.slick-slide
+    img
+        display: block
+
+    &.slick-loading img
+        display: none
+
+    &.dragging img
+        pointer-events: none
+
+.slick-initialized .slick-slide
+    display: block
+
+.slick-loading .slick-slide
+    visibility: hidden
+
+.slick-vertical .slick-slide
+    display: block
+    height: auto
+    border: 1px solid transparent
+
+.slick-arrow.slick-hidden
+    display: none
+
+.slick-arrow
+    position: absolute
+    z-index: 2
+    width: 40px
+    height: 40px
+    border-radius: 50%
+    font-size: 0
+    transition: all .2s
+    svg
+        position: relative
+        z-index: 2
+        fill: $n4
+        transition: fill .2s
+    &:hover
+        box-shadow: inset 0 0 0 2px $n6
+    +dark-common
+        &:hover
+            box-shadow: inset 0 0 0 2px $n3
+            svg
+                fill: $n6
+    // &.slick-disabled
+    //     opacity: .7
+
+// adventure slider
+.adventure-slider
+    padding-bottom: 106px
+    +d
+        padding-bottom: 80px
+    .slick-list
+        overflow: visible
+        +s
+            margin: 0 -265px 0 0
+    .slick-slide
+        padding: 0 16px
+        opacity: 0
+        visibility: hidden
+        transition: all .4s
+        &.slick-active
+            opacity: 1
+            visibility: visible
+    .slick-arrow
+        bottom: 0
+    .slick-prev
+        left: calc(50% - 44px)
+    .slick-next
+        right: calc(50% - 44px)
+    
+// travel slider
+.travel-slider
+    .slick-list
+        overflow: visible
+    .slick-slide
+        opacity: 0
+        visibility: hidden
+        transition: all .4s
+        &.slick-active
+            opacity: 1
+            visibility: visible
+            .travel-preview
+                transform: scale(1)
+                opacity: 1
+            .travel-bg
+                img
+                    transform: scale(1)
+    .slick-arrow
+        top: 24px
+        svg
+            fill: $n8
+        +dark-common
+            &:hover
+                box-shadow: inset 0 0 0 2px $n6
+    .slick-prev
+        right: 72px
+    .slick-next
+        right: 24px
+
+// live slider
+.live-slider
+    +t
+        padding-bottom: 64px
+    .slick-list
+        overflow: visible
+    .slick-slide
+        padding: 0 16px
+        opacity: 0
+        visibility: hidden
+        transition: all .4s
+        +m
+            padding: 0 4px
+            visibility: visible
+            opacity: 1
+        &.slick-active
+            opacity: 1
+            visibility: visible
+    .slick-arrow
+       bottom: 0
+    .slick-prev
+        left: calc(50% - 44px)
+    .slick-next
+        right: calc(50% - 44px)
+
+// browse slider
+.browse-slider
+    position: static
+    +m
+        padding-bottom: 80px
+    .slick-list
+        overflow: visible
+        +d
+            margin: 0 -180px 0 0
+        +m
+            margin-right: -260px
+    .slick-slide
+        padding: 0 16px
+        opacity: 0
+        visibility: hidden
+        transition: all .4s
+        +m
+            padding: 0 8px
+        &.slick-active
+            opacity: 1
+            visibility: visible
+    .slick-arrow
+       top: 4px
+       +m
+            top: auto
+            bottom: 0
+    .slick-prev
+        right: 48px
+        +m
+            right: auto
+            left: 0
+    .slick-next
+        right: 0
+        +m
+            right: auto
+            left: 48px
+
+// places slider
+.places-slider
+    +m
+        padding-bottom: 80px
+    .slick-list
+        overflow: visible
+        +m
+            margin: 0 -144px 0 0
+    .slick-slide
+        padding: 0 8px
+        opacity: 0
+        visibility: hidden
+        transition: all .4s
+        &.slick-active
+            opacity: 1
+            visibility: visible
+    .slick-arrow
+       bottom: 0
+    .slick-prev
+        left: calc(50% - 44px)
+    .slick-next
+        right: calc(50% - 44px)
+
+// best slider
+.best-slider
+    +m
+        padding-bottom: 80px
+    .slick-list
+        overflow: visible
+        +m
+            margin: 0 -72px 0 0
+    .slick-slide
+        padding: 0 8px
+        opacity: 0
+        visibility: hidden
+        transition: all .4s
+        &.slick-active
+            opacity: 1
+            visibility: visible
+    .slick-arrow
+        bottom: 0
+    .slick-prev
+        left: 8px
+    .slick-next
+        left: 56px
+
+// hosts slider
+.hosts-slider
+    position: static
+    +m
+        position: relative
+        padding-bottom: 80px
+    .slick-list
+        overflow: visible
+        +t
+            margin: 0 -160px 0 0
+        +m
+            margin-right: -230px
+    .slick-slide
+        padding: 0 16px
+        opacity: 0
+        visibility: hidden
+        transition: all .4s
+        +m
+            padding: 0 8px
+        &.slick-active
+            opacity: 1
+            visibility: visible
+    .slick-arrow
+        top: 16px
+        +m
+            top: auto
+            bottom: 0
+    .slick-prev
+        right: 48px
+        +m
+            right: auto
+            left: 8px
+    .slick-next
+        right: 0
+        +m
+            right: auto
+            left: 56px
+
+// categories slider
+.categories-slider
+    padding-bottom: 106px
+    +d
+        padding-bottom: 88px
+    .slick-list
+        overflow: visible
+        +t
+            margin: 0 -150px 0 0
+        +m
+            margin-right: -220px
+    .slick-slide
+        padding: 0 16px
+        +m
+            padding: 0 8px
+    .slick-arrow
+       bottom: 0
+    .slick-prev
+        left: calc(50% - 44px)
+    .slick-next
+        right: calc(50% - 44px)
+
+// photo slider
+.photo-slider
+    .slick-list
+        overflow: visible
+    .slick-track
+        display: flex
+    .slick-slide
+        height: auto
+        padding: 0 16px
+        opacity: 0
+        visibility: hidden
+        transition: all .4s
+        +m
+            padding: 0
+        &.slick-active
+            opacity: 1
+            visibility: visible
+        & > div
+            display: flex
+            height: 100%
+            flex-grow: 1
+    .slick-arrow
+        top: 50%
+        transform: translateY(-50%)
+    .slick-prev
+        left: -56px
+    .slick-next
+        right: -56px
+
+// checkout slider
+.checkout-slider
+    padding-bottom: 64px
+    .slick-slide
+        padding: 0 16px
+        opacity: 0
+        visibility: hidden
+        transition: all .4s
+        &.slick-active
+            opacity: 1
+            visibility: visible
+    .slick-arrow
+       bottom: 0
+    .slick-prev
+        left: calc(50% - 44px)
+    .slick-next
+        right: calc(50% - 44px)
+
+// destinations slider
+.destinations-slider
+    position: static
+    +m
+        position: relative
+        padding-bottom: 88px
+    .slick-list
+        overflow: visible
+        +s
+            margin: 0 -246px 0 0
+    .slick-slide
+        padding: 0 16px
+    .slick-arrow
+        top: 8px
+        +m
+            top: auto
+            bottom: 0
+    .slick-prev
+        right: 48px
+        +t
+            right: auto
+            left: 16px
+    .slick-next
+        right: 0
+        +m
+            right: auto
+            left: 64px
+
+// topics slider
+.topics-slider
+    padding-bottom: 64px
+    .slick-list
+        overflow: visible
+    .slick-track
+        display: flex
+    .slick-slide
+        height: auto
+        padding: 0 12px
+        opacity: 0
+        visibility: hidden
+        transition: all .4s
+        +m
+            padding: 0 4px
+            opacity: 1
+            visibility: visible
+        &.slick-active
+            opacity: 1
+            visibility: visible
+        & > div
+            display: flex
+            height: 100%
+            flex-grow: 1
+    .slick-arrow
+        bottom: 0
+        width: 24px
+        height: 24px
+        &:hover
+            box-shadow: none
+            svg
+                fill: $n2
+                +dark-common
+                    fill: $n8
+    .slick-prev
+        left: calc(50% - 34px)
+    .slick-next
+        right: calc(50% - 34px)
+
+// profile slider
+.profile-slider
+    position: static
+    +m
+        padding-bottom: 72px
+    .slick-list
+        overflow: visible
+        +s
+            margin: 0 -280px 0 0
+    .slick-slide
+        padding: 0 16px
+        opacity: 0
+        visibility: hidden
+        transition: all .4s
+        +d
+            padding: 0 8px
+        &.slick-active
+            opacity: 1
+            visibility: visible
+    .slick-arrow
+       top: 0
+       +m
+        top: auto
+        bottom: 0
+    .slick-prev
+        right: 48px
+        +m
+            right: auto
+            left: calc(50% - 34px)
+    .slick-next
+        right: 0
+        +m
+            right: calc(50% - 34px)
+
+// services slider
+.services-slider
+    padding-bottom: 72px
+    .slick-list
+        overflow: visible
+        +d
+            margin-right: -80px
+        +t
+            margin-right: 0
+        +m
+            margin-right: -160px
+    .slick-track
+        display: flex
+    .slick-slide
+        height: auto
+        padding: 0 16px
+        opacity: 0
+        visibility: hidden
+        transition: all .4s
+        +m
+            padding: 0 8px
+        &.slick-active
+            opacity: 1
+            visibility: visible
+        & > div
+            display: flex
+            height: 100%
+            flex-grow: 1
+    .slick-arrow
+        bottom: 0
+    .slick-prev
+        left: 16px
+    .slick-next
+        left: 64px
+
+// interest slider
+.interest-slider
+    padding-bottom: 88px
+    +m
+        padding-bottom: 72px
+    .slick-list
+        overflow: visible
+    .slick-track
+        display: flex
+    .slick-slide
+        height: auto
+        padding: 0 12px
+        opacity: 0
+        visibility: hidden
+        transition: all .4s
+        +m
+            padding: 0 8px
+        &.slick-active
+            opacity: 1
+            visibility: visible
+        & > div
+            display: flex
+            height: 100%
+            flex-grow: 1
+    .slick-arrow
+        bottom: 0
+        width: 24px
+        height: 24px
+        &:hover
+            box-shadow: none
+            svg
+                fill: $n2
+    .slick-prev
+        left: calc(50% - 44px)
+    .slick-next
+        right: calc(50% - 44px)

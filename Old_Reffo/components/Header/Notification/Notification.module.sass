@@ -1,0 +1,114 @@
+@import ../../../styles/helpers
+
+.notification
+    position: relative
+    &.active
+        .head
+            svg
+                fill: $n2
+
+        .body
+            visibility: visible
+            opacity: 1
+            transform: translateY(0)
+
+.head
+    position: relative
+    width: 35px
+    height: 35px
+    -webkit-tap-highlight-color: rgba(0,0,0,0)
+    svg
+        fill: $n4
+        transition: fill .2s
+    &:hover
+        svg
+            fill: $n2
+
+    &.active
+        &:before
+            content: ""
+            position: absolute
+            top: 0
+            right: 0
+            width: 10px
+            height: 10px
+            border-radius: 50%
+            background: $p4
+
+.body
+    position: absolute
+    top: calc(100% + 32px)
+    right: -136px
+    width: 354px
+    padding: 40px 32px 32px
+    border-radius: 24px
+    box-shadow: 0px 16px 64px -24px rgba(31, 47, 70, 0.4)
+    background: $n8
+    visibility: hidden
+    opacity: 0
+    transform: translateY(10px)
+    transition: all .3s
+    +d
+        right: -96px
+    +m
+        top: 100%
+        left: 16px
+        right: 16px
+        width: auto
+        padding: 32px 24px
+
+
+.title
+    margin-bottom: 16px
+    +body-bold-1
+
+.list
+    margin: 0 -16px
+
+.item
+    position: relative
+    display: flex
+    padding: 16px 40px 16px 16px
+    border-radius: 16px
+    transition: background .2s
+    &:hover
+        background: $n7
+
+
+.avatar
+    flex-shrink: 0
+    width: 48px
+    height: 48px
+    margin-right: 24px
+    +m
+        margin-right: 16px
+    img
+        width: 100%
+        height: 100%
+        object-fit: cover
+        border-radius: 50%
+
+.details
+    flex-grow: 1
+
+.subtitle
+    +body-bold-2
+    color: $n1
+
+
+.content
+    color: $n3
+
+
+.date
+    +caption-2
+    color: $n4
+
+.status
+    position: absolute
+    top: 50%
+    right: 16px
+    transform: translateY(-50%)
+    width: 12px
+    height: 12px
+    border-radius: 50%

@@ -1,0 +1,69 @@
+@import ../../styles/helpers
+
+
+.container
+  flex: 1
+  height: 80vh
+  width: 100%
+  position: sticky 
+  top: 170px
+  border-radius: 10px
+  min-width: 50px
+
+.overlay
+  position: absolute
+  top: 5px
+  left: 0
+  width: 100%
+  display: flex 
+  justify-content: center
+  align-items: center
+
+
+.card
+    min-width: 80vw
+    margin: 0 auto
+    +m
+        display: block
+        width: 100%
+        margin: 0 auto
+        margin-bottom: 60px 
+
+.mapCards
+    position: fixed
+    display: none
+    bottom: 0
+    left: 0
+    width: 100%
+    z-index: 2000
+    +s
+        display: block
+
+.cardContainerHeader
+    background-color: white
+    margin: auto 0px
+    padding: 5px 30px
+    text-align: center
+    border-top-left-radius: 10px
+    border-top-right-radius: 10px
+
+.cardHeader
+    display: flex
+    justify-content: center
+    align-items: center
+
+.loadingContainer
+    display: flex 
+    text-align: center
+    background-color: $n7
+    width: 100%
+    height: 100%
+    justify-content: center
+    align-items: center
+
+.cardsContainer
+    width: 100%
+    padding: 40px
+    background-color: white
+    border-top-left-radius: 20px
+    border-top-right-radius: 20px

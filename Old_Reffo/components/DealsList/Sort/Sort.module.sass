@@ -1,0 +1,86 @@
+@import ../../../styles/helpers
+
+.sort
+    position: relative
+
+    &.active
+        .body
+            visibility: visible
+            opacity: 1
+            transform: translateY(0)
+
+.head
+    width: 34px
+    height: 34px
+    border: 2px solid $p5
+    border-radius: 50%
+    -webkit-tap-highlight-color: rgba(0,0,0,0)
+    img
+        width: 100%
+        height: 100%
+        object-fit: cover
+        border-radius: 50%
+    
+.body
+    position: absolute
+    z-index: 1
+    top: calc(100% + 5px)
+    left: 0px
+    width: 292px
+    min-width: 250px
+    padding: 8px
+    border-radius: 20px
+    box-shadow: 0px 20px 32px -8px rgba(15, 15, 15, 0.25)
+    background: $n8
+    visibility: hidden
+    opacity: 0
+    transform: translateY(10px)
+    transition: all .3s
+    +m
+        top: 100%
+        left: 16px
+        right: 16px
+        width: auto
+
+
+
+
+
+.item
+    display: flex
+    align-items: center
+    padding: 0 20px
+    height: 48px
+    color: $n4
+    transition: all .2s
+    cursor: pointer
+    border-radius: 8px
+    img
+        margin-right: 12px
+        fill: $n4
+        transition: fill .2s
+    &:hover
+        color: $n2
+        background-color: $n6
+        img
+            fill: $n2
+    &.active
+        background: $n1
+        color: $n6
+        img
+            fill: $n6
+        
+.button
+    flex: 0 0 calc(50% - 8px)
+    width: calc(50% - 8px)
+    margin: 0 4px
+
+.sortButton
+  +caption-bold-2
+  cursor: pointer
+  font-weight: 500
+  img
+    margin-right: 5px
+    margin-left: 15px
+  span
+    color: $p2

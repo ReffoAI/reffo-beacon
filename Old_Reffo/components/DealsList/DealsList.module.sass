@@ -1,0 +1,82 @@
+@import ../../styles/helpers
+
+.container
+    padding-top: 100px
+.list
+    display: flex
+    flex-wrap: wrap
+    justify-content: flex-start
+    margin: -32px -16px 0
+    +x
+        margin: -32px -10px 0
+    +d
+        margin: -32px -16px 0
+    +m
+        margin: 0
+    +a 
+        justify-content: center
+        
+
+.card
+    flex: 0 0 calc(25% - 32px)
+    width: calc(25% - 32px)
+    margin: 32px 16px 0
+    min-width: 300px
+    +x
+        flex: 0 0 calc(25% - 20px)
+        width: calc(25% - 20px)
+        margin: 32px 10px 0
+    +d
+        flex: 0 0 calc(33.333% - 28px)
+        width: calc(33.333% - 28px)
+        margin: 32px 16px 0
+    +t
+        flex: 0 0 calc(50% - 28px)
+        width: calc(50% - 28px)
+    +m
+        display: block
+        width: 100%
+        margin: 32px 0 0
+    +s
+        min-width: 80vw
+
+.skeletonCard
+    margin: 32px 0px 0
+    margin-bottom: 30px
+    margin-right: 16px
+
+
+
+.skeletonCardHeader
+    min-width: 300px  
+    height: 180px
+
+.skeletonCardBody
+    height: 50px
+    margin-top: 15px
+
+.loadMoreButton
+  align-self: center
+  margin-bottom: 60px
+
+.loadMoreContainer
+  display: flex
+  justify-content: center
+  align-items: center
+  margin-top: 32px
+  margin-bottom: 32px
+  cursor: pointer
+
+
+.dealCount
+  +caption-bold-2
+  padding: 0 10px
+
+
+
+
+.listHeader
+    display: flex
+    align-items: center
+    padding-bottom: 15px
+    width: 100%

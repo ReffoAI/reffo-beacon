@@ -1,0 +1,199 @@
+[class^="button"]
+  display: inline-flex
+  justify-content: center
+  align-items: center
+  height: 48px
+  padding: 0 24px
+  background: $p1
+  border-radius: 24px
+  +button-1
+  text-align: center
+  color: $n8
+  transition: all .2s
+  user-select: none
+  cursor: pointer
+  &:hover
+    background: darken($p1, 15)
+  &.disabled
+    opacity: .5
+    pointer-events: none
+  svg
+    fill: $n8
+    transition: all .2s
+  &:not([class^="button-circle"])
+    svg
+      &:first-child
+        margin-right: 15px
+      &:last-child
+        margin-left: 15px
+
+.button-stroke
+  background: none
+  font-weight: 500
+  box-shadow: 0 0 0 2px $n6 inset
+  color: $n2
+  svg
+    fill: $n2
+  &:hover,
+  &.active
+    background: $n2
+    box-shadow: 0 0 0 2px $n2 inset
+    color: $n8
+    svg
+      fill: $n8
+    img
+      filter: invert(1)
+  &.rectangle
+    border-radius: 10px
+  &.primary
+    box-shadow: 0 0 0 2px $p2 inset
+    color: $n1
+    svg
+      fill: $p2
+    &:hover,
+    &.active
+      background: $p2
+      box-shadow: 0 0 0 2px $p2 inset
+      color: $n8
+      svg
+        fill: $n8
+
+      
+
+.button-gradient
+  background: linear-gradient(90deg, #8101B4 0%, #EA526F 100%)
+  color: $n8
+  font-weight: 500
+  &:hover,
+  &.active
+    background: linear-gradient(90deg, darken(#8101B4,5) 0%, darken(#EA526F,5)  100%)
+    transition: all .6s
+  &:disabled
+    filter: grayscale(100%)
+
+
+
+
+.button-dream
+  background: transparent
+  color: $n3
+  font-weight: 500
+  border: 2px solid transparent
+  border-image: linear-gradient(90deg, #FFA147 59.3%, #F70404 100%) 2
+  border-radius: 5px
+  width: 100%
+  padding: 10px 0px !important
+  height: auto
+  font-size: 13px
+  &:hover,
+  &.active
+    border-image: linear-gradient(90deg, #F70404 59.3%,  #FFA147 100%) 2
+    transition: all .6s
+    background: transparent
+  &:disabled
+    filter: grayscale(100%)
+
+.button-black
+  background: $n1
+  &:hover,
+  &.active
+    background: $n2
+  &.rectangle
+    border-radius: 10px
+  &.light
+    background: $n7
+    color: $n1
+    &:hover,
+    &.active
+      background: $n6
+
+.button-primary
+  background: $p2
+  font-weight: 500
+  transition: all .5s
+  &:hover,
+  &.active
+    background: $p1
+  &:disabled
+    background: $n6
+    color: $n2
+    cursor: default
+    svg
+      fill: $n2
+  &.rectangle
+    border-radius: 10px
+  &.bold
+    font-weight: 700
+
+  
+.button-danger
+  background: $danger
+  font-weight: 500
+  transition: all .5s
+  &:hover,
+  &.active
+    background: darken($danger, 15)
+  &:disabled
+    background: $n6
+    color: $n2
+    cursor: default
+    svg
+      fill: $n2
+  &.rectangle
+    border-radius: 10px
+  &.bold
+    font-weight: 700
+
+
+.button-white
+  background: $n8
+  color: $n2
+  svg
+    fill: $n2
+  &:hover
+    background: $n7
+
+.button-small
+  height: 40px
+  border-radius: 20px
+  padding: 0 16px
+  font-size: 14px
+
+.button-circle-stroke
+  flex: 0 0 48px
+  width: 48px
+  height: 48px
+  padding: 0
+  border-radius: 50%
+  box-shadow: 0 0 0 2px $n6 inset
+  background: transparent
+  transition: all .2s
+  svg
+      fill: $n4
+  &:hover
+      background: $n2
+      box-shadow: 0 0 0 2px $n2 inset
+      svg
+          fill: $n8
+
+
+.button-circle-stroke.button-small
+  flex: 0 0 40px
+  width: 40px
+  height: 40px
+
+
+.loader
+    width: 20px
+    height: 20px
+    border: 3px solid rgba(255, 255, 255, 0.3)
+    border-radius: 50%
+    border-top-color: #fff
+    animation: spin 1s infinite linear
+    
+
+@keyframes spin 
+  to 
+    transform: translateY(0%) rotate(360deg)
+
+

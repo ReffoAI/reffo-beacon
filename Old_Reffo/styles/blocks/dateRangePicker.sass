@@ -1,0 +1,210 @@
+.DateRangePicker,
+.SingleDatePicker
+    width: 100%
+    .DateInput
+        background: none
+    .DateRangePickerInput
+        display: flex
+        background: none
+        &_arrow_svg
+            display: none
+    .SingleDatePickerInput
+        display: block
+        background: none
+    .DateInput_input
+        width: 100%
+        height: 96px
+        padding: 0 16px 24px 56px
+        border-radius: 16px
+        background: none
+        border: none
+        +poppins
+        +body-bold-1
+        color: $n2
+        cursor: pointer
+        transition: box-shadow .2s, background .2s
+        +d
+            padding-left: 48px
+            font-size: 18px
+        +t
+            height: 64px
+            padding: 0 16px 16px 0
+        +m
+            padding: 0 0 16px 32px
+        +placeholder
+            color: $n2
+        +dark-common
+            color: $n8
+            +placeholder
+                color: $n8
+        &.DateInput_input__focused
+            border: none
+            background: $n8
+            box-shadow: 0px 32px 32px 0 rgba(15, 15, 15, 0.08)
+            +t
+                box-shadow: none
+                background: none
+                color: $p1
+            +dark-common
+                background: $n1
+                +t
+                    background: none
+    .DateRangePicker_picker,
+    .SingleDatePicker_picker
+        top: auto !important
+        bottom: calc(100% + 16px) !important
+        background: $n8
+        border-radius: 24px
+        +t
+            bottom: 100% !important
+        +dark-common
+            background: $n1
+    .DateInput_fang
+        display: none
+    .DayPicker__withBorder
+        padding-top: 8px
+        box-shadow: 0px 40px 32px -24px rgba(15, 15, 15, 0.12)
+        border-radius: 24px
+        border: none
+        background: $n8
+        +t
+            box-shadow: 0px 16px 32px rgba(15, 15, 15, 0.12)
+        +dark-common
+            background: $n1
+    .DayPickerKeyboardShortcuts_show__bottomRight
+        display: none
+    .CalendarMonth
+        background: none
+    .CalendarMonthGrid
+        background: none
+    .DayPickerNavigation_svg__horizontal
+        fill: $n4
+        transition: fill .2s
+    .DayPickerNavigation_button__default
+        background: none
+        border-color: transparent !important
+        &:hover
+            .DayPickerNavigation_svg__horizontal
+                fill: $p1
+    .CalendarMonth_caption
+        +body-bold-2
+        color: $n2
+        +dark-common
+            color: $n7
+        strong
+            font-weight: 600
+    .DayPicker_weekHeader
+        top: 55px
+    .DayPicker_weekHeader_li
+        font-weight: 500
+        line-height: 24px
+        color: $n4
+    .CalendarDay
+        vertical-align: middle
+        font-weight: 500
+        color: $n2
+        transition: all .2s
+        +dark-common
+            color: $n7
+        &:hover
+            background: $n6
+            color: $n2
+    .CalendarDay__default
+        background: none
+        border: none !important
+    .CalendarDay__blocked_out_of_range
+        opacity: .5
+        pointer-events: none
+    .CalendarDay__selected,
+    .CalendarDay__selected:hover,
+    .CalendarDay__selected:active
+        background: $n2
+        color: $n8
+        +dark-common
+            background: $n8
+            color: $n2
+    .CalendarDay__hovered_span,
+    .CalendarDay__hovered_span:hover,
+    .CalendarDay__selected_span,
+    .CalendarDay__selected_span:hover
+        background: $n6
+        +dark-common
+            color: $n2
+
+.DateRangePicker
+    .DateInput
+        flex: 0 0 50%
+        width: 50%
+    .DayPicker_focusRegion
+        +s
+            padding-bottom: 56px
+    .DayPickerNavigation_button__verticalDefault
+        +s
+            box-shadow: none
+    .CalendarDay__selected_start,
+    .CalendarDay__selected_end
+        position: relative
+        border-radius: 50%
+        &:before
+            content: ""
+            position: absolute
+            top: 0
+            bottom: 0
+            z-index: -1
+            width: 50%
+            background: $n6
+    .CalendarDay__selected_start
+        &:before
+            left: 50%
+    .CalendarDay__selected_end
+        &:before
+            right: 50%
+
+.SingleDatePicker
+    background: none
+    .DateInput
+        width: 100%
+
+.small
+    .DateRangePicker,
+    .SingleDatePicker
+        .DateInput_input
+            height: 72px
+            padding: 0 24px 0 64px
+            +d
+                padding-left: 48px
+            +t
+                height: 64px
+                padding-left: 0
+            +m
+                padding-left: 32px
+                padding-right: 0
+
+.bodyDown
+    .DateRangePicker_picker,
+    .SingleDatePicker_picker
+        top: calc(100% + 16px) !important
+        bottom: auto !important
+        z-index: 10
+        +t
+            top: 100% !important
+            bottom: auto !important
+
+// .DayPicker,
+// .DayPicker > div,
+// .DayPicker > div > div,
+// .DayPicker_transitionContainer,
+// .CalendarMonth_table
+//   width: 100% !important
+
+// .CalendarMonthGrid 
+//   width: 1000% !important
+
+// .CalendarMonthGrid_month__horizontal 
+//   width: calc(10% - 18px) !important
+
+// .DayPicker_weekHeader 
+//   width: calc(100% - 9px) !important
+// .CalendarDay,
+// .DayPicker_weekHeader_li 
+//   width: 14.285714286% !important

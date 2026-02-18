@@ -1,0 +1,100 @@
+@import ../../styles/helpers
+
+.container
+    display: flex
+    flex-direction: row
+    padding: 55px 0px
+    +t
+        flex-direction: column
+        
+
+   
+.statusBox
+    border-radius: 20px
+    padding: 4px 20px
+    user-select: none
+    margin-left: 30px
+    font-weight: 600
+
+.soldOut
+    background: $danger
+    color: white
+
+.comingSoon
+    background: $blue
+    color: white
+
+.redeemed
+    background: $danger
+    color: white
+
+.upcoming
+    background: $reffoPink
+    color: white
+
+.leftContainer
+    flex: 2
+    max-width: 640px
+    padding-right: 50px
+    +x
+        flex: 5
+
+.leftHeaderContent
+    display: flex
+    flex-direction: row
+    align-items: center
+    padding: 10px 0 10px 0
+    img
+        height: 25px
+        width: 25px
+        background-color: $n7
+        border-radius: 50%
+        margin: 0 10px
+
+.expiringText
+    color: $danger
+
+.contentBody
+    padding: 20px 15px 20px 5px
+    font-size: 16px
+
+.heading
+    font-weight: bold
+    padding: 50px 0px 20px 0px
+
+.contentContainer
+    display: flex
+    flex-direction: row
+    justify-content: flex-start
+    padding: 10px 0
+    +s
+        flex-direction: column
+        padding: 0 0
+
+.informationItem
+    display: flex 
+    flex-direction: row
+    align-items: center
+    width: 300px
+    cursor: pointer
+    &:hover
+        .informationIcon
+            background-color: $n6
+            transition: all 0.6s
+    +s
+        margin-top: 20px
+
+.informationIcon
+    width: 45px
+    height: 45px
+    border-radius: 50%
+    display: flex
+    justify-content: center
+    align-items: center
+    img
+        width: 20px
+        height: 20px
+    
+
+.informationType
+    margin-left: 15px
