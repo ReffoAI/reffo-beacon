@@ -5,6 +5,7 @@ import itemsRouter from './items';
 import offersRouter from './offers';
 import mediaRouter from './media';
 import negotiationsRouter from './negotiations';
+import settingsRouter from './settings';
 import { renderUI } from '../ui';
 import { TAXONOMY } from '../taxonomy';
 
@@ -32,6 +33,7 @@ export function createApp(): express.Express {
   app.use('/items/:itemId/media', mediaRouter);
   app.use('/offers', offersRouter);
   app.use('/negotiations', negotiationsRouter);
+  app.use('/settings', settingsRouter);
 
   return app;
 }

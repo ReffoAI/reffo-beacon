@@ -5,6 +5,7 @@ import { createApp } from './api';
 import { setBeaconId, setDhtStatus } from './api/health';
 import { DhtDiscovery } from './dht';
 import { getDb } from './db';
+import { SyncManager } from './sync';
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const BEACON_ID = process.env.BEACON_ID || crypto.randomBytes(32).toString('hex');
@@ -20,7 +21,28 @@ async function main(): Promise<void> {
   // Create Express app
   const app = createApp();
   app.set('beaconId', BEACON_ID);
+  app.set('startTime', Date.now());
   setBeaconId(BEACON_ID);
+
+  // Initialize Reffo.ai sync if API key is configured
+  const reffoApiKey = process.env.REFFO_API_KEY;
+  if (reffoApiKey) {
+    const reffoUrl = process.env.REFFO_API_URL || 'https://reffo.ai';
+    const syncManager = new SyncManager(reffoApiKey, BEACON_ID, reffoUrl);
+    const beaconUrl = process.env.BEACON_URL || `http://localhost:${PORT}`;
+    app.set('syncManager', syncManager);
+
+    syncManager.registerBeacon('Reffo Beacon', '0.1.0', beaconUrl)
+      .then(result => {
+        if (result.ok) {
+          console.log('[Sync] Registered with Reffo.ai');
+          syncManager.startHeartbeat();
+        } else {
+          console.warn('[Sync] Registration failed:', result.error);
+        }
+      })
+      .catch(err => console.warn('[Sync] Registration error:', err.message));
+  }
 
   // Start DHT discovery
   const dht = new DhtDiscovery(BEACON_ID);

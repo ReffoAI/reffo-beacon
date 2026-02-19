@@ -21,6 +21,10 @@ export interface Item {
   listingStatus: ListingStatus;
   /** Reffo: quantity available */
   quantity: number;
+  /** Reffo: whether this item is synced to reffo.ai */
+  reffoSynced: boolean;
+  /** Reffo: the ref ID on reffo.ai (if synced) */
+  reffoRefId?: string;
   /** Reffo: beacon public key that owns this item */
   beaconId: string;
   /** Schema.org: dateCreated */
@@ -29,7 +33,7 @@ export interface Item {
   updatedAt: string;
 }
 
-export type ItemCreate = Omit<Item, 'id' | 'beaconId' | 'createdAt' | 'updatedAt' | 'listingStatus' | 'quantity'> & {
+export type ItemCreate = Omit<Item, 'id' | 'beaconId' | 'createdAt' | 'updatedAt' | 'listingStatus' | 'quantity' | 'reffoSynced' | 'reffoRefId'> & {
   listingStatus?: ListingStatus;
   quantity?: number;
 };

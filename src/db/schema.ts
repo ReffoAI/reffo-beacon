@@ -52,6 +52,14 @@ function initSchema(database: Database.Database): void {
     database.exec(`ALTER TABLE items ADD COLUMN quantity INTEGER NOT NULL DEFAULT 1`);
   }
 
+  // Migration: add reffo_synced and reffo_ref_id to existing databases
+  if (!columns.some(c => c.name === 'reffo_synced')) {
+    database.exec(`ALTER TABLE items ADD COLUMN reffo_synced INTEGER NOT NULL DEFAULT 0`);
+  }
+  if (!columns.some(c => c.name === 'reffo_ref_id')) {
+    database.exec(`ALTER TABLE items ADD COLUMN reffo_ref_id TEXT`);
+  }
+
   database.exec(`
     CREATE INDEX IF NOT EXISTS idx_items_category ON items(category);
     CREATE INDEX IF NOT EXISTS idx_items_cat_subcat ON items(category, subcategory);
