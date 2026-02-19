@@ -7,8 +7,39 @@ import { DhtDiscovery } from './dht';
 import { getDb } from './db';
 import { SyncManager } from './sync';
 
+// Load .env into process.env (no dotenv dependency)
+function loadEnv(): void {
+  const envPath = path.join(process.cwd(), '.env');
+  if (!fs.existsSync(envPath)) return;
+  const content = fs.readFileSync(envPath, 'utf-8');
+  for (const line of content.split('\n')) {
+    const trimmed = line.split('#')[0].trim();
+    if (!trimmed) continue;
+    const eqIdx = trimmed.indexOf('=');
+    if (eqIdx === -1) continue;
+    const key = trimmed.slice(0, eqIdx).trim();
+    const value = trimmed.slice(eqIdx + 1).trim();
+    if (!process.env[key]) process.env[key] = value;
+  }
+}
+loadEnv();
+
 const PORT = parseInt(process.env.PORT || '3000', 10);
-const BEACON_ID = process.env.BEACON_ID || crypto.randomBytes(32).toString('hex');
+
+function getOrCreateBeaconId(): string {
+  if (process.env.BEACON_ID) return process.env.BEACON_ID;
+  const idFile = path.join(process.cwd(), 'data', 'beacon-id');
+  try {
+    return fs.readFileSync(idFile, 'utf-8').trim();
+  } catch {
+    const id = crypto.randomUUID();
+    fs.mkdirSync(path.dirname(idFile), { recursive: true });
+    fs.writeFileSync(idFile, id);
+    return id;
+  }
+}
+
+const BEACON_ID = getOrCreateBeaconId();
 
 async function main(): Promise<void> {
   // Ensure uploads directory exists
@@ -35,9 +66,11 @@ async function main(): Promise<void> {
     syncManager.registerBeacon('Reffo Beacon', '0.1.0', beaconUrl)
       .then(result => {
         if (result.ok) {
+          syncManager.registered = true;
           console.log('[Sync] Registered with Reffo.ai');
           syncManager.startHeartbeat();
         } else {
+          syncManager.registered = false;
           console.warn('[Sync] Registration failed:', result.error);
         }
       })
@@ -96,7 +129,10 @@ async function main(): Promise<void> {
   const shutdown = async () => {
     console.log('\n[Beacon] Shutting down...');
     server.close();
-    await dht.stop();
+    // Force exit after 2s if DHT hangs
+    const forceExit = setTimeout(() => process.exit(0), 2000);
+    try { await dht.stop(); } catch {}
+    clearTimeout(forceExit);
     process.exit(0);
   };
 

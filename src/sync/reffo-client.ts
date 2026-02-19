@@ -102,7 +102,7 @@ export class ReffoClient {
       const formData = new FormData();
       formData.append('file', blob, path.basename(media.filePath));
       formData.append('mediaType', media.mediaType);
-      formData.append('sortOrder', String(media.sortOrder));
+      formData.append('sort_order', String(media.sortOrder));
 
       const url = `${this.baseUrl}/api/sync/items/${itemId}/media`;
       const res = await fetch(url, {
