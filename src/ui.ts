@@ -175,6 +175,16 @@ export function renderUI(): string {
 
     .hidden { display: none !important; }
 
+    /* Sync toggle */
+    .sync-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+    .sync-toggle input { display: none; }
+    .sync-toggle .toggle-track { width: 36px; height: 20px; border-radius: 10px; background: #E6E8EC; position: relative; transition: background 0.2s; flex-shrink: 0; }
+    .sync-toggle input:checked + .toggle-track { background: #EC526F; }
+    .sync-toggle .toggle-track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 0.2s; }
+    .sync-toggle input:checked + .toggle-track::after { transform: translateX(16px); }
+    .sync-toggle .toggle-label { font-size: 12px; font-weight: 600; color: #777E90; }
+    .badge-synced { background: #e8f0fe; color: #1967d2; }
+
     /* Toast notifications */
     #toast-container { position: fixed; top: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
     .toast { background: #141416; color: #fff; border-radius: 12px; padding: 14px 20px; font-size: 14px; font-weight: 500; box-shadow: 0 8px 24px rgba(0,0,0,0.2); opacity: 0; transform: translateY(-8px); transition: opacity 0.2s, transform 0.2s; min-width: 260px; max-width: 360px; }
@@ -212,6 +222,10 @@ export function renderUI(): string {
       <div class="nav-tab" data-tab="negotiations" onclick="switchTab('negotiations')">
         <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 18 19" fill="none"><path d="M17.9703 15.0232C17.9703 15.2577 17.8771 15.4825 17.7114 15.6483C17.5456 15.8141 17.3207 15.9072 17.0863 15.9072H0.854272C0.625098 15.8995 0.407887 15.803 0.248494 15.6382C0.0891013 15.4734 0 15.253 0 15.0237C0 14.7944 0.0891013 14.5741 0.248494 14.4092C0.407887 14.2444 0.625098 14.1479 0.854272 14.1402H0.870272V7.98122C0.886126 5.84877 1.74841 3.80995 3.26743 2.31324C4.78646 0.816524 6.83782 -0.0154876 8.97027 0.000218389C11.1027 -0.0154876 13.1541 0.816524 14.6731 2.31324C16.1921 3.80995 17.0544 5.84877 17.0703 7.98122V14.1402H17.0863C17.3205 14.1402 17.5452 14.2332 17.711 14.3988C17.8768 14.5643 17.97 14.7889 17.9703 15.0232ZM2.67027 14.1392H15.2703V7.98122C15.2703 6.31035 14.6065 4.70792 13.425 3.52645C12.2436 2.34497 10.6411 1.68122 8.97027 1.68122C7.29941 1.68122 5.69698 2.34497 4.5155 3.52645C3.33402 4.70792 2.67027 6.31035 2.67027 7.98122V14.1392ZM6.94627 17.7552C6.70127 17.2552 7.16827 16.7902 7.72027 16.7902H10.2203C10.7723 16.7902 11.2393 17.2602 10.9943 17.7552C10.8847 17.9781 10.7383 18.181 10.5613 18.3552C10.1357 18.7702 9.56472 19.0025 8.97027 19.0025C8.37582 19.0025 7.80489 18.7702 7.37927 18.3552C7.20232 18.1813 7.05594 17.9788 6.94627 17.7562V17.7552Z" fill="currentColor"/></svg></span>
         Negotiations <span id="negCount" class="nav-count hidden">0</span>
+      </div>
+      <div class="nav-tab" data-tab="settings" onclick="switchTab('settings')">
+        <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></span>
+        Settings
       </div>
     </div>
 
@@ -343,6 +357,46 @@ export function renderUI(): string {
     </div>
   </div>
 
+    <!-- Settings Tab -->
+    <div id="tab-settings" class="hidden">
+      <section>
+        <h2>Reffo.ai Connection</h2>
+        <div id="settingsMsg"></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <div id="syncStatusDot" style="width:12px;height:12px;border-radius:50%;background:#E6E8EC;flex-shrink:0;"></div>
+          <span id="syncStatusText" style="font-size:14px;font-weight:500;color:#777E90;">Not connected</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-end;">
+          <div style="flex:1;">
+            <label for="settingsApiKey">API Key</label>
+            <input id="settingsApiKey" type="password" placeholder="rfk_xxxxxxxxxxxx">
+          </div>
+          <button class="btn-primary" style="margin-bottom:14px;" onclick="saveApiKey()">Save</button>
+          <button class="btn-danger btn-sm" style="margin-bottom:14px;" id="removeKeyBtn" onclick="removeApiKey()">Remove</button>
+        </div>
+        <p style="font-size:12px;color:#B1B5C3;margin-top:-6px;">Get your API key at <a href="https://reffo.ai/account" target="_blank" style="color:#EC526F;">reffo.ai/account</a></p>
+      </section>
+
+      <section>
+        <h2>Sync Status</h2>
+        <div style="display:flex;gap:24px;flex-wrap:wrap;">
+          <div>
+            <span style="font-size:12px;font-weight:600;color:#777E90;text-transform:uppercase;">Synced Items</span>
+            <div id="syncedCount" style="font-size:24px;font-weight:700;color:#141416;">0</div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Beacon Info</h2>
+        <div class="action-card" style="position:static;">
+          <div class="action-row"><span class="action-label">Beacon ID</span><span class="action-value" id="settingsBeaconId" style="word-break:break-all;font-size:12px;"></span></div>
+          <div class="action-row"><span class="action-label">Version</span><span class="action-value" id="settingsVersion"></span></div>
+          <div class="action-row"><span class="action-label">Uptime</span><span class="action-value" id="settingsUptime"></span></div>
+        </div>
+      </section>
+    </div>
+
   <!-- Proposal Modal (buyer sending offer) -->
   <div id="proposalModal" class="modal-overlay hidden">
     <div class="modal">
@@ -414,8 +468,10 @@ export function renderUI(): string {
       document.getElementById('tab-detail').classList.toggle('hidden', tab !== 'detail');
       document.getElementById('tab-search').classList.toggle('hidden', tab !== 'search');
       document.getElementById('tab-negotiations').classList.toggle('hidden', tab !== 'negotiations');
+      document.getElementById('tab-settings').classList.toggle('hidden', tab !== 'settings');
       if (tab === 'negotiations') loadNegotiations();
       if (tab === 'items') loadMyItems();
+      if (tab === 'settings') loadSettings();
     }
 
     function switchNegTab(tab) {
@@ -591,7 +647,8 @@ export function renderUI(): string {
             imgHtml +
             '<div class="card-body">' +
               '<h3>' + escapeHtml(item.name) + '</h3>' +
-              '<div class="card-meta"><span class="badge ' + statusClass + '">' + statusLabel + '</span>' + catBadges + '</div>' +
+              '<div class="card-meta"><span class="badge ' + statusClass + '">' + statusLabel + '</span>' + catBadges +
+              (item.reffoSynced ? '<span class="badge badge-synced">Synced</span>' : '') + '</div>' +
               (priceStr ? '<div class="card-price">' + escapeHtml(priceStr) + '</div>' : '') +
               (item.quantity > 1 ? '<div class="card-qty">Qty: ' + item.quantity + '</div>' : '') +
               (item.description ? '<div class="card-desc">' + escapeHtml(item.description) + '</div>' : '') +
@@ -712,6 +769,9 @@ export function renderUI(): string {
         if (item.category) html += '<div class="action-row"><span class="action-label">Category</span><span class="action-value">' + escapeHtml(item.category) + '</span></div>';
         if (item.subcategory) html += '<div class="action-row"><span class="action-label">Subcategory</span><span class="action-value">' + escapeHtml(item.subcategory) + '</span></div>';
         if (item.sku) html += '<div class="action-row"><span class="action-label">SKU</span><span class="action-value">' + escapeHtml(item.sku) + '</span></div>';
+        html += '<div class="action-row"><span class="action-label">Share on Reffo</span><span class="action-value">';
+        html += '<label class="sync-toggle"><input type="checkbox" ' + (item.reffoSynced ? 'checked' : '') + ' onchange="toggleSync(\\'' + item.id + '\\', this)"><span class="toggle-track"></span></label>';
+        html += '</span></div>';
         html += '<div style="margin-top:20px;display:flex;gap:10px;flex-direction:column;">';
         html += '<button class="btn-primary" style="width:100%;" onclick="saveDetail(\\'' + item.id + '\\')">Save Changes</button>';
         html += '<button class="btn-danger" style="width:100%;" onclick="deleteItem(\\'' + item.id + '\\')"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M18 10C18 11.5823 17.5308 13.129 16.6518 14.4446C15.7727 15.7602 14.5233 16.7855 13.0615 17.391C11.5997 17.9965 9.99113 18.155 8.43928 17.8463C6.88743 17.5376 5.46197 16.7757 4.34315 15.6569C3.22433 14.538 2.4624 13.1126 2.15372 11.5607C1.84504 10.0089 2.00347 8.40034 2.60897 6.93853C3.21447 5.47672 4.23985 4.22729 5.55544 3.34824C6.87104 2.46919 8.41775 2 10 2C12.1217 2 14.1566 2.84285 15.6569 4.34315C17.1572 5.84344 18 7.87827 18 10ZM20 10C20 11.9778 19.4135 13.9112 18.3147 15.5557C17.2159 17.2002 15.6541 18.4819 13.8268 19.2388C11.9996 19.9957 9.98891 20.1937 8.0491 19.8079C6.10929 19.422 4.32746 18.4696 2.92894 17.0711C1.53041 15.6725 0.578004 13.8907 0.192152 11.9509C-0.193701 10.0111 0.00433284 8.00043 0.761209 6.17317C1.51809 4.3459 2.79981 2.78412 4.4443 1.6853C6.08879 0.58649 8.02219 0 10 0C12.6522 0 15.1957 1.05357 17.0711 2.92893C18.9464 4.8043 20 7.34784 20 10ZM5 9C4.73479 9 4.48043 9.10536 4.2929 9.29289C4.10536 9.48043 4 9.73478 4 10C4 10.2652 4.10536 10.5196 4.2929 10.7071C4.48043 10.8946 4.73479 11 5 11H15C15.2652 11 15.5196 10.8946 15.7071 10.7071C15.8946 10.5196 16 10.2652 16 10C16 9.73478 15.8946 9.48043 15.7071 9.29289C15.5196 9.10536 15.2652 9 15 9H5Z" fill="currentColor"/></svg> Delete Item</button>';
@@ -1184,6 +1244,88 @@ export function renderUI(): string {
         loadNegotiations();
       } catch (err) {
         alert(err.message);
+      }
+    };
+
+    // ===== Settings =====
+    async function loadSettings() {
+      try {
+        const res = await fetch('/settings');
+        const data = await res.json();
+        document.getElementById('settingsBeaconId').textContent = data.beaconId || '';
+        document.getElementById('settingsVersion').textContent = data.version || '';
+        const uptime = data.uptime || 0;
+        const hours = Math.floor(uptime / 3600);
+        const mins = Math.floor((uptime % 3600) / 60);
+        document.getElementById('settingsUptime').textContent = hours + 'h ' + mins + 'm';
+        document.getElementById('syncedCount').textContent = data.syncedItemCount || '0';
+
+        const dot = document.getElementById('syncStatusDot');
+        const text = document.getElementById('syncStatusText');
+        if (data.connected) {
+          dot.style.background = '#1a8a42';
+          text.textContent = 'Connected';
+          text.style.color = '#1a8a42';
+        } else {
+          dot.style.background = '#E6E8EC';
+          text.textContent = 'Not connected';
+          text.style.color = '#777E90';
+        }
+
+        if (data.hasApiKey) {
+          document.getElementById('settingsApiKey').value = '';
+          document.getElementById('settingsApiKey').placeholder = data.apiKey;
+        }
+      } catch {}
+    }
+
+    window.saveApiKey = async function() {
+      const input = document.getElementById('settingsApiKey');
+      const key = input.value.trim();
+      if (!key) return;
+      try {
+        const res = await fetch('/settings/api-key', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiKey: key })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        showMsg('settingsMsg', data.message || 'Connected!', true);
+        input.value = '';
+        loadSettings();
+      } catch (err) {
+        showMsg('settingsMsg', err.message, false);
+      }
+    };
+
+    window.removeApiKey = async function() {
+      if (!confirm('Remove API key and disconnect from Reffo.ai?')) return;
+      try {
+        await fetch('/settings/api-key', { method: 'DELETE' });
+        showMsg('settingsMsg', 'API key removed', true);
+        loadSettings();
+      } catch (err) {
+        showMsg('settingsMsg', err.message, false);
+      }
+    };
+
+    window.toggleSync = async function(itemId, checkbox) {
+      const sync = checkbox.checked;
+      try {
+        const res = await fetch('/settings/sync-item/' + itemId, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sync: sync })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          checkbox.checked = !sync;
+          throw new Error(data.error);
+        }
+        showToast(sync ? 'Item synced to Reffo.ai' : 'Item removed from Reffo.ai', sync ? 'accepted' : '');
+      } catch (err) {
+        showToast('Sync failed: ' + err.message, 'rejected');
       }
     };
 

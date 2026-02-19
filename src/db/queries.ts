@@ -14,6 +14,8 @@ function rowToItem(row: Record<string, unknown>): Item {
     sku: row.sku as string | undefined,
     listingStatus: row.listing_status as ListingStatus,
     quantity: (row.quantity as number) || 1,
+    reffoSynced: !!(row.reffo_synced as number),
+    reffoRefId: row.reffo_ref_id as string | undefined,
     beaconId: row.beacon_id as string,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
@@ -143,6 +145,21 @@ export class ItemQueries {
   count(): number {
     const row = this.db.prepare('SELECT COUNT(*) as cnt FROM items').get() as { cnt: number };
     return row.cnt;
+  }
+
+  setSynced(id: string, synced: boolean, refId?: string): void {
+    if (synced && refId) {
+      this.db.prepare("UPDATE items SET reffo_synced = 1, reffo_ref_id = ?, updated_at = datetime('now') WHERE id = ?").run(refId, id);
+    } else if (synced) {
+      this.db.prepare("UPDATE items SET reffo_synced = 1, updated_at = datetime('now') WHERE id = ?").run(id);
+    } else {
+      this.db.prepare("UPDATE items SET reffo_synced = 0, reffo_ref_id = NULL, updated_at = datetime('now') WHERE id = ?").run(id);
+    }
+  }
+
+  listSynced(): Item[] {
+    const rows = this.db.prepare('SELECT * FROM items WHERE reffo_synced = 1 ORDER BY created_at DESC').all();
+    return rows.map(r => rowToItem(r as Record<string, unknown>));
   }
 }
 
