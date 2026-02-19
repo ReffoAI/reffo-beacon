@@ -286,12 +286,16 @@ export function renderUI(): string {
             </div>
           </div>
 
+          <label for="itemSku">SKU</label>
+          <input id="itemSku" name="sku" placeholder="Optional SKU or part number">
+
           <label>Photos (up to 4)</label>
           <div class="upload-area" onclick="document.getElementById('itemPhotos').click()">
             <div class="upload-icon">+</div>
             <p>Click to upload photos</p>
             <input type="file" id="itemPhotos" accept="image/*" multiple>
           </div>
+          <div id="photoPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;"></div>
 
           <label>Video (optional, 1 max)</label>
           <div class="upload-area" onclick="document.getElementById('itemVideo').click()">
@@ -299,6 +303,7 @@ export function renderUI(): string {
             <p>Click to upload a video</p>
             <input type="file" id="itemVideo" accept="video/*">
           </div>
+          <div id="videoPreview" style="margin-bottom:12px;"></div>
 
           <button type="submit" class="btn-primary">List Item</button>
         </form>
@@ -542,6 +547,31 @@ export function renderUI(): string {
 
     let lastSearchResults = [];
 
+    // ===== File Preview =====
+    document.getElementById('itemPhotos').addEventListener('change', function() {
+      const preview = document.getElementById('photoPreview');
+      preview.innerHTML = '';
+      const files = this.files;
+      for (let i = 0; i < Math.min(files.length, 4); i++) {
+        const url = URL.createObjectURL(files[i]);
+        const thumb = document.createElement('div');
+        thumb.style.cssText = 'width:72px;height:72px;border-radius:8px;overflow:hidden;background:#F4F5F6;flex-shrink:0;';
+        thumb.innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover;">';
+        preview.appendChild(thumb);
+      }
+    });
+    document.getElementById('itemVideo').addEventListener('change', function() {
+      const preview = document.getElementById('videoPreview');
+      preview.innerHTML = '';
+      if (this.files[0]) {
+        const url = URL.createObjectURL(this.files[0]);
+        const thumb = document.createElement('div');
+        thumb.style.cssText = 'width:72px;height:72px;border-radius:8px;overflow:hidden;background:#F4F5F6;flex-shrink:0;';
+        thumb.innerHTML = '<video src="' + url + '" style="width:100%;height:100%;object-fit:cover;" muted></video>';
+        preview.appendChild(thumb);
+      }
+    });
+
     // ===== List Form =====
     document.getElementById('listForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -558,11 +588,12 @@ export function renderUI(): string {
         const priceVal = document.getElementById('itemPrice').value;
         const price = priceVal ? parseFloat(priceVal) : 0;
         const currency = document.getElementById('itemCurrency').value;
+        const sku = document.getElementById('itemSku').value.trim() || undefined;
 
         const itemRes = await fetch('/items', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, description, category, subcategory, listingStatus, quantity })
+          body: JSON.stringify({ name, description, category, subcategory, listingStatus, quantity, sku })
         });
         if (!itemRes.ok) { const err = await itemRes.json(); throw new Error(err.error || 'Failed to create item'); }
         const item = await itemRes.json();
@@ -596,6 +627,8 @@ export function renderUI(): string {
         e.target.reset();
         document.getElementById('itemQuantity').value = '1';
         document.getElementById('itemSubcat').innerHTML = '<option value="">Select...</option>';
+        document.getElementById('photoPreview').innerHTML = '';
+        document.getElementById('videoPreview').innerHTML = '';
         loadMyItems();
       } catch (err) {
         showMsg('listMsg', err.message, false);
@@ -1266,6 +1299,10 @@ export function renderUI(): string {
           dot.style.background = '#1a8a42';
           text.textContent = 'Connected';
           text.style.color = '#1a8a42';
+        } else if (data.hasApiKey) {
+          dot.style.background = '#F5A623';
+          text.textContent = 'Key saved — not connected to Reffo.ai';
+          text.style.color = '#F5A623';
         } else {
           dot.style.background = '#E6E8EC';
           text.textContent = 'Not connected';
@@ -1291,7 +1328,7 @@ export function renderUI(): string {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);
-        showMsg('settingsMsg', data.message || 'Connected!', true);
+        showMsg('settingsMsg', data.message || 'API key saved', true);
         input.value = '';
         loadSettings();
       } catch (err) {
@@ -1323,7 +1360,13 @@ export function renderUI(): string {
           checkbox.checked = !sync;
           throw new Error(data.error);
         }
-        showToast(sync ? 'Item synced to Reffo.ai' : 'Item removed from Reffo.ai', sync ? 'accepted' : '');
+        if (data.warning) {
+          showToast(sync ? 'Item marked for sync (remote pending)' : 'Item unsynced locally (remote pending)', 'accepted');
+        } else {
+          showToast(sync ? 'Item synced to Reffo.ai' : 'Item removed from Reffo.ai', sync ? 'accepted' : '');
+        }
+        // Refresh items list to update synced badges
+        loadMyItems();
       } catch (err) {
         showToast('Sync failed: ' + err.message, 'rejected');
       }

@@ -76,7 +76,7 @@ router.get('/', (_req: Request, res: Response) => {
   res.json({
     apiKey: apiKey ? `${apiKey.slice(0, 12)}...` : '',
     hasApiKey: !!apiKey,
-    connected: !!syncManager,
+    connected: !!(syncManager && syncManager.registered),
     syncedItemCount: syncedCount,
     beaconId: _req.app.get('beaconId') || '',
     version: '0.1.0',
@@ -96,30 +96,31 @@ router.post('/api-key', async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'Invalid API key format. Keys start with rfk_' });
   }
 
-  // Test the connection
+  // Save to .env and set in process
+  writeEnvVar('REFFO_API_KEY', apiKey);
+  process.env.REFFO_API_KEY = apiKey;
+
+  // Initialize sync manager
   const { SyncManager } = require('../sync');
   const beaconId = req.app.get('beaconId');
   const reffoUrl = process.env.REFFO_API_URL || 'https://reffo.ai';
   const manager = new SyncManager(apiKey, beaconId, reffoUrl);
 
-  const test = await manager.testConnection();
-  if (!test.ok) {
-    return res.status(400).json({ error: `Connection failed: ${test.error}` });
-  }
-
-  // Save to .env
-  writeEnvVar('REFFO_API_KEY', apiKey);
-  process.env.REFFO_API_KEY = apiKey;
-
-  // Register beacon
+  // Try to register beacon (non-blocking — key is saved regardless)
   const beaconUrl = process.env.BEACON_URL || `http://localhost:${process.env.PORT || 3000}`;
-  await manager.registerBeacon('Reffo Beacon', '0.1.0', beaconUrl);
+  const regResult = await manager.registerBeacon('Reffo Beacon', '0.1.0', beaconUrl);
 
-  // Start heartbeat
-  manager.startHeartbeat();
-  req.app.set('syncManager', manager);
-
-  res.json({ ok: true, message: 'API key saved and connection established' });
+  if (regResult.ok) {
+    manager.registered = true;
+    manager.startHeartbeat();
+    req.app.set('syncManager', manager);
+    res.json({ ok: true, message: 'Connected!' });
+  } else {
+    // Key is saved but connection failed — user can still sync locally
+    manager.registered = false;
+    req.app.set('syncManager', manager);
+    res.json({ ok: true, message: `API key saved. Reffo.ai connection pending — items can still be marked for sync locally.` });
+  }
 });
 
 // DELETE /settings/api-key — Remove API key
@@ -151,13 +152,13 @@ router.post('/sync-item/:id', async (req: Request, res: Response) => {
     if (!result.ok) {
       return res.status(500).json({ error: result.error });
     }
-    res.json({ ok: true, synced: true });
+    res.json({ ok: true, synced: true, warning: result.warning });
   } else {
     const result = await syncManager.unsyncItem(id);
     if (!result.ok) {
       return res.status(500).json({ error: result.error });
     }
-    res.json({ ok: true, synced: false });
+    res.json({ ok: true, synced: false, warning: result.warning });
   }
 });
 
