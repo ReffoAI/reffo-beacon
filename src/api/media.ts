@@ -3,7 +3,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { v4 as uuid } from 'uuid';
-import { ItemQueries, MediaQueries } from '../db';
+import { RefQueries, MediaQueries } from '../db';
 import type { MediaType } from '../types';
 
 const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
@@ -19,8 +19,8 @@ const MAX_FILES = 5; // 4 photos + 1 video
 
 const storage = multer.diskStorage({
   destination: (req, _file, cb) => {
-    const itemId = String(req.params.itemId);
-    const dir = path.join(UPLOADS_DIR, itemId);
+    const refId = String(req.params.refId);
+    const dir = path.join(UPLOADS_DIR, refId);
     fs.mkdirSync(dir, { recursive: true });
     cb(null, dir);
   },
@@ -52,11 +52,11 @@ function cleanupFiles(files: Express.Multer.File[]) {
   }
 }
 
-// POST /items/:itemId/media — accepts multiple files via "files" field
+// POST /refs/:refId/media — accepts multiple files via "files" field
 router.post('/', upload.array('files', MAX_FILES), (req: Request, res: Response) => {
-  const items = new ItemQueries();
+  const refs = new RefQueries();
   const media = new MediaQueries();
-  const itemId = String(req.params.itemId);
+  const refId = String(req.params.refId);
 
   const files = (req.files as Express.Multer.File[]) || [];
   // Also support single-file upload via "file" field for backwards compat
@@ -64,18 +64,18 @@ router.post('/', upload.array('files', MAX_FILES), (req: Request, res: Response)
     files.push(req.file);
   }
 
-  const item = items.get(itemId);
-  if (!item) {
+  const ref = refs.get(refId);
+  if (!ref) {
     cleanupFiles(files);
-    return res.status(404).json({ error: 'Item not found' });
+    return res.status(404).json({ error: 'Ref not found' });
   }
 
   if (files.length === 0) {
     return res.status(400).json({ error: 'No files uploaded' });
   }
 
-  const currentPhotos = media.countPhotos(itemId);
-  const currentHasVideo = media.hasVideo(itemId);
+  const currentPhotos = media.countPhotos(refId);
+  const currentHasVideo = media.hasVideo(refId);
   const results: ReturnType<typeof media.create>[] = [];
   const errors: string[] = [];
   let photoCount = currentPhotos;
@@ -100,14 +100,14 @@ router.post('/', upload.array('files', MAX_FILES), (req: Request, res: Response)
 
     if (mediaType === 'video' && (currentHasVideo || results.some(r => r.mediaType === 'video'))) {
       try { fs.unlinkSync(file.path); } catch { /* ignore */ }
-      errors.push(`${file.originalname}: only 1 video allowed per item`);
+      errors.push(`${file.originalname}: only 1 video allowed per ref`);
       continue;
     }
 
     const relativePath = path.relative(process.cwd(), file.path);
     const record = media.create({
       id: uuid(),
-      itemId,
+      refId,
       mediaType,
       filePath: relativePath,
       mimeType: file.mimetype,
@@ -122,12 +122,12 @@ router.post('/', upload.array('files', MAX_FILES), (req: Request, res: Response)
     return res.status(400).json({ error: errors.join('; ') });
   }
 
-  // If item is synced to Reffo.ai, push media update (fire-and-forget)
-  if (item.reffoSynced && results.length > 0) {
+  // If ref is synced to Reffo.ai, push media update (fire-and-forget)
+  if (ref.reffoSynced && results.length > 0) {
     const syncManager = req.app.get('syncManager');
     if (syncManager) {
-      syncManager.syncItem(itemId).catch((err: Error) => {
-        console.warn('[Sync] Auto re-sync failed for media upload on item', itemId, err.message);
+      syncManager.syncItem(refId).catch((err: Error) => {
+        console.warn('[Sync] Auto re-sync failed for media upload on ref', refId, err.message);
       });
     }
   }
@@ -135,22 +135,22 @@ router.post('/', upload.array('files', MAX_FILES), (req: Request, res: Response)
   res.status(201).json({ uploaded: results, errors });
 });
 
-// GET /items/:itemId/media
+// GET /refs/:refId/media
 router.get('/', (req: Request, res: Response) => {
   const media = new MediaQueries();
-  const itemId = String(req.params.itemId);
-  res.json(media.listForItem(itemId));
+  const refId = String(req.params.refId);
+  res.json(media.listForRef(refId));
 });
 
-// DELETE /items/:itemId/media/:mediaId
+// DELETE /refs/:refId/media/:mediaId
 router.delete('/:mediaId', (req: Request, res: Response) => {
   const media = new MediaQueries();
-  const items = new ItemQueries();
-  const itemId = String(req.params.itemId);
+  const refs = new RefQueries();
+  const refId = String(req.params.refId);
   const mediaId = String(req.params.mediaId);
 
-  const item = items.get(itemId);
-  if (!item) return res.status(404).json({ error: 'Item not found' });
+  const ref = refs.get(refId);
+  if (!ref) return res.status(404).json({ error: 'Ref not found' });
 
   const deleted = media.delete(mediaId);
   if (!deleted) return res.status(404).json({ error: 'Media not found' });
@@ -162,12 +162,12 @@ router.delete('/:mediaId', (req: Request, res: Response) => {
     // File already gone
   }
 
-  // If item is synced to Reffo.ai, push media update (fire-and-forget)
-  if (item.reffoSynced) {
+  // If ref is synced to Reffo.ai, push media update (fire-and-forget)
+  if (ref.reffoSynced) {
     const syncManager = req.app.get('syncManager');
     if (syncManager) {
-      syncManager.syncItem(itemId).catch((err: Error) => {
-        console.warn('[Sync] Auto re-sync failed for media delete on item', itemId, err.message);
+      syncManager.syncItem(refId).catch((err: Error) => {
+        console.warn('[Sync] Auto re-sync failed for media delete on ref', refId, err.message);
       });
     }
   }

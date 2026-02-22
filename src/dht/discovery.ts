@@ -1,7 +1,7 @@
 import Hyperswarm from 'hyperswarm';
 import b4a from 'b4a';
 import crypto from 'crypto';
-import { ItemQueries, OfferQueries, MediaQueries, NegotiationQueries } from '../db';
+import { RefQueries, OfferQueries, MediaQueries, NegotiationQueries } from '../db';
 import type { PeerMessage, QueryPayload, AnnouncePayload, ProposalPayload, ProposalResponsePayload } from '../types';
 import { blurLocation, haversineDistanceMiles } from '../types';
 
@@ -62,14 +62,14 @@ export class DhtDiscovery {
   }
 
   private sendAnnouncement(stream: any): void {
-    const items = new ItemQueries();
+    const refs = new RefQueries();
     const offers = new OfferQueries();
 
-    const discoverableItems = items.listDiscoverable();
-    const discoverableItemIds = new Set(discoverableItems.map(i => i.id));
+    const discoverableRefs = refs.listDiscoverable();
+    const discoverableRefIds = new Set(discoverableRefs.map(i => i.id));
 
     const payload: AnnouncePayload = {
-      items: discoverableItems.map(i => {
+      refs: discoverableRefs.map(i => {
         const blurred = (i.locationLat != null && i.locationLng != null)
           ? blurLocation(i.locationLat, i.locationLng) : null;
         return {
@@ -80,8 +80,8 @@ export class DhtDiscovery {
           sellingScope: i.sellingScope, sellingRadiusMiles: i.sellingRadiusMiles,
         };
       }),
-      offers: offers.list().filter(o => discoverableItemIds.has(o.itemId)).map(o => ({
-        id: o.id, itemId: o.itemId, price: o.price,
+      offers: offers.list().filter(o => discoverableRefIds.has(o.refId)).map(o => ({
+        id: o.id, refId: o.refId, price: o.price,
         priceCurrency: o.priceCurrency, status: o.status,
       })),
     };
@@ -118,51 +118,51 @@ export class DhtDiscovery {
 
   private handleQuery(query: QueryPayload, stream: any, fromBeacon: string): void {
     console.log(`[DHT] Query from ${fromBeacon.slice(0, 8)}...:`, query);
-    const items = new ItemQueries();
+    const refs = new RefQueries();
     const offers = new OfferQueries();
     const mediaQ = new MediaQueries();
 
     let results = query.search
-      ? items.searchDiscoverable(query.search)
-      : items.listDiscoverable(query.category, query.subcategory);
+      ? refs.searchDiscoverable(query.search)
+      : refs.listDiscoverable(query.category, query.subcategory);
 
     // Build response with matching offers
-    const matchingOffers = results.flatMap(item => {
-      const itemOffers = offers.list(item.id).filter(o => o.status === 'active');
+    const matchingOffers = results.flatMap(ref => {
+      const refOffers = offers.list(ref.id).filter(o => o.status === 'active');
       if (query.maxPrice !== undefined) {
-        return itemOffers.filter(o => o.price <= query.maxPrice!);
+        return refOffers.filter(o => o.price <= query.maxPrice!);
       }
-      return itemOffers;
+      return refOffers;
     });
 
     // Geo-filter if query has lat/lng/radiusMiles
     if (query.lat != null && query.lng != null && query.radiusMiles != null) {
-      results = results.filter(item => {
-        const scope = item.sellingScope || 'global';
+      results = results.filter(ref => {
+        const scope = ref.sellingScope || 'global';
         if (scope === 'global') return true;
         if (scope === 'national') return true;
-        if (item.locationLat == null || item.locationLng == null) return true; // no location = show everywhere
-        const dist = haversineDistanceMiles(query.lat!, query.lng!, item.locationLat, item.locationLng);
-        if (scope === 'range') return dist <= (item.sellingRadiusMiles || Infinity);
+        if (ref.locationLat == null || ref.locationLng == null) return true; // no location = show everywhere
+        const dist = haversineDistanceMiles(query.lat!, query.lng!, ref.locationLat, ref.locationLng);
+        if (scope === 'range') return dist <= (ref.sellingRadiusMiles || Infinity);
         return dist <= query.radiusMiles!;
       });
     }
 
     // Include media metadata per item
     const mediaMap: Record<string, { id: string; filePath: string; mediaType: string }[]> = {};
-    for (const item of results) {
-      const media = mediaQ.listForItem(item.id);
+    for (const ref of results) {
+      const media = mediaQ.listForRef(ref.id);
       if (media.length > 0) {
-        mediaMap[item.id] = media.map(m => ({ id: m.id, filePath: m.filePath, mediaType: m.mediaType }));
+        mediaMap[ref.id] = media.map(m => ({ id: m.id, filePath: m.filePath, mediaType: m.mediaType }));
       }
     }
 
     // Blur location in response — never send exact lat/lng or address
-    const blurredResults = results.map(item => {
-      const blurred = (item.locationLat != null && item.locationLng != null)
-        ? blurLocation(item.locationLat, item.locationLng) : null;
+    const blurredResults = results.map(ref => {
+      const blurred = (ref.locationLat != null && ref.locationLng != null)
+        ? blurLocation(ref.locationLat, ref.locationLng) : null;
       return {
-        ...item,
+        ...ref,
         locationLat: blurred?.lat,
         locationLng: blurred?.lng,
         locationAddress: undefined, // never share street address
@@ -172,7 +172,7 @@ export class DhtDiscovery {
     const response: PeerMessage = {
       type: 'response',
       beaconId: this.beaconId,
-      payload: { items: blurredResults, offers: matchingOffers, media: mediaMap, httpPort: this.httpPort },
+      payload: { refs: blurredResults, offers: matchingOffers, media: mediaMap, httpPort: this.httpPort },
     };
 
     stream.write(b4a.from(JSON.stringify(response)));
@@ -213,13 +213,13 @@ export class DhtDiscovery {
 
   /** Handle incoming proposal from a buyer */
   private handleProposal(fromBeaconId: string, payload: ProposalPayload): void {
-    console.log(`[DHT] Received proposal from ${fromBeaconId.slice(0, 8)}... for item ${payload.itemId}`);
+    console.log(`[DHT] Received proposal from ${fromBeaconId.slice(0, 8)}... for ref ${payload.refId}`);
     const negotiations = new NegotiationQueries();
 
     negotiations.create({
       id: payload.negotiationId,
-      itemId: payload.itemId,
-      itemName: payload.itemName || '',
+      refId: payload.refId,
+      refName: payload.refName || '',
       buyerBeaconId: fromBeaconId,
       sellerBeaconId: this.beaconId,
       price: payload.price,

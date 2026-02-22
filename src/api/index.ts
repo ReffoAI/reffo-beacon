@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'path';
 import healthRouter from './health';
-import itemsRouter from './items';
+import refsRouter from './refs';
 import offersRouter from './offers';
 import mediaRouter from './media';
 import negotiationsRouter from './negotiations';
@@ -29,8 +29,8 @@ export function createApp(): express.Express {
   });
 
   app.use('/health', healthRouter);
-  app.use('/items', itemsRouter);
-  app.use('/items/:itemId/media', mediaRouter);
+  app.use('/refs', refsRouter);
+  app.use('/refs/:refId/media', mediaRouter);
   app.use('/offers', offersRouter);
   app.use('/negotiations', negotiationsRouter);
   app.use('/settings', settingsRouter);

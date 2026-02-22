@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
-import { ItemQueries, MediaQueries, NegotiationQueries } from '../db';
+import { RefQueries, MediaQueries, NegotiationQueries } from '../db';
 import { isValidCategory, isValidSubcategory } from '../taxonomy';
 import type { ListingStatus } from '../types';
 
@@ -9,13 +9,13 @@ const VALID_LISTING_STATUSES: ListingStatus[] = ['private', 'for_sale', 'willing
 
 const router = Router();
 
-// GET /items?category=...&subcategory=...&search=...&archived=true
+// GET /refs?category=...&subcategory=...&search=...&archived=true
 router.get('/', (req: Request, res: Response) => {
-  const items = new ItemQueries();
+  const refs = new RefQueries();
   const archived = req.query.archived === 'true';
 
   if (archived) {
-    return res.json(items.listArchived());
+    return res.json(refs.listArchived());
   }
 
   const search = String(req.query.search || '');
@@ -23,26 +23,26 @@ router.get('/', (req: Request, res: Response) => {
   const subcategory = String(req.query.subcategory || '');
 
   if (search.length > 0) {
-    return res.json(items.search(search));
+    return res.json(refs.search(search));
   }
 
-  res.json(items.list(category || undefined, subcategory || undefined));
+  res.json(refs.list(category || undefined, subcategory || undefined));
 });
 
-// GET /items/:id
+// GET /refs/:id
 router.get('/:id', (req: Request, res: Response) => {
-  const items = new ItemQueries();
-  const item = items.get(String(req.params.id));
-  if (!item) return res.status(404).json({ error: 'Item not found' });
-  res.json(item);
+  const refs = new RefQueries();
+  const ref = refs.get(String(req.params.id));
+  if (!ref) return res.status(404).json({ error: 'Ref not found' });
+  res.json(ref);
 });
 
-// POST /items
+// POST /refs
 router.post('/', (req: Request, res: Response) => {
-  const items = new ItemQueries();
+  const refs = new RefQueries();
   const { name, description, category, subcategory, image, sku, listingStatus, quantity,
     locationLat, locationLng, locationAddress, locationCity, locationState, locationZip, locationCountry,
-    sellingScope, sellingRadiusMiles } = req.body;
+    sellingScope, sellingRadiusMiles, attributes, condition } = req.body;
 
   if (!name || typeof name !== 'string') {
     return res.status(400).json({ error: 'name is required' });
@@ -65,22 +65,23 @@ router.post('/', (req: Request, res: Response) => {
   }
 
   const beaconId = req.app.get('beaconId') as string;
-  const item = items.create({
+  const ref = refs.create({
     name, description, category, subcategory, image, sku, listingStatus, quantity,
     locationLat: locationLat != null ? Number(locationLat) : undefined,
     locationLng: locationLng != null ? Number(locationLng) : undefined,
     locationAddress, locationCity, locationState, locationZip, locationCountry,
     sellingScope, sellingRadiusMiles: sellingRadiusMiles != null ? Number(sellingRadiusMiles) : undefined,
+    attributes, condition,
   }, beaconId);
-  res.status(201).json(item);
+  res.status(201).json(ref);
 });
 
-// PATCH /items/:id
+// PATCH /refs/:id
 router.patch('/:id', (req: Request, res: Response) => {
-  const items = new ItemQueries();
+  const refs = new RefQueries();
   const { name, description, category, subcategory, image, sku, listingStatus, quantity,
     locationLat, locationLng, locationAddress, locationCity, locationState, locationZip, locationCountry,
-    sellingScope, sellingRadiusMiles } = req.body;
+    sellingScope, sellingRadiusMiles, attributes, condition } = req.body;
 
   if (listingStatus !== undefined && !VALID_LISTING_STATUSES.includes(listingStatus)) {
     return res.status(400).json({ error: `Invalid listingStatus: ${listingStatus}. Must be one of: ${VALID_LISTING_STATUSES.join(', ')}` });
@@ -98,21 +99,22 @@ router.patch('/:id', (req: Request, res: Response) => {
     return res.status(400).json({ error: `Invalid subcategory: ${subcategory} for category: ${category}` });
   }
 
-  const updated = items.update(String(req.params.id), {
+  const updated = refs.update(String(req.params.id), {
     name, description, category, subcategory, image, sku, listingStatus, quantity,
     locationLat: locationLat != null ? Number(locationLat) : locationLat,
     locationLng: locationLng != null ? Number(locationLng) : locationLng,
     locationAddress, locationCity, locationState, locationZip, locationCountry,
     sellingScope, sellingRadiusMiles: sellingRadiusMiles != null ? Number(sellingRadiusMiles) : sellingRadiusMiles,
+    attributes, condition,
   });
-  if (!updated) return res.status(404).json({ error: 'Item not found' });
+  if (!updated) return res.status(404).json({ error: 'Ref not found' });
 
-  // If item is synced to Reffo.ai, push update (fire-and-forget)
+  // If ref is synced to Reffo.ai, push update (fire-and-forget)
   if (updated.reffoSynced) {
     const syncManager = req.app.get('syncManager');
     if (syncManager) {
       syncManager.syncItem(updated.id).catch((err: Error) => {
-        console.warn('[Sync] Auto re-sync failed for item', updated.id, err.message);
+        console.warn('[Sync] Auto re-sync failed for ref', updated.id, err.message);
       });
     }
   }
@@ -120,62 +122,62 @@ router.patch('/:id', (req: Request, res: Response) => {
   res.json(updated);
 });
 
-// DELETE /items/:id — soft archive (not hard delete)
+// DELETE /refs/:id — soft archive (not hard delete)
 router.delete('/:id', (req: Request, res: Response) => {
-  const items = new ItemQueries();
+  const refs = new RefQueries();
   const negotiations = new NegotiationQueries();
-  const itemId = String(req.params.id);
+  const refId = String(req.params.id);
 
-  const item = items.get(itemId);
-  if (!item) return res.status(404).json({ error: 'Item not found' });
+  const ref = refs.get(refId);
+  if (!ref) return res.status(404).json({ error: 'Ref not found' });
 
-  // If item was synced, unsync it
-  if (item.reffoSynced) {
+  // If ref was synced, unsync it
+  if (ref.reffoSynced) {
     const syncManager = req.app.get('syncManager');
     if (syncManager) {
-      syncManager.unsyncItem(itemId).catch(() => {});
+      syncManager.unsyncItem(refId).catch(() => {});
     }
   }
 
-  // Auto-reject any pending/countered negotiations for this item
-  const pendingNegs = negotiations.listForItem(itemId).filter(
-    n => n.status === 'pending' || n.status === 'countered'
+  // Auto-reject any pending/countered negotiations for this ref
+  const pendingNegs = negotiations.listForRef(refId).filter(
+    (n: { status: string }) => n.status === 'pending' || n.status === 'countered'
   );
   for (const neg of pendingNegs) {
-    negotiations.updateStatus(neg.id, 'rejected', undefined, 'Item is no longer available');
+    negotiations.updateStatus(neg.id, 'rejected', undefined, 'Ref is no longer available');
   }
 
-  items.archive(itemId, 'deleted');
+  refs.archive(refId, 'deleted');
   res.status(204).send();
 });
 
-// POST /items/:id/restore — restore an archived item
+// POST /refs/:id/restore — restore an archived ref
 router.post('/:id/restore', (req: Request, res: Response) => {
-  const items = new ItemQueries();
-  const itemId = String(req.params.id);
+  const refs = new RefQueries();
+  const refId = String(req.params.id);
 
-  const restored = items.restore(itemId);
-  if (!restored) return res.status(404).json({ error: 'Archived item not found' });
+  const restored = refs.restore(refId);
+  if (!restored) return res.status(404).json({ error: 'Archived ref not found' });
 
   res.json(restored);
 });
 
-// DELETE /items/:id/permanent — hard delete (only for archived items)
+// DELETE /refs/:id/permanent — hard delete (only for archived refs)
 router.delete('/:id/permanent', (req: Request, res: Response) => {
-  const items = new ItemQueries();
+  const refs = new RefQueries();
   const media = new MediaQueries();
-  const itemId = String(req.params.id);
+  const refId = String(req.params.id);
 
-  const item = items.get(itemId);
-  if (!item) return res.status(404).json({ error: 'Item not found' });
-  if (item.listingStatus !== 'archived_sold' && item.listingStatus !== 'archived_deleted') {
-    return res.status(400).json({ error: 'Only archived items can be permanently deleted' });
+  const ref = refs.get(refId);
+  if (!ref) return res.status(404).json({ error: 'Ref not found' });
+  if (ref.listingStatus !== 'archived_sold' && ref.listingStatus !== 'archived_deleted') {
+    return res.status(400).json({ error: 'Only archived refs can be permanently deleted' });
   }
 
   // Get media file paths before deletion (CASCADE will remove DB records)
-  const filePaths = media.deleteAllForItem(itemId);
+  const filePaths = media.deleteAllForRef(refId);
 
-  items.delete(itemId);
+  refs.delete(refId);
 
   // Clean up files from disk
   for (const fp of filePaths) {
@@ -187,10 +189,10 @@ router.delete('/:id/permanent', (req: Request, res: Response) => {
     }
   }
 
-  // Try to remove the item's upload directory
-  const itemDir = path.join(process.cwd(), 'uploads', itemId);
+  // Try to remove the ref's upload directory
+  const refDir = path.join(process.cwd(), 'uploads', refId);
   try {
-    if (fs.existsSync(itemDir)) fs.rmdirSync(itemDir);
+    if (fs.existsSync(refDir)) fs.rmdirSync(refDir);
   } catch {
     // Directory not empty or doesn't exist
   }

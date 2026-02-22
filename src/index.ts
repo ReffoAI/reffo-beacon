@@ -123,9 +123,9 @@ async function main(): Promise<void> {
     console.log(`         GET  /              - Web UI`);
     console.log(`         GET  /health        - Beacon status`);
     console.log(`         GET  /taxonomy      - Category taxonomy`);
-    console.log(`         GET  /items         - List items`);
-    console.log(`         POST /items         - Create item`);
-    console.log(`         POST /items/:id/media - Upload media`);
+    console.log(`         GET  /refs          - List refs`);
+    console.log(`         POST /refs          - Create ref`);
+    console.log(`         POST /refs/:id/media - Upload media`);
     console.log(`         GET  /offers        - List offers`);
     console.log(`         POST /offers        - Create offer`);
     console.log(`         GET  /negotiations  - List negotiations`);

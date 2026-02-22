@@ -1,9 +1,9 @@
 import Database from 'better-sqlite3';
 import { v4 as uuid } from 'uuid';
 import { getDb } from './schema';
-import type { Item, ItemCreate, ItemUpdate, ListingStatus, Offer, OfferCreate, OfferUpdate, ItemMedia, MediaType, Negotiation, NegotiationCreate, NegotiationStatus, NegotiationRole, BeaconSettings, SellingScope } from '../types';
+import type { Ref, RefCreate, RefUpdate, ListingStatus, Offer, OfferCreate, OfferUpdate, RefMedia, MediaType, Negotiation, NegotiationCreate, NegotiationStatus, NegotiationRole, BeaconSettings, SellingScope } from '../types';
 
-function rowToItem(row: Record<string, unknown>): Item {
+function rowToRef(row: Record<string, unknown>): Ref {
   return {
     id: row.id as string,
     name: row.name as string,
@@ -28,13 +28,15 @@ function rowToItem(row: Record<string, unknown>): Item {
     beaconId: row.beacon_id as string,
     createdAt: row.created_at as string,
     updatedAt: row.updated_at as string,
+    attributes: row.attributes ? JSON.parse(row.attributes as string) : undefined,
+    condition: row.condition as string | undefined,
   };
 }
 
 function rowToOffer(row: Record<string, unknown>): Offer {
   return {
     id: row.id as string,
-    itemId: row.item_id as string,
+    refId: row.ref_id as string,
     price: row.price as number,
     priceCurrency: row.price_currency as string,
     status: row.status as Offer['status'],
@@ -45,15 +47,15 @@ function rowToOffer(row: Record<string, unknown>): Offer {
   };
 }
 
-export class ItemQueries {
+export class RefQueries {
   private db: Database.Database;
 
   constructor(db?: Database.Database) {
     this.db = db || getDb();
   }
 
-  list(category?: string, subcategory?: string): Item[] {
-    let sql = 'SELECT * FROM items';
+  list(category?: string, subcategory?: string): Ref[] {
+    let sql = 'SELECT * FROM refs';
     const conditions: string[] = ["listing_status NOT IN ('archived_sold', 'archived_deleted')"];
     const params: string[] = [];
 
@@ -69,15 +71,15 @@ export class ItemQueries {
     sql += ' ORDER BY created_at DESC';
 
     const rows = this.db.prepare(sql).all(...params);
-    return rows.map(r => rowToItem(r as Record<string, unknown>));
+    return rows.map(r => rowToRef(r as Record<string, unknown>));
   }
 
-  get(id: string): Item | undefined {
-    const row = this.db.prepare('SELECT * FROM items WHERE id = ?').get(id);
-    return row ? rowToItem(row as Record<string, unknown>) : undefined;
+  get(id: string): Ref | undefined {
+    const row = this.db.prepare('SELECT * FROM refs WHERE id = ?').get(id);
+    return row ? rowToRef(row as Record<string, unknown>) : undefined;
   }
 
-  create(data: ItemCreate, beaconId: string): Item {
+  create(data: RefCreate, beaconId: string): Ref {
     const id = uuid();
     const now = new Date().toISOString();
 
@@ -108,18 +110,18 @@ export class ItemQueries {
     }
 
     this.db.prepare(`
-      INSERT INTO items (id, name, description, category, subcategory, image, sku, listing_status, quantity,
+      INSERT INTO refs (id, name, description, category, subcategory, image, sku, listing_status, quantity,
         location_lat, location_lng, location_address, location_city, location_state, location_zip, location_country,
-        selling_scope, selling_radius_miles, beacon_id, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        selling_scope, selling_radius_miles, attributes, condition, beacon_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(id, data.name, data.description || '', data.category || '', data.subcategory || '', data.image || null, data.sku || null,
       data.listingStatus || 'private', data.quantity || 1,
       locLat, locLng, locAddress, locCity, locState, locZip, locCountry,
-      scope || 'global', radiusMiles, beaconId, now, now);
+      scope || 'global', radiusMiles, JSON.stringify(data.attributes) || null, data.condition || null, beaconId, now, now);
     return this.get(id)!;
   }
 
-  update(id: string, data: ItemUpdate): Item | undefined {
+  update(id: string, data: RefUpdate): Ref | undefined {
     const existing = this.get(id);
     if (!existing) return undefined;
 
@@ -143,30 +145,32 @@ export class ItemQueries {
     if (data.locationCountry !== undefined) { fields.push('location_country = ?'); values.push(data.locationCountry); }
     if (data.sellingScope !== undefined) { fields.push('selling_scope = ?'); values.push(data.sellingScope); }
     if (data.sellingRadiusMiles !== undefined) { fields.push('selling_radius_miles = ?'); values.push(data.sellingRadiusMiles); }
+    if (data.attributes !== undefined) { fields.push('attributes = ?'); values.push(JSON.stringify(data.attributes)); }
+    if (data.condition !== undefined) { fields.push('condition = ?'); values.push(data.condition); }
 
     if (fields.length === 0) return existing;
 
     fields.push("updated_at = datetime('now')");
     values.push(id);
 
-    this.db.prepare(`UPDATE items SET ${fields.join(', ')} WHERE id = ?`).run(...values);
+    this.db.prepare(`UPDATE refs SET ${fields.join(', ')} WHERE id = ?`).run(...values);
     return this.get(id);
   }
 
   delete(id: string): boolean {
-    const result = this.db.prepare('DELETE FROM items WHERE id = ?').run(id);
+    const result = this.db.prepare('DELETE FROM refs WHERE id = ?').run(id);
     return result.changes > 0;
   }
 
-  search(term: string): Item[] {
+  search(term: string): Ref[] {
     const rows = this.db.prepare(
-      "SELECT * FROM items WHERE listing_status NOT IN ('archived_sold', 'archived_deleted') AND (name LIKE ? OR description LIKE ?) ORDER BY created_at DESC"
+      "SELECT * FROM refs WHERE listing_status NOT IN ('archived_sold', 'archived_deleted') AND (name LIKE ? OR description LIKE ?) ORDER BY created_at DESC"
     ).all(`%${term}%`, `%${term}%`);
-    return rows.map(r => rowToItem(r as Record<string, unknown>));
+    return rows.map(r => rowToRef(r as Record<string, unknown>));
   }
 
-  listDiscoverable(category?: string, subcategory?: string): Item[] {
-    let sql = "SELECT * FROM items WHERE listing_status IN ('for_sale', 'willing_to_sell')";
+  listDiscoverable(category?: string, subcategory?: string): Ref[] {
+    let sql = "SELECT * FROM refs WHERE listing_status IN ('for_sale', 'willing_to_sell')";
     const params: string[] = [];
 
     if (category) {
@@ -180,64 +184,64 @@ export class ItemQueries {
     sql += ' ORDER BY created_at DESC';
 
     const rows = this.db.prepare(sql).all(...params);
-    return rows.map(r => rowToItem(r as Record<string, unknown>));
+    return rows.map(r => rowToRef(r as Record<string, unknown>));
   }
 
-  searchDiscoverable(term: string): Item[] {
+  searchDiscoverable(term: string): Ref[] {
     const rows = this.db.prepare(
-      "SELECT * FROM items WHERE listing_status IN ('for_sale', 'willing_to_sell') AND (name LIKE ? OR description LIKE ?) ORDER BY created_at DESC"
+      "SELECT * FROM refs WHERE listing_status IN ('for_sale', 'willing_to_sell') AND (name LIKE ? OR description LIKE ?) ORDER BY created_at DESC"
     ).all(`%${term}%`, `%${term}%`);
-    return rows.map(r => rowToItem(r as Record<string, unknown>));
+    return rows.map(r => rowToRef(r as Record<string, unknown>));
   }
 
   count(): number {
-    const row = this.db.prepare("SELECT COUNT(*) as cnt FROM items WHERE listing_status NOT IN ('archived_sold', 'archived_deleted')").get() as { cnt: number };
+    const row = this.db.prepare("SELECT COUNT(*) as cnt FROM refs WHERE listing_status NOT IN ('archived_sold', 'archived_deleted')").get() as { cnt: number };
     return row.cnt;
   }
 
   setSynced(id: string, synced: boolean, refId?: string): void {
     if (synced && refId) {
-      this.db.prepare("UPDATE items SET reffo_synced = 1, reffo_ref_id = ?, updated_at = datetime('now') WHERE id = ?").run(refId, id);
+      this.db.prepare("UPDATE refs SET reffo_synced = 1, reffo_ref_id = ?, updated_at = datetime('now') WHERE id = ?").run(refId, id);
     } else if (synced) {
-      this.db.prepare("UPDATE items SET reffo_synced = 1, updated_at = datetime('now') WHERE id = ?").run(id);
+      this.db.prepare("UPDATE refs SET reffo_synced = 1, updated_at = datetime('now') WHERE id = ?").run(id);
     } else {
-      this.db.prepare("UPDATE items SET reffo_synced = 0, reffo_ref_id = NULL, updated_at = datetime('now') WHERE id = ?").run(id);
+      this.db.prepare("UPDATE refs SET reffo_synced = 0, reffo_ref_id = NULL, updated_at = datetime('now') WHERE id = ?").run(id);
     }
   }
 
-  listSynced(): Item[] {
-    const rows = this.db.prepare('SELECT * FROM items WHERE reffo_synced = 1 ORDER BY created_at DESC').all();
-    return rows.map(r => rowToItem(r as Record<string, unknown>));
+  listSynced(): Ref[] {
+    const rows = this.db.prepare('SELECT * FROM refs WHERE reffo_synced = 1 ORDER BY created_at DESC').all();
+    return rows.map(r => rowToRef(r as Record<string, unknown>));
   }
 
-  listArchived(): Item[] {
-    const rows = this.db.prepare("SELECT * FROM items WHERE listing_status IN ('archived_sold', 'archived_deleted') ORDER BY updated_at DESC").all();
-    return rows.map(r => rowToItem(r as Record<string, unknown>));
+  listArchived(): Ref[] {
+    const rows = this.db.prepare("SELECT * FROM refs WHERE listing_status IN ('archived_sold', 'archived_deleted') ORDER BY updated_at DESC").all();
+    return rows.map(r => rowToRef(r as Record<string, unknown>));
   }
 
   archive(id: string, reason: 'sold' | 'deleted'): boolean {
     const status = reason === 'sold' ? 'archived_sold' : 'archived_deleted';
     const result = this.db.prepare(
-      "UPDATE items SET listing_status = ?, reffo_synced = 0, reffo_ref_id = NULL, updated_at = datetime('now') WHERE id = ?"
+      "UPDATE refs SET listing_status = ?, reffo_synced = 0, reffo_ref_id = NULL, updated_at = datetime('now') WHERE id = ?"
     ).run(status, id);
     return result.changes > 0;
   }
 
-  restore(id: string): Item | undefined {
+  restore(id: string): Ref | undefined {
     const item = this.get(id);
     if (!item) return undefined;
     if (item.listingStatus !== 'archived_sold' && item.listingStatus !== 'archived_deleted') return undefined;
 
     const newQuantity = item.listingStatus === 'archived_sold' ? 1 : item.quantity;
     this.db.prepare(
-      "UPDATE items SET listing_status = 'private', quantity = ?, updated_at = datetime('now') WHERE id = ?"
+      "UPDATE refs SET listing_status = 'private', quantity = ?, updated_at = datetime('now') WHERE id = ?"
     ).run(newQuantity, id);
     return this.get(id);
   }
 
   decrementQuantity(id: string): number {
     this.db.prepare(
-      "UPDATE items SET quantity = MAX(0, quantity - 1), updated_at = datetime('now') WHERE id = ?"
+      "UPDATE refs SET quantity = MAX(0, quantity - 1), updated_at = datetime('now') WHERE id = ?"
     ).run(id);
     const item = this.get(id);
     return item ? item.quantity : 0;
@@ -251,11 +255,11 @@ export class OfferQueries {
     this.db = db || getDb();
   }
 
-  list(itemId?: string): Offer[] {
-    const query = itemId
-      ? this.db.prepare('SELECT * FROM offers WHERE item_id = ? ORDER BY created_at DESC')
+  list(refId?: string): Offer[] {
+    const query = refId
+      ? this.db.prepare('SELECT * FROM offers WHERE ref_id = ? ORDER BY created_at DESC')
       : this.db.prepare('SELECT * FROM offers ORDER BY created_at DESC');
-    const rows = itemId ? query.all(itemId) : query.all();
+    const rows = refId ? query.all(refId) : query.all();
     return rows.map(r => rowToOffer(r as Record<string, unknown>));
   }
 
@@ -268,9 +272,9 @@ export class OfferQueries {
     const id = uuid();
     const now = new Date().toISOString();
     this.db.prepare(`
-      INSERT INTO offers (id, item_id, price, price_currency, status, seller_id, location, created_at, updated_at)
+      INSERT INTO offers (id, ref_id, price, price_currency, status, seller_id, location, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(id, data.itemId, data.price, data.priceCurrency || 'USD', data.status || 'active', sellerId, data.location || null, now, now);
+    `).run(id, data.refId, data.price, data.priceCurrency || 'USD', data.status || 'active', sellerId, data.location || null, now, now);
     return this.get(id)!;
   }
 
@@ -306,10 +310,10 @@ export class OfferQueries {
   }
 }
 
-function rowToMedia(row: Record<string, unknown>): ItemMedia {
+function rowToMedia(row: Record<string, unknown>): RefMedia {
   return {
     id: row.id as string,
-    itemId: row.item_id as string,
+    refId: row.ref_id as string,
     mediaType: row.media_type as MediaType,
     filePath: row.file_path as string,
     mimeType: row.mime_type as string,
@@ -326,43 +330,43 @@ export class MediaQueries {
     this.db = db || getDb();
   }
 
-  listForItem(itemId: string): ItemMedia[] {
-    const rows = this.db.prepare('SELECT * FROM item_media WHERE item_id = ? ORDER BY sort_order ASC, created_at ASC').all(itemId);
+  listForRef(refId: string): RefMedia[] {
+    const rows = this.db.prepare('SELECT * FROM ref_media WHERE ref_id = ? ORDER BY sort_order ASC, created_at ASC').all(refId);
     return rows.map(r => rowToMedia(r as Record<string, unknown>));
   }
 
-  countPhotos(itemId: string): number {
-    const row = this.db.prepare("SELECT COUNT(*) as cnt FROM item_media WHERE item_id = ? AND media_type = 'photo'").get(itemId) as { cnt: number };
+  countPhotos(refId: string): number {
+    const row = this.db.prepare("SELECT COUNT(*) as cnt FROM ref_media WHERE ref_id = ? AND media_type = 'photo'").get(refId) as { cnt: number };
     return row.cnt;
   }
 
-  hasVideo(itemId: string): boolean {
-    const row = this.db.prepare("SELECT COUNT(*) as cnt FROM item_media WHERE item_id = ? AND media_type = 'video'").get(itemId) as { cnt: number };
+  hasVideo(refId: string): boolean {
+    const row = this.db.prepare("SELECT COUNT(*) as cnt FROM ref_media WHERE ref_id = ? AND media_type = 'video'").get(refId) as { cnt: number };
     return row.cnt > 0;
   }
 
-  create(data: { id: string; itemId: string; mediaType: MediaType; filePath: string; mimeType: string; fileSize: number; sortOrder?: number }): ItemMedia {
+  create(data: { id: string; refId: string; mediaType: MediaType; filePath: string; mimeType: string; fileSize: number; sortOrder?: number }): RefMedia {
     const now = new Date().toISOString();
     this.db.prepare(`
-      INSERT INTO item_media (id, item_id, media_type, file_path, mime_type, file_size, sort_order, created_at)
+      INSERT INTO ref_media (id, ref_id, media_type, file_path, mime_type, file_size, sort_order, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(data.id, data.itemId, data.mediaType, data.filePath, data.mimeType, data.fileSize, data.sortOrder || 0, now);
-    const row = this.db.prepare('SELECT * FROM item_media WHERE id = ?').get(data.id);
+    `).run(data.id, data.refId, data.mediaType, data.filePath, data.mimeType, data.fileSize, data.sortOrder || 0, now);
+    const row = this.db.prepare('SELECT * FROM ref_media WHERE id = ?').get(data.id);
     return rowToMedia(row as Record<string, unknown>);
   }
 
-  delete(id: string): ItemMedia | undefined {
-    const row = this.db.prepare('SELECT * FROM item_media WHERE id = ?').get(id);
+  delete(id: string): RefMedia | undefined {
+    const row = this.db.prepare('SELECT * FROM ref_media WHERE id = ?').get(id);
     if (!row) return undefined;
     const media = rowToMedia(row as Record<string, unknown>);
-    this.db.prepare('DELETE FROM item_media WHERE id = ?').run(id);
+    this.db.prepare('DELETE FROM ref_media WHERE id = ?').run(id);
     return media;
   }
 
-  deleteAllForItem(itemId: string): string[] {
-    const rows = this.db.prepare('SELECT file_path FROM item_media WHERE item_id = ?').all(itemId);
+  deleteAllForRef(refId: string): string[] {
+    const rows = this.db.prepare('SELECT file_path FROM ref_media WHERE ref_id = ?').all(refId);
     const paths = rows.map(r => (r as Record<string, unknown>).file_path as string);
-    this.db.prepare('DELETE FROM item_media WHERE item_id = ?').run(itemId);
+    this.db.prepare('DELETE FROM ref_media WHERE ref_id = ?').run(refId);
     return paths;
   }
 }
@@ -370,8 +374,8 @@ export class MediaQueries {
 function rowToNegotiation(row: Record<string, unknown>): Negotiation {
   return {
     id: row.id as string,
-    itemId: row.item_id as string,
-    itemName: row.item_name as string,
+    refId: row.ref_id as string,
+    refName: row.ref_name as string,
     buyerBeaconId: row.buyer_beacon_id as string,
     sellerBeaconId: row.seller_beacon_id as string,
     price: row.price as number,
@@ -408,17 +412,17 @@ export class NegotiationQueries {
     return rows.map(r => rowToNegotiation(r as Record<string, unknown>));
   }
 
-  listForItem(itemId: string): Negotiation[] {
-    const rows = this.db.prepare('SELECT * FROM negotiations WHERE item_id = ? ORDER BY created_at DESC').all(itemId);
+  listForRef(refId: string): Negotiation[] {
+    const rows = this.db.prepare('SELECT * FROM negotiations WHERE ref_id = ? ORDER BY created_at DESC').all(refId);
     return rows.map(r => rowToNegotiation(r as Record<string, unknown>));
   }
 
   create(data: NegotiationCreate): Negotiation {
     const now = new Date().toISOString();
     this.db.prepare(`
-      INSERT INTO negotiations (id, item_id, item_name, buyer_beacon_id, seller_beacon_id, price, price_currency, message, status, role, created_at, updated_at)
+      INSERT INTO negotiations (id, ref_id, ref_name, buyer_beacon_id, seller_beacon_id, price, price_currency, message, status, role, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).run(data.id, data.itemId, data.itemName || '', data.buyerBeaconId, data.sellerBeaconId, data.price, data.priceCurrency || 'USD', data.message || '', data.status || 'pending', data.role, now, now);
+    `).run(data.id, data.refId, data.refName || '', data.buyerBeaconId, data.sellerBeaconId, data.price, data.priceCurrency || 'USD', data.message || '', data.status || 'pending', data.role, now, now);
     return this.get(data.id)!;
   }
 
@@ -436,10 +440,10 @@ export class NegotiationQueries {
     return this.get(id);
   }
 
-  listPendingForItem(itemId: string, excludeId: string): Negotiation[] {
+  listPendingForRef(refId: string, excludeId: string): Negotiation[] {
     const rows = this.db.prepare(
-      "SELECT * FROM negotiations WHERE item_id = ? AND id != ? AND status IN ('pending', 'countered')"
-    ).all(itemId, excludeId);
+      "SELECT * FROM negotiations WHERE ref_id = ? AND id != ? AND status IN ('pending', 'countered')"
+    ).all(refId, excludeId);
     return rows.map(r => rowToNegotiation(r as Record<string, unknown>));
   }
 

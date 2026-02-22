@@ -1,13 +1,13 @@
 import { Router, Request, Response } from 'express';
-import { OfferQueries, ItemQueries } from '../db';
+import { OfferQueries, RefQueries } from '../db';
 
 const router = Router();
 
-// GET /offers?itemId=...
+// GET /offers?refId=...
 router.get('/', (req: Request, res: Response) => {
   const offers = new OfferQueries();
-  const itemId = String(req.query.itemId || '') || undefined;
-  res.json(offers.list(itemId));
+  const refId = String(req.query.refId || '') || undefined;
+  res.json(offers.list(refId));
 });
 
 // GET /offers/:id
@@ -21,21 +21,21 @@ router.get('/:id', (req: Request, res: Response) => {
 // POST /offers
 router.post('/', (req: Request, res: Response) => {
   const offers = new OfferQueries();
-  const items = new ItemQueries();
-  const { itemId, price, priceCurrency, status, location } = req.body;
+  const refs = new RefQueries();
+  const { refId, price, priceCurrency, status, location } = req.body;
 
-  if (!itemId || typeof itemId !== 'string') {
-    return res.status(400).json({ error: 'itemId is required' });
+  if (!refId || typeof refId !== 'string') {
+    return res.status(400).json({ error: 'refId is required' });
   }
   if (typeof price !== 'number' || price < 0) {
     return res.status(400).json({ error: 'price must be a non-negative number' });
   }
 
-  const item = items.get(itemId);
-  if (!item) return res.status(404).json({ error: 'Item not found' });
+  const ref = refs.get(refId);
+  if (!ref) return res.status(404).json({ error: 'Ref not found' });
 
   const sellerId = req.app.get('beaconId') as string;
-  const offer = offers.create({ itemId, price, priceCurrency, status, location }, sellerId);
+  const offer = offers.create({ refId, price, priceCurrency, status, location }, sellerId);
   res.status(201).json(offer);
 });
 

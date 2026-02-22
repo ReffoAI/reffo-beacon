@@ -5,7 +5,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import type { Item, Offer, ItemMedia } from '../types';
+import type { Ref, Offer, RefMedia } from '../types';
 import { blurLocation } from '../types';
 
 const DEFAULT_BASE_URL = 'https://reffo.ai';
@@ -73,47 +73,47 @@ export class ReffoClient {
 
   async pushItem(
     beaconId: string,
-    item: Item,
+    ref: Ref,
     offers: Offer[],
   ): Promise<{ ok: boolean; refId?: string; error?: string }> {
     try {
       const activeOffer = offers.find(o => o.status === 'active');
-      const blurred = (item.locationLat != null && item.locationLng != null)
-        ? blurLocation(item.locationLat, item.locationLng) : null;
-      const res = await this.request('/items', {
+      const blurred = (ref.locationLat != null && ref.locationLng != null)
+        ? blurLocation(ref.locationLat, ref.locationLng) : null;
+      const res = await this.request('/refs', {
         method: 'POST',
         body: JSON.stringify({
-          localId: item.id,
+          localId: ref.id,
           beaconId,
-          name: item.name,
-          description: item.description,
-          category: item.category,
-          subcategory: item.subcategory,
-          listingStatus: item.listingStatus,
-          quantity: item.quantity,
+          name: ref.name,
+          description: ref.description,
+          category: ref.category,
+          subcategory: ref.subcategory,
+          listingStatus: ref.listingStatus,
+          quantity: ref.quantity,
           price: activeOffer?.price,
           priceCurrency: activeOffer?.priceCurrency || 'USD',
           locationLat: blurred?.lat,
           locationLng: blurred?.lng,
-          locationCity: item.locationCity,
-          locationState: item.locationState,
-          locationZip: item.locationZip,
-          locationCountry: item.locationCountry,
-          sellingScope: item.sellingScope,
-          sellingRadiusMiles: item.sellingRadiusMiles,
+          locationCity: ref.locationCity,
+          locationState: ref.locationState,
+          locationZip: ref.locationZip,
+          locationCountry: ref.locationCountry,
+          sellingScope: ref.sellingScope,
+          sellingRadiusMiles: ref.sellingRadiusMiles,
         }),
       });
       const data = await res.json() as Record<string, unknown>;
       if (!res.ok) return { ok: false, error: (data.error as string) || `HTTP ${res.status}` };
-      return { ok: true, refId: (data.id as string) || item.id };
+      return { ok: true, refId: (data.id as string) || ref.id };
     } catch (err) {
       return { ok: false, error: (err as Error).message };
     }
   }
 
   async pushMedia(
-    itemId: string,
-    media: ItemMedia,
+    refId: string,
+    media: RefMedia,
   ): Promise<{ ok: boolean; error?: string }> {
     try {
       const fullPath = path.join(process.cwd(), media.filePath);
@@ -129,7 +129,7 @@ export class ReffoClient {
       formData.append('mediaType', media.mediaType);
       formData.append('sort_order', String(media.sortOrder));
 
-      const url = `${this.baseUrl}/api/sync/items/${itemId}/media`;
+      const url = `${this.baseUrl}/api/sync/refs/${refId}/media`;
       const res = await fetch(url, {
         method: 'POST',
         headers: {
@@ -150,7 +150,7 @@ export class ReffoClient {
 
   async removeItem(localId: string, beaconId: string): Promise<{ ok: boolean; error?: string }> {
     try {
-      const res = await this.request('/items', {
+      const res = await this.request('/refs', {
         method: 'DELETE',
         body: JSON.stringify({ localId, beaconId }),
       });
