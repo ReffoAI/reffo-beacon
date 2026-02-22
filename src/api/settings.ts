@@ -67,9 +67,9 @@ router.get('/', (_req: Request, res: Response) => {
   const syncManager = _req.app.get('syncManager');
   const syncedCount = syncManager ? (() => {
     try {
-      const { ItemQueries } = require('../db/queries');
-      const items = new ItemQueries();
-      return items.listSynced().length;
+      const { RefQueries } = require('../db/queries');
+      const refs = new RefQueries();
+      return refs.listSynced().length;
     } catch {
       return 0;
     }

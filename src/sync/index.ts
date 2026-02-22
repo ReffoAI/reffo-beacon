@@ -1,15 +1,15 @@
 /**
- * SyncManager: orchestrates syncing beacon items to Reffo.ai
+ * SyncManager: orchestrates syncing beacon refs to Reffo.ai
  */
 
 import { ReffoClient } from './reffo-client';
-import { ItemQueries, OfferQueries, MediaQueries, NegotiationQueries } from '../db/queries';
+import { RefQueries, OfferQueries, MediaQueries, NegotiationQueries } from '../db/queries';
 
 export class SyncManager {
   private client: ReffoClient;
   private beaconId: string;
   private heartbeatInterval: ReturnType<typeof setInterval> | null = null;
-  private items: ItemQueries;
+  private refs: RefQueries;
   private offers: OfferQueries;
   private media: MediaQueries;
   private negotiations: NegotiationQueries;
@@ -20,7 +20,7 @@ export class SyncManager {
   constructor(apiKey: string, beaconId: string, baseUrl?: string) {
     this.client = new ReffoClient(apiKey, baseUrl);
     this.beaconId = beaconId;
-    this.items = new ItemQueries();
+    this.refs = new RefQueries();
     this.offers = new OfferQueries();
     this.media = new MediaQueries();
     this.negotiations = new NegotiationQueries();
@@ -35,76 +35,76 @@ export class SyncManager {
     return { ok: result.ok, error: result.error };
   }
 
-  async syncItem(itemId: string): Promise<{ ok: boolean; warning?: string; error?: string }> {
-    const item = this.items.get(itemId);
-    if (!item) return { ok: false, error: 'Item not found' };
+  async syncItem(refId: string): Promise<{ ok: boolean; warning?: string; error?: string }> {
+    const ref = this.refs.get(refId);
+    if (!ref) return { ok: false, error: 'Ref not found' };
 
     // Always mark synced locally
-    this.items.setSynced(itemId, true);
+    this.refs.setSynced(refId, true);
 
     // Try to push to remote (non-blocking — local sync succeeds regardless)
     let warning: string | undefined;
     try {
-      const offers = this.offers.list(itemId);
-      const result = await this.client.pushItem(this.beaconId, item, offers);
+      const offers = this.offers.list(refId);
+      const result = await this.client.pushItem(this.beaconId, ref, offers);
 
       if (result.ok) {
-        this.items.setSynced(itemId, true, result.refId);
+        this.refs.setSynced(refId, true, result.refId);
 
         // Push media
-        const mediaList = this.media.listForItem(itemId);
+        const mediaList = this.media.listForRef(refId);
         for (const m of mediaList) {
-          const mediaResult = await this.client.pushMedia(itemId, m);
+          const mediaResult = await this.client.pushMedia(refId, m);
           if (!mediaResult.ok) {
             console.warn(`[Sync] Media push failed for ${m.id}: ${mediaResult.error}`);
           }
         }
       } else {
         warning = `Marked for sync locally. Remote push pending: ${result.error}`;
-        console.warn(`[Sync] Remote push failed for ${itemId}: ${result.error}`);
+        console.warn(`[Sync] Remote push failed for ${refId}: ${result.error}`);
       }
     } catch (err) {
       warning = `Marked for sync locally. Remote push pending: ${(err as Error).message}`;
-      console.warn(`[Sync] Remote push failed for ${itemId}:`, (err as Error).message);
+      console.warn(`[Sync] Remote push failed for ${refId}:`, (err as Error).message);
     }
 
     return { ok: true, warning };
   }
 
-  async unsyncItem(itemId: string): Promise<{ ok: boolean; warning?: string; error?: string }> {
-    const item = this.items.get(itemId);
-    if (!item) return { ok: false, error: 'Item not found' };
+  async unsyncItem(refId: string): Promise<{ ok: boolean; warning?: string; error?: string }> {
+    const ref = this.refs.get(refId);
+    if (!ref) return { ok: false, error: 'Ref not found' };
 
     // Always mark unsynced locally
-    this.items.setSynced(itemId, false);
+    this.refs.setSynced(refId, false);
 
     // Try to remove from remote (non-blocking)
     let warning: string | undefined;
     try {
-      const result = await this.client.removeItem(itemId, this.beaconId);
+      const result = await this.client.removeItem(refId, this.beaconId);
       if (!result.ok) {
         warning = `Removed locally. Remote removal pending: ${result.error}`;
-        console.warn(`[Sync] Remote remove failed for ${itemId}: ${result.error}`);
+        console.warn(`[Sync] Remote remove failed for ${refId}: ${result.error}`);
       }
     } catch (err) {
       warning = `Removed locally. Remote removal pending: ${(err as Error).message}`;
-      console.warn(`[Sync] Remote remove failed for ${itemId}:`, (err as Error).message);
+      console.warn(`[Sync] Remote remove failed for ${refId}:`, (err as Error).message);
     }
 
     return { ok: true, warning };
   }
 
   async syncAll(): Promise<{ synced: number; errors: string[] }> {
-    const syncedItems = this.items.listSynced();
+    const syncedRefs = this.refs.listSynced();
     let synced = 0;
     const errors: string[] = [];
 
-    for (const item of syncedItems) {
-      const result = await this.syncItem(item.id);
+    for (const ref of syncedRefs) {
+      const result = await this.syncItem(ref.id);
       if (result.ok) {
         synced++;
       } else {
-        errors.push(`${item.name}: ${result.error}`);
+        errors.push(`${ref.name}: ${result.error}`);
       }
     }
 
@@ -122,27 +122,27 @@ export class SyncManager {
         return { received, errors };
       }
 
-      // Build a map of synced items: local item ID -> item (keyed by local ID which is also the ref ID on webapp)
-      const syncedItems = this.items.listSynced();
-      const syncedItemMap = new Map(syncedItems.map(item => [item.id, item]));
+      // Build a map of synced refs: local ref ID -> ref (keyed by local ID which is also the ref ID on webapp)
+      const syncedRefs = this.refs.listSynced();
+      const syncedRefMap = new Map(syncedRefs.map(ref => [ref.id, ref]));
 
       for (const offer of result.offers) {
         // Check if we already have this negotiation
         const existing = this.negotiations.get(offer.id);
         if (existing) continue;
 
-        // Map the offer's item_id back to a local item
-        const localItem = syncedItemMap.get(offer.item_id);
-        if (!localItem) {
-          console.warn(`[Sync] Offer ${offer.id} references unknown item ${offer.item_id}, skipping`);
+        // Map the offer's item_id back to a local ref
+        const localRef = syncedRefMap.get(offer.item_id);
+        if (!localRef) {
+          console.warn(`[Sync] Offer ${offer.id} references unknown ref ${offer.item_id}, skipping`);
           continue;
         }
 
         try {
           this.negotiations.create({
             id: offer.id,
-            itemId: localItem.id,
-            itemName: offer.item_name || localItem.name,
+            refId: localRef.id,
+            refName: offer.item_name || localRef.name,
             buyerBeaconId: offer.buyer_id,
             sellerBeaconId: this.beaconId,
             price: offer.amount,
@@ -152,7 +152,7 @@ export class SyncManager {
             status: 'pending',
           });
           received++;
-          console.log(`[Sync] Received offer ${offer.id} for item "${localItem.name}"`);
+          console.log(`[Sync] Received offer ${offer.id} for ref "${localRef.name}"`);
         } catch (err) {
           errors.push(`Offer ${offer.id}: ${(err as Error).message}`);
         }

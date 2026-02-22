@@ -1,7 +1,19 @@
 import { TAXONOMY } from './taxonomy';
+import { CATEGORY_SCHEMAS } from './ref-schemas';
 
 export function renderUI(): string {
   const taxonomyJSON = JSON.stringify(TAXONOMY);
+
+  // Serialize category schemas for client-side use (only the data needed for UI)
+  const schemasForUI: Record<string, { conditionOptions: string[]; attributes: Array<{ key: string; label: string; type: string; placeholder?: string; options?: string[]; summary?: boolean; unit?: string }> }> = {};
+  for (const [key, schema] of Object.entries(CATEGORY_SCHEMAS)) {
+    schemasForUI[key] = {
+      conditionOptions: schema.conditionOptions,
+      attributes: schema.attributes.map(a => ({ key: a.key, label: a.label, type: a.type, placeholder: a.placeholder, options: a.options, summary: a.summary, unit: a.unit })),
+    };
+  }
+  const defaultSchemaForUI = { conditionOptions: ['new', 'like_new', 'good', 'fair', 'poor'], attributes: [] };
+  const categorySchemaJSON = JSON.stringify(schemasForUI);
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -53,8 +65,8 @@ export function renderUI(): string {
       .search-filter-segment { padding: 0 10px; }
     }
 
-    /* List Item Modal */
-    .list-item-modal .modal { width: 640px; max-height: 90vh; overflow-y: auto; }
+    /* List Ref Modal */
+    .list-ref-modal .modal { width: 640px; max-height: 90vh; overflow-y: auto; }
 
     /* Search Filter Bar — 3 segment pill (matching webapp) */
     .search-filter-bar { display: flex; align-items: center; background: #FCFCFD; border-radius: 48px; box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 0 0 1px #E6E8EC; overflow: hidden; height: 56px; padding-right: 8px; max-width: 660px; margin: 0 auto; }
@@ -76,15 +88,15 @@ export function renderUI(): string {
 
     /* Row layout */
     .rows { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
-    .item-row { display: flex; align-items: center; gap: 16px; background: #FCFCFD; border-radius: 12px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(15,15,15,0.08); cursor: pointer; transition: all 0.15s; }
-    .item-row:hover { box-shadow: 0 4px 12px rgba(15,15,15,0.12); transform: translateY(-1px); }
-    .item-row .row-img { width: 48px; height: 48px; border-radius: 8px; overflow: hidden; background: #F4F5F6; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-    .item-row .row-img img { width: 100%; height: 100%; object-fit: cover; }
-    .item-row .row-img .placeholder { color: #E6E8EC; font-size: 1.2rem; }
-    .item-row .row-name { font-size: 14px; font-weight: 600; color: #141416; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .item-row .row-meta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-    .item-row .row-price { font-size: 14px; font-weight: 700; color: #1a8a42; white-space: nowrap; }
-    .item-row .row-qty { font-size: 12px; color: #777E90; white-space: nowrap; }
+    .ref-row { display: flex; align-items: center; gap: 16px; background: #FCFCFD; border-radius: 12px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(15,15,15,0.08); cursor: pointer; transition: all 0.15s; }
+    .ref-row:hover { box-shadow: 0 4px 12px rgba(15,15,15,0.12); transform: translateY(-1px); }
+    .ref-row .row-img { width: 48px; height: 48px; border-radius: 8px; overflow: hidden; background: #F4F5F6; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .ref-row .row-img img { width: 100%; height: 100%; object-fit: cover; }
+    .ref-row .row-img .placeholder { color: #E6E8EC; font-size: 1.2rem; }
+    .ref-row .row-name { font-size: 14px; font-weight: 600; color: #141416; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ref-row .row-meta { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .ref-row .row-price { font-size: 14px; font-weight: 700; color: #1a8a42; white-space: nowrap; }
+    .ref-row .row-qty { font-size: 12px; color: #777E90; white-space: nowrap; }
 
     /* Sections — Card.module.sass shadow depth */
     section { background: #FCFCFD; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 16px 32px -8px rgba(15,15,15,0.12); }
@@ -117,7 +129,7 @@ export function renderUI(): string {
     @media (max-width: 1023px) { .cards { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 639px) { .cards { grid-template-columns: 1fr; } }
 
-    /* Item card — Card.module.sass: 16px radius, deep shadow, image hover scale */
+    /* Ref card — Card.module.sass: 16px radius, deep shadow, image hover scale */
     .card { background: #FCFCFD; border-radius: 16px; box-shadow: 0 16px 32px -8px rgba(15,15,15,0.12); overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
     .card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px -8px rgba(15,15,15,0.18); }
     .card-img { width: 100%; height: 180px; position: relative; overflow: hidden; background: #F4F5F6; display: flex; align-items: center; justify-content: center; }
@@ -249,17 +261,17 @@ export function renderUI(): string {
     .neg-card.sold { border-left-color: #1a8a42; }
     .neg-status.sold { background: #e6f9ed; color: #1a8a42; }
 
-    /* Item sub-tabs */
-    .item-subtabs { display: flex; gap: 0; margin-bottom: 16px; }
-    .item-subtab { padding: 8px 20px; cursor: pointer; font-size: 13px; font-weight: 700; color: #777E90; border-bottom: 2px solid transparent; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.02em; }
-    .item-subtab.active { color: #EC526F; border-bottom-color: #EC526F; }
-    .item-subtab:hover { color: #EC526F; }
+    /* Ref sub-tabs */
+    .ref-subtabs { display: flex; gap: 0; margin-bottom: 16px; }
+    .ref-subtab { padding: 8px 20px; cursor: pointer; font-size: 13px; font-weight: 700; color: #777E90; border-bottom: 2px solid transparent; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.02em; }
+    .ref-subtab.active { color: #EC526F; border-bottom-color: #EC526F; }
+    .ref-subtab:hover { color: #EC526F; }
 
     /* Archive card actions */
     .archive-actions { display: flex; gap: 8px; margin-top: 12px; }
     .archive-reason { font-size: 12px; color: #777E90; font-weight: 500; margin-top: 4px; }
 
-    /* Item group rows */
+    /* Ref group rows */
     .neg-group-row { background: #FCFCFD; border-radius: 16px; padding: 16px 24px; box-shadow: 0 16px 32px -8px rgba(15,15,15,0.12); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
     .neg-group-row:hover { transform: translateY(-1px); box-shadow: 0 16px 40px -8px rgba(15,15,15,0.18); }
     .neg-group-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
@@ -290,7 +302,7 @@ export function renderUI(): string {
   <!-- App Header -->
   <div class="app-header">
     <div class="app-header-inner">
-      <div class="app-header-logo" onclick="switchTab('items')">
+      <div class="app-header-logo" onclick="switchTab('refs')">
         <svg class="bolt" width="24" height="42" viewBox="0 0 40 71" fill="none" xmlns="http://www.w3.org/2000/svg">
           <g clip-path="url(#clip0_bolt)">
             <path d="M38.27 3.79s.5-.98.1-1.75c-.4-.76-1.37-.66-1.37-.66H13.12s-.63-.03-1.03.34c-.4.37-.55 1.15-.55 1.15L2.18 33.97s-.49 1.18-.07 2.08c.42.9 1.4.83 1.4.83h8.49l-9.5 31.39s-.73 1.63.43 2.45c1.17.82 2.37-.41 2.37-.41L39.68 25.98s.57-.65.19-1.67c-.38-1.01-1.23-.91-1.23-.91H28.82l9.45-19.61z" fill="black"/>
@@ -312,7 +324,7 @@ export function renderUI(): string {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           </button>
           <div class="avatar-dropdown" id="avatarDropdown">
-            <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('items');">My Items</button>
+            <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('refs');">My Refs</button>
             <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('negotiations');">Negotiations</button>
             <div class="dd-divider"></div>
             <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('settings');">Settings</button>
@@ -339,7 +351,7 @@ export function renderUI(): string {
         <span class="sfb-divider"></span>
         <div class="search-filter-segment" style="flex:1;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          <input id="headerSearchQ" placeholder="Search Item..." onkeydown="if(event.key==='Enter')executeHeaderSearch()">
+          <input id="headerSearchQ" placeholder="Search Ref..." onkeydown="if(event.key==='Enter')executeHeaderSearch()">
         </div>
         <button class="sfb-search-btn" onclick="executeHeaderSearch()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -347,42 +359,42 @@ export function renderUI(): string {
       </div>
     </div>
 
-    <!-- Items Tab -->
-    <div id="tab-items">
-      <div class="item-subtabs">
-        <div class="item-subtab active" data-itemtab="active" onclick="switchItemSubTab('active')">Active</div>
-        <div class="item-subtab" data-itemtab="archive" onclick="switchItemSubTab('archive')">Archive</div>
+    <!-- Refs Tab -->
+    <div id="tab-refs">
+      <div class="ref-subtabs">
+        <div class="ref-subtab active" data-reftab="active" onclick="switchRefSubTab('active')">Active</div>
+        <div class="ref-subtab" data-reftab="archive" onclick="switchRefSubTab('archive')">Archive</div>
       </div>
 
-      <div id="itemSubtabActive">
+      <div id="refSubtabActive">
       <section>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-          <h2 style="margin:0;border:none;padding:0;">My Items</h2>
+          <h2 style="margin:0;border:none;padding:0;">My Refs</h2>
           <div style="display:flex;align-items:center;gap:12px;">
             <div class="layout-toggle">
-              <button id="layoutCardBtn" class="active" onclick="setItemLayout('card')" title="Card view">
+              <button id="layoutCardBtn" class="active" onclick="setRefLayout('card')" title="Card view">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
               </button>
-              <button id="layoutRowBtn" onclick="setItemLayout('row')" title="Row view">
+              <button id="layoutRowBtn" onclick="setRefLayout('row')" title="Row view">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>
               </button>
             </div>
-            <button class="btn-primary btn-sm" onclick="openListItemModal()">+ Add New Item</button>
+            <button class="btn-primary btn-sm" onclick="openListRefModal()">+ New Ref</button>
           </div>
         </div>
-        <div id="myItems"><p class="empty">Loading...</p></div>
+        <div id="myRefs"><p class="empty">Loading...</p></div>
       </section>
       </div>
 
-      <div id="itemSubtabArchive" class="hidden">
+      <div id="refSubtabArchive" class="hidden">
       <section>
-        <h2>Archived Items</h2>
-        <div id="archivedItems"><p class="empty">No archived items</p></div>
+        <h2>Archived Refs</h2>
+        <div id="archivedRefs"><p class="empty">No archived refs</p></div>
       </section>
       </div>
     </div>
 
-    <!-- Item Detail View (hidden by default) -->
+    <!-- Ref Detail View (hidden by default) -->
     <div id="tab-detail" class="hidden">
       <section id="detailContent"></section>
     </div>
@@ -408,7 +420,7 @@ export function renderUI(): string {
             </select>
           </div>
         </div>
-        <div id="searchResults"><p class="empty">Use the search bar above to find items</p></div>
+        <div id="searchResults"><p class="empty">Use the search bar above to find refs</p></div>
       </section>
     </div>
 
@@ -451,7 +463,7 @@ export function renderUI(): string {
         <h2>Sync Status</h2>
         <div style="display:flex;gap:24px;flex-wrap:wrap;">
           <div>
-            <span style="font-size:12px;font-weight:600;color:#777E90;text-transform:uppercase;">Synced Items</span>
+            <span style="font-size:12px;font-weight:600;color:#777E90;text-transform:uppercase;">Synced Refs</span>
             <div id="syncedCount" style="font-size:24px;font-weight:700;color:#141416;">0</div>
           </div>
         </div>
@@ -460,7 +472,7 @@ export function renderUI(): string {
       <section>
         <h2>Default Location</h2>
         <div id="locationMsg"></div>
-        <p style="font-size:12px;color:#B1B5C3;margin-bottom:12px;">Set your default location. New items will inherit these values. Street address is stored locally and never shared.</p>
+        <p style="font-size:12px;color:#B1B5C3;margin-bottom:12px;">Set your default location. New refs will inherit these values. Street address is stored locally and never shared.</p>
         <label for="locAddress">Address (private)</label>
         <input id="locAddress" placeholder="123 Main St (never shared)">
         <div class="row">
@@ -514,52 +526,54 @@ export function renderUI(): string {
     </div>
   </div>
 
-  <!-- List Item Modal -->
-  <div id="listItemModal" class="modal-overlay hidden list-item-modal">
+  <!-- List Ref Modal -->
+  <div id="listRefModal" class="modal-overlay hidden list-ref-modal">
     <div class="modal">
-      <h3>List an Item</h3>
+      <h3>List a Ref</h3>
       <div id="listMsg"></div>
       <form id="listForm">
-        <label for="itemName">Name *</label>
-        <input id="itemName" name="name" required placeholder="e.g. Fender Stratocaster">
+        <label for="refName">Name *</label>
+        <input id="refName" name="name" required placeholder="e.g. Fender Stratocaster">
 
-        <label for="itemDesc">Description</label>
-        <textarea id="itemDesc" name="description" placeholder="Condition, details..."></textarea>
+        <label for="refDesc">Description</label>
+        <textarea id="refDesc" name="description" placeholder="Condition, details..."></textarea>
 
         <div class="row">
           <div>
-            <label for="itemCat">Category</label>
-            <select id="itemCat" name="category"><option value="">Select...</option></select>
+            <label for="refCat">Category</label>
+            <select id="refCat" name="category"><option value="">Select...</option></select>
           </div>
           <div>
-            <label for="itemSubcat">Subcategory</label>
-            <select id="itemSubcat" name="subcategory"><option value="">Select...</option></select>
+            <label for="refSubcat">Subcategory</label>
+            <select id="refSubcat" name="subcategory"><option value="">Select...</option></select>
           </div>
         </div>
 
+        <div id="createCategoryFields"></div>
+
         <div class="row">
           <div>
-            <label for="itemListingStatus">Listing Status</label>
-            <select id="itemListingStatus" name="listingStatus">
+            <label for="refListingStatus">Listing Status</label>
+            <select id="refListingStatus" name="listingStatus">
               <option value="private">Private</option>
               <option value="for_sale">For Sale</option>
               <option value="willing_to_sell">Willing to Sell</option>
             </select>
           </div>
           <div>
-            <label for="itemQuantity">Quantity</label>
-            <input id="itemQuantity" name="quantity" type="number" min="1" step="1" value="1">
+            <label for="refQuantity">Quantity</label>
+            <input id="refQuantity" name="quantity" type="number" min="1" step="1" value="1">
           </div>
         </div>
 
         <div class="row">
           <div>
-            <label for="itemPrice">Price</label>
-            <input id="itemPrice" name="price" type="number" min="0" step="0.01" placeholder="0.00">
+            <label for="refPrice">Price</label>
+            <input id="refPrice" name="price" type="number" min="0" step="0.01" placeholder="0.00">
           </div>
           <div>
-            <label for="itemCurrency">Currency</label>
-            <select id="itemCurrency" name="currency">
+            <label for="refCurrency">Currency</label>
+            <select id="refCurrency" name="currency">
               <option value="USD">USD</option>
               <option value="EUR">EUR</option>
               <option value="GBP">GBP</option>
@@ -570,25 +584,25 @@ export function renderUI(): string {
           </div>
         </div>
 
-        <label for="itemSku">SKU</label>
-        <input id="itemSku" name="sku" placeholder="Optional SKU or part number">
+        <label for="refSku">SKU</label>
+        <input id="refSku" name="sku" placeholder="Optional SKU or part number">
 
         <details style="margin-bottom:14px;border:2px solid #E6E8EC;border-radius:12px;padding:14px;">
           <summary style="cursor:pointer;font-size:12px;font-weight:600;color:#777E90;text-transform:uppercase;letter-spacing:0.02em;">Location Override</summary>
           <p style="font-size:12px;color:#B1B5C3;margin:8px 0;">Leave blank to use your default location from Settings.</p>
           <div class="row">
-            <div><label for="itemLocCity">City</label><input id="itemLocCity" placeholder="City"></div>
-            <div><label for="itemLocState">State</label><input id="itemLocState" placeholder="State"></div>
-            <div><label for="itemLocZip">Zip</label><input id="itemLocZip" placeholder="Zip"></div>
+            <div><label for="refLocCity">City</label><input id="refLocCity" placeholder="City"></div>
+            <div><label for="refLocState">State</label><input id="refLocState" placeholder="State"></div>
+            <div><label for="refLocZip">Zip</label><input id="refLocZip" placeholder="Zip"></div>
           </div>
           <div class="row">
-            <div><label for="itemLocLat">Latitude</label><input id="itemLocLat" type="number" step="any" placeholder="e.g. 28.54"></div>
-            <div><label for="itemLocLng">Longitude</label><input id="itemLocLng" type="number" step="any" placeholder="e.g. -81.38"></div>
+            <div><label for="refLocLat">Latitude</label><input id="refLocLat" type="number" step="any" placeholder="e.g. 28.54"></div>
+            <div><label for="refLocLng">Longitude</label><input id="refLocLng" type="number" step="any" placeholder="e.g. -81.38"></div>
           </div>
           <div class="row">
             <div>
-              <label for="itemSellingScope">Selling Scope</label>
-              <select id="itemSellingScope">
+              <label for="refSellingScope">Selling Scope</label>
+              <select id="refSellingScope">
                 <option value="">Use default</option>
                 <option value="global">Global</option>
                 <option value="national">National</option>
@@ -596,31 +610,31 @@ export function renderUI(): string {
               </select>
             </div>
             <div>
-              <label for="itemSellingRadius">Radius (miles)</label>
-              <input id="itemSellingRadius" type="number" min="1" placeholder="250">
+              <label for="refSellingRadius">Radius (miles)</label>
+              <input id="refSellingRadius" type="number" min="1" placeholder="250">
             </div>
           </div>
         </details>
 
         <label>Photos (up to 4)</label>
-        <div class="upload-area" onclick="document.getElementById('itemPhotos').click()">
+        <div class="upload-area" onclick="document.getElementById('refPhotos').click()">
           <div class="upload-icon">+</div>
           <p>Click to upload photos</p>
-          <input type="file" id="itemPhotos" accept="image/*" multiple>
+          <input type="file" id="refPhotos" accept="image/*" multiple>
         </div>
         <div id="photoPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;"></div>
 
         <label>Video (optional, 1 max)</label>
-        <div class="upload-area" onclick="document.getElementById('itemVideo').click()">
+        <div class="upload-area" onclick="document.getElementById('refVideo').click()">
           <div class="upload-icon">+</div>
           <p>Click to upload a video</p>
-          <input type="file" id="itemVideo" accept="video/*">
+          <input type="file" id="refVideo" accept="video/*">
         </div>
         <div id="videoPreview" style="margin-bottom:12px;"></div>
 
         <div style="display:flex;gap:10px;justify-content:flex-end;">
-          <button type="button" class="btn-secondary" onclick="closeListItemModal()">Cancel</button>
-          <button type="submit" class="btn-primary">List Item</button>
+          <button type="button" class="btn-secondary" onclick="closeListRefModal()">Cancel</button>
+          <button type="submit" class="btn-primary">List Ref</button>
         </div>
       </form>
     </div>
@@ -630,8 +644,8 @@ export function renderUI(): string {
   <div id="proposalModal" class="modal-overlay hidden">
     <div class="modal">
       <h3 id="modalTitle">Make a Proposal</h3>
-      <input type="hidden" id="modalItemId">
-      <input type="hidden" id="modalItemName">
+      <input type="hidden" id="modalRefId">
+      <input type="hidden" id="modalRefName">
       <input type="hidden" id="modalSellerBeaconId">
       <div class="row">
         <div>
@@ -708,19 +722,21 @@ export function renderUI(): string {
 
   <script>
     const TAXONOMY = ${taxonomyJSON};
+    const CATEGORY_SCHEMAS_UI = ${categorySchemaJSON};
+    const DEFAULT_SCHEMA_UI = ${JSON.stringify(defaultSchemaForUI)};
 
     // ===== Tab switching =====
     function switchTab(tab) {
-      document.getElementById('tab-items').classList.toggle('hidden', tab !== 'items');
+      document.getElementById('tab-refs').classList.toggle('hidden', tab !== 'refs');
       document.getElementById('tab-detail').classList.toggle('hidden', tab !== 'detail');
       document.getElementById('tab-search').classList.toggle('hidden', tab !== 'search');
       document.getElementById('tab-negotiations').classList.toggle('hidden', tab !== 'negotiations');
       document.getElementById('tab-settings').classList.toggle('hidden', tab !== 'settings');
       // Show/hide search filter bar
       var sfb = document.getElementById('searchFilterBar');
-      if (sfb) sfb.parentElement.style.display = (tab === 'items' || tab === 'search') ? '' : 'none';
+      if (sfb) sfb.parentElement.style.display = (tab === 'refs' || tab === 'search') ? '' : 'none';
       if (tab === 'negotiations') loadNegotiations();
-      if (tab === 'items') loadMyItems();
+      if (tab === 'refs') loadMyRefs();
       if (tab === 'settings') loadSettings();
     }
 
@@ -730,37 +746,37 @@ export function renderUI(): string {
       document.getElementById('negOutgoing').classList.toggle('hidden', tab !== 'outgoing');
     }
 
-    function switchItemSubTab(tab) {
-      document.querySelectorAll('.item-subtab').forEach(t => t.classList.toggle('active', t.dataset.itemtab === tab));
-      document.getElementById('itemSubtabActive').classList.toggle('hidden', tab !== 'active');
-      document.getElementById('itemSubtabArchive').classList.toggle('hidden', tab !== 'archive');
-      if (tab === 'archive') loadArchivedItems();
-      if (tab === 'active') loadMyItems();
+    function switchRefSubTab(tab) {
+      document.querySelectorAll('.ref-subtab').forEach(t => t.classList.toggle('active', t.dataset.reftab === tab));
+      document.getElementById('refSubtabActive').classList.toggle('hidden', tab !== 'active');
+      document.getElementById('refSubtabArchive').classList.toggle('hidden', tab !== 'archive');
+      if (tab === 'archive') loadArchivedRefs();
+      if (tab === 'active') loadMyRefs();
     }
 
-    async function loadArchivedItems() {
-      const container = document.getElementById('archivedItems');
+    async function loadArchivedRefs() {
+      const container = document.getElementById('archivedRefs');
       try {
-        const res = await fetch('/items?archived=true');
-        const items = await res.json();
-        if (items.length === 0) {
-          container.innerHTML = '<p class="empty">No archived items</p>';
+        const res = await fetch('/refs?archived=true');
+        const refs = await res.json();
+        if (refs.length === 0) {
+          container.innerHTML = '<p class="empty">No archived refs</p>';
           return;
         }
 
-        // Load media for all archived items
+        // Load media for all archived refs
         const mediaMap = {};
-        await Promise.all(items.map(async item => {
-          const mRes = await fetch('/items/' + item.id + '/media');
-          mediaMap[item.id] = await mRes.json();
+        await Promise.all(refs.map(async ref => {
+          const mRes = await fetch('/refs/' + ref.id + '/media');
+          mediaMap[ref.id] = await mRes.json();
         }));
 
-        container.innerHTML = '<div class="cards">' + items.map(item => {
-          const photos = (mediaMap[item.id] || []).filter(m => m.mediaType === 'photo');
+        container.innerHTML = '<div class="cards">' + refs.map(ref => {
+          const photos = (mediaMap[ref.id] || []).filter(m => m.mediaType === 'photo');
           const firstPhoto = photos[0];
-          const statusClass = statusBadgeClass[item.listingStatus] || 'badge-private';
-          const statusLabel = item.listingStatus === 'archived_sold' ? 'Sold' : 'Deleted';
-          const archiveDate = new Date(item.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          const statusClass = statusBadgeClass[ref.listingStatus] || 'badge-private';
+          const statusLabel = ref.listingStatus === 'archived_sold' ? 'Sold' : 'Deleted';
+          const archiveDate = new Date(ref.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
           const imgHtml = firstPhoto
             ? '<div class="card-img"><img src="/' + escapeHtml(firstPhoto.filePath) + '" alt=""></div>'
@@ -769,41 +785,41 @@ export function renderUI(): string {
           return '<div class="card" style="cursor:default;">' +
             imgHtml +
             '<div class="card-body">' +
-              '<h3>' + escapeHtml(item.name) + '</h3>' +
+              '<h3>' + escapeHtml(ref.name) + '</h3>' +
               '<div class="card-meta"><span class="badge ' + statusClass + '">' + statusLabel + '</span></div>' +
               '<div class="archive-reason">Archived ' + archiveDate + '</div>' +
               '<div class="archive-actions">' +
-                '<button class="btn-secondary btn-sm" onclick="event.stopPropagation(); restoreItem(\\'' + item.id + '\\')">Restore</button>' +
-                '<button class="btn-danger btn-sm" onclick="event.stopPropagation(); permanentDeleteItem(\\'' + item.id + '\\')">Delete Forever</button>' +
+                '<button class="btn-secondary btn-sm" onclick="event.stopPropagation(); restoreRef(\\'' + ref.id + '\\')">Restore</button>' +
+                '<button class="btn-danger btn-sm" onclick="event.stopPropagation(); permanentDeleteRef(\\'' + ref.id + '\\')">Delete Forever</button>' +
               '</div>' +
             '</div></div>';
         }).join('') + '</div>';
       } catch {
-        container.innerHTML = '<p class="empty">Failed to load archived items</p>';
+        container.innerHTML = '<p class="empty">Failed to load archived refs</p>';
       }
     }
 
-    window.restoreItem = async function(itemId) {
+    window.restoreRef = async function(refId) {
       try {
-        const res = await fetch('/items/' + itemId + '/restore', { method: 'POST' });
+        const res = await fetch('/refs/' + refId + '/restore', { method: 'POST' });
         if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
-        showToast('Item restored', 'accepted');
-        loadArchivedItems();
-        loadMyItems();
+        showToast('Ref restored', 'accepted');
+        loadArchivedRefs();
+        loadMyRefs();
       } catch (err) {
         showToast('Restore failed: ' + err.message, 'rejected');
       }
     };
 
-    window.permanentDeleteItem = async function(itemId) {
-      if (!confirm('Permanently delete this item? This cannot be undone. All media and data will be destroyed.')) return;
+    window.permanentDeleteRef = async function(refId) {
+      if (!confirm('Permanently delete this ref? This cannot be undone. All media and data will be destroyed.')) return;
       try {
-        const res = await fetch('/items/' + itemId + '/permanent', { method: 'DELETE' });
+        const res = await fetch('/refs/' + refId + '/permanent', { method: 'DELETE' });
         if (!res.ok) throw new Error('Failed to delete');
-        showToast('Item permanently deleted', '');
-        loadArchivedItems();
+        showToast('Ref permanently deleted', '');
+        loadArchivedRefs();
       } catch {
-        showToast('Failed to permanently delete item', 'rejected');
+        showToast('Failed to permanently delete ref', 'rejected');
       }
     };
 
@@ -831,10 +847,141 @@ export function renderUI(): string {
       }
     }
 
-    populateCategories(document.getElementById('itemCat'), () =>
-      populateSubcategories(document.getElementById('itemCat'), document.getElementById('itemSubcat'))
+    populateCategories(document.getElementById('refCat'), () =>
+      populateSubcategories(document.getElementById('refCat'), document.getElementById('refSubcat'))
     );
     populateCategories(document.getElementById('headerSearchCat'));
+
+    document.getElementById('refCat').addEventListener('change', function() {
+      renderCategoryFields('createCategoryFields', this.value, document.getElementById('refSubcat').value, {});
+    });
+    document.getElementById('refSubcat').addEventListener('change', function() {
+      renderCategoryFields('createCategoryFields', document.getElementById('refCat').value, this.value, {});
+    });
+
+    // ===== Category Schema Helpers =====
+    function getCatSchema(category, subcategory) {
+      if (category && subcategory) {
+        var exact = CATEGORY_SCHEMAS_UI[category + '|' + subcategory];
+        if (exact) return exact;
+      }
+      if (category) {
+        for (var key in CATEGORY_SCHEMAS_UI) {
+          if (key.indexOf(category + '|') === 0) return CATEGORY_SCHEMAS_UI[key];
+        }
+      }
+      return DEFAULT_SCHEMA_UI;
+    }
+
+    function renderCategoryFields(containerId, category, subcategory, existingAttrs) {
+      var container = document.getElementById(containerId);
+      if (!container) return;
+      var schema = getCatSchema(category, subcategory);
+      var html = '';
+
+      // Condition dropdown (if category has condition options)
+      if (schema.conditionOptions.length > 0) {
+        var currentCondition = (existingAttrs && existingAttrs._condition) || '';
+        html += '<label for="' + containerId + '_condition">Condition</label>';
+        html += '<select id="' + containerId + '_condition">';
+        html += '<option value="">Select condition...</option>';
+        schema.conditionOptions.forEach(function(opt) {
+          var label = opt.replace(/_/g, ' ').replace(/\\b\\w/g, function(c) { return c.toUpperCase(); });
+          html += '<option value="' + opt + '"' + (currentCondition === opt ? ' selected' : '') + '>' + label + '</option>';
+        });
+        html += '</select>';
+      }
+
+      // Category-specific attribute fields
+      if (schema.attributes.length > 0) {
+        html += '<div style="font-size:12px;font-weight:600;color:#777E90;text-transform:uppercase;letter-spacing:0.02em;margin-bottom:8px;margin-top:4px;">Category Details</div>';
+        // Render in rows of 2
+        for (var i = 0; i < schema.attributes.length; i += 2) {
+          var a1 = schema.attributes[i];
+          var a2 = schema.attributes[i + 1];
+          html += '<div class="row">';
+          html += renderAttrField(containerId, a1, existingAttrs);
+          if (a2) html += renderAttrField(containerId, a2, existingAttrs);
+          html += '</div>';
+        }
+      }
+
+      container.innerHTML = html;
+    }
+
+    function renderAttrField(prefix, attr, existingAttrs) {
+      var val = (existingAttrs && existingAttrs[attr.key] != null) ? existingAttrs[attr.key] : '';
+      var fieldId = prefix + '_' + attr.key;
+      var html = '<div>';
+      html += '<label for="' + fieldId + '">' + attr.label + '</label>';
+
+      if (attr.type === 'select') {
+        html += '<select id="' + fieldId + '">';
+        html += '<option value="">Select...</option>';
+        (attr.options || []).forEach(function(opt) {
+          var label = opt.replace(/_/g, ' ').replace(/\\b\\w/g, function(c) { return c.toUpperCase(); });
+          html += '<option value="' + opt + '"' + (String(val) === opt ? ' selected' : '') + '>' + label + '</option>';
+        });
+        html += '</select>';
+      } else if (attr.type === 'boolean') {
+        html += '<select id="' + fieldId + '">';
+        html += '<option value=""' + (!val ? ' selected' : '') + '>\\u2014</option>';
+        html += '<option value="true"' + (val === true || val === 'true' ? ' selected' : '') + '>Yes</option>';
+        html += '<option value="false"' + (val === false || val === 'false' ? ' selected' : '') + '>No</option>';
+        html += '</select>';
+      } else {
+        html += '<input id="' + fieldId + '" type="' + (attr.type === 'number' ? 'number' : 'text') + '"';
+        if (attr.placeholder) html += ' placeholder="' + attr.placeholder + '"';
+        if (attr.type === 'number') html += ' step="any"';
+        html += ' value="' + (val !== '' && val !== undefined ? val : '') + '">';
+      }
+
+      html += '</div>';
+      return html;
+    }
+
+    function collectCategoryAttrs(containerId, category, subcategory) {
+      var schema = getCatSchema(category, subcategory);
+      var attrs = {};
+
+      // Collect condition
+      var condEl = document.getElementById(containerId + '_condition');
+      if (condEl && condEl.value) attrs._condition = condEl.value;
+
+      // Collect attribute fields
+      schema.attributes.forEach(function(a) {
+        var el = document.getElementById(containerId + '_' + a.key);
+        if (!el) return;
+        var v = el.value;
+        if (v === '' || v === undefined) return;
+        if (a.type === 'number') {
+          attrs[a.key] = parseFloat(v);
+        } else if (a.type === 'boolean') {
+          if (v === 'true') attrs[a.key] = true;
+          else if (v === 'false') attrs[a.key] = false;
+        } else {
+          attrs[a.key] = v;
+        }
+      });
+
+      return attrs;
+    }
+
+    function buildAttributeSummary(category, subcategory, attrs, condition) {
+      if (!attrs && !condition) return '';
+      var schema = getCatSchema(category, subcategory);
+      var parts = [];
+      if (condition) {
+        parts.push(condition.replace(/_/g, ' ').replace(/\\b\\w/g, function(c) { return c.toUpperCase(); }));
+      }
+      schema.attributes.forEach(function(a) {
+        if (!a.summary || !attrs || !attrs[a.key]) return;
+        var v = String(attrs[a.key]);
+        if (a.unit) v += ' ' + a.unit;
+        parts.push(v);
+      });
+      return parts.join(' \\u00B7 ');
+    }
 
     // ===== Helpers =====
     function escapeHtml(s) {
@@ -907,11 +1054,11 @@ export function renderUI(): string {
 
     window.removeVideo = function() {
       selectedVideo = null;
-      document.getElementById('itemVideo').value = '';
+      document.getElementById('refVideo').value = '';
       renderVideoPreview();
     };
 
-    document.getElementById('itemPhotos').addEventListener('change', function() {
+    document.getElementById('refPhotos').addEventListener('change', function() {
       var files = this.files;
       for (var i = 0; i < files.length; i++) {
         if (selectedPhotos.length < 4) selectedPhotos.push(files[i]);
@@ -920,7 +1067,7 @@ export function renderUI(): string {
       renderPhotoPreview();
     });
 
-    document.getElementById('itemVideo').addEventListener('change', function() {
+    document.getElementById('refVideo').addEventListener('change', function() {
       if (this.files[0]) {
         selectedVideo = this.files[0];
       }
@@ -935,41 +1082,46 @@ export function renderUI(): string {
       btn.disabled = true;
 
       try {
-        const name = document.getElementById('itemName').value.trim();
-        const description = document.getElementById('itemDesc').value.trim();
-        const category = document.getElementById('itemCat').value;
-        const subcategory = document.getElementById('itemSubcat').value;
-        const listingStatus = document.getElementById('itemListingStatus').value;
-        const quantity = parseInt(document.getElementById('itemQuantity').value) || 1;
-        const priceVal = document.getElementById('itemPrice').value;
+        const name = document.getElementById('refName').value.trim();
+        const description = document.getElementById('refDesc').value.trim();
+        const category = document.getElementById('refCat').value;
+        const subcategory = document.getElementById('refSubcat').value;
+        const listingStatus = document.getElementById('refListingStatus').value;
+        const quantity = parseInt(document.getElementById('refQuantity').value) || 1;
+        const priceVal = document.getElementById('refPrice').value;
         const price = priceVal ? parseFloat(priceVal) : 0;
-        const currency = document.getElementById('itemCurrency').value;
-        const sku = document.getElementById('itemSku').value.trim() || undefined;
-        const locCity = document.getElementById('itemLocCity').value.trim() || undefined;
-        const locState = document.getElementById('itemLocState').value.trim() || undefined;
-        const locZip = document.getElementById('itemLocZip').value.trim() || undefined;
-        const locLat = document.getElementById('itemLocLat').value ? parseFloat(document.getElementById('itemLocLat').value) : undefined;
-        const locLng = document.getElementById('itemLocLng').value ? parseFloat(document.getElementById('itemLocLng').value) : undefined;
-        const sellingScope = document.getElementById('itemSellingScope').value || undefined;
-        const sellingRadiusMiles = document.getElementById('itemSellingRadius').value ? parseInt(document.getElementById('itemSellingRadius').value) : undefined;
+        const currency = document.getElementById('refCurrency').value;
+        const sku = document.getElementById('refSku').value.trim() || undefined;
+        const locCity = document.getElementById('refLocCity').value.trim() || undefined;
+        const locState = document.getElementById('refLocState').value.trim() || undefined;
+        const locZip = document.getElementById('refLocZip').value.trim() || undefined;
+        const locLat = document.getElementById('refLocLat').value ? parseFloat(document.getElementById('refLocLat').value) : undefined;
+        const locLng = document.getElementById('refLocLng').value ? parseFloat(document.getElementById('refLocLng').value) : undefined;
+        const sellingScope = document.getElementById('refSellingScope').value || undefined;
+        const sellingRadiusMiles = document.getElementById('refSellingRadius').value ? parseInt(document.getElementById('refSellingRadius').value) : undefined;
 
-        const itemRes = await fetch('/items', {
+        const categoryAttrs = collectCategoryAttrs('createCategoryFields', category, subcategory);
+        const condition = categoryAttrs._condition || undefined;
+        delete categoryAttrs._condition;
+        const attributes = Object.keys(categoryAttrs).length > 0 ? categoryAttrs : undefined;
+
+        const refRes = await fetch('/refs', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, description, category, subcategory, listingStatus, quantity, sku,
             locationCity: locCity, locationState: locState, locationZip: locZip,
             locationLat: locLat, locationLng: locLng,
-            sellingScope, sellingRadiusMiles })
+            sellingScope, sellingRadiusMiles, condition, attributes })
         });
-        if (!itemRes.ok) { const err = await itemRes.json(); throw new Error(err.error || 'Failed to create item'); }
-        const item = await itemRes.json();
+        if (!refRes.ok) { const err = await refRes.json(); throw new Error(err.error || 'Failed to create ref'); }
+        const ref = await refRes.json();
 
         // Upload photos and video separately so one failure doesn't kill the other
         const uploadErrors = [];
         if (selectedPhotos.length > 0) {
           const fd = new FormData();
           for (let i = 0; i < Math.min(selectedPhotos.length, 4); i++) fd.append('files', selectedPhotos[i]);
-          const photoRes = await fetch('/items/' + item.id + '/media', { method: 'POST', body: fd });
+          const photoRes = await fetch('/refs/' + ref.id + '/media', { method: 'POST', body: fd });
           if (!photoRes.ok) {
             let errMsg = 'Photo upload failed';
             try { const err = await photoRes.json(); errMsg = err.error || errMsg; } catch {}
@@ -979,7 +1131,7 @@ export function renderUI(): string {
         if (selectedVideo) {
           const fd = new FormData();
           fd.append('files', selectedVideo);
-          const videoRes = await fetch('/items/' + item.id + '/media', { method: 'POST', body: fd });
+          const videoRes = await fetch('/refs/' + ref.id + '/media', { method: 'POST', body: fd });
           if (!videoRes.ok) {
             let errMsg = 'Video upload failed';
             try { const err = await videoRes.json(); errMsg = err.error || errMsg; } catch {}
@@ -993,20 +1145,21 @@ export function renderUI(): string {
           await fetch('/offers', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ itemId: item.id, price, priceCurrency: currency })
+            body: JSON.stringify({ refId: ref.id, price, priceCurrency: currency })
           });
         }
 
-        showMsg('listMsg', 'Item added successfully!', true);
+        showMsg('listMsg', 'Ref added successfully!', true);
         e.target.reset();
-        document.getElementById('itemQuantity').value = '1';
-        document.getElementById('itemSubcat').innerHTML = '<option value="">Select...</option>';
+        document.getElementById('refQuantity').value = '1';
+        document.getElementById('refSubcat').innerHTML = '<option value="">Select...</option>';
+        document.getElementById('createCategoryFields').innerHTML = '';
         selectedPhotos = [];
         selectedVideo = null;
         document.getElementById('photoPreview').innerHTML = '';
         document.getElementById('videoPreview').innerHTML = '';
-        closeListItemModal();
-        loadMyItems();
+        closeListRefModal();
+        loadMyRefs();
       } catch (err) {
         showMsg('listMsg', err.message, false);
       } finally {
@@ -1014,109 +1167,114 @@ export function renderUI(): string {
       }
     });
 
-    // ===== My Items =====
-    async function loadMyItems() {
-      const container = document.getElementById('myItems');
+    // ===== My Refs =====
+    async function loadMyRefs() {
+      const container = document.getElementById('myRefs');
       try {
-        const [itemsRes, offersRes] = await Promise.all([fetch('/items'), fetch('/offers')]);
-        const items = await itemsRes.json();
+        const [refsRes, offersRes] = await Promise.all([fetch('/refs'), fetch('/offers')]);
+        const refs = await refsRes.json();
         const offers = await offersRes.json();
 
-        if (items.length === 0) {
-          container.innerHTML = '<p class="empty">No items yet. Click "+ Add New Item" to list your first item!</p>';
+        if (refs.length === 0) {
+          container.innerHTML = '<p class="empty">No refs yet. Click "+ New Ref" to list your first ref!</p>';
           return;
         }
 
         const offerMap = {};
-        offers.forEach(o => { if (!offerMap[o.itemId]) offerMap[o.itemId] = []; offerMap[o.itemId].push(o); });
+        offers.forEach(o => { if (!offerMap[o.refId]) offerMap[o.refId] = []; offerMap[o.refId].push(o); });
 
-        // Load media for all items
+        // Load media for all refs
         const mediaMap = {};
-        await Promise.all(items.map(async item => {
-          const mRes = await fetch('/items/' + item.id + '/media');
-          mediaMap[item.id] = await mRes.json();
+        await Promise.all(refs.map(async ref => {
+          const mRes = await fetch('/refs/' + ref.id + '/media');
+          mediaMap[ref.id] = await mRes.json();
         }));
 
-        if (itemLayout === 'row') {
-          container.innerHTML = '<div class="rows">' + items.map(item => {
-            const itemOffers = offerMap[item.id] || [];
-            const activeOffer = itemOffers.find(o => o.status === 'active');
+        if (refLayout === 'row') {
+          container.innerHTML = '<div class="rows">' + refs.map(ref => {
+            const refOffers = offerMap[ref.id] || [];
+            const activeOffer = refOffers.find(o => o.status === 'active');
             const priceStr = activeOffer ? activeOffer.priceCurrency + ' ' + activeOffer.price.toFixed(2) : '';
-            const photos = (mediaMap[item.id] || []).filter(m => m.mediaType === 'photo');
+            const photos = (mediaMap[ref.id] || []).filter(m => m.mediaType === 'photo');
             const firstPhoto = photos[0];
-            const statusClass = statusBadgeClass[item.listingStatus] || 'badge-private';
-            const statusLabel = statusLabels[item.listingStatus] || 'Private';
+            const statusClass = statusBadgeClass[ref.listingStatus] || 'badge-private';
+            const statusLabel = statusLabels[ref.listingStatus] || 'Private';
+            const attrSummary = buildAttributeSummary(ref.category, ref.subcategory, ref.attributes, ref.condition);
 
             const imgHtml = firstPhoto
               ? '<div class="row-img"><img src="/' + escapeHtml(firstPhoto.filePath) + '" alt=""></div>'
               : '<div class="row-img"><span class="placeholder"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg></span></div>';
 
-            return '<div class="item-row" onclick="openDetail(\\'' + item.id + '\\')">' +
+            return '<div class="ref-row" onclick="openDetail(\\'' + ref.id + '\\')">' +
               imgHtml +
-              '<span class="row-name">' + escapeHtml(item.name) + '</span>' +
+              '<span class="row-name">' + escapeHtml(ref.name) + '</span>' +
               '<div class="row-meta">' +
                 '<span class="badge ' + statusClass + '" style="font-size:10px;padding:0 8px;line-height:22px;">' + statusLabel + '</span>' +
-                (item.category ? '<span class="badge badge-cat" style="font-size:10px;padding:0 8px;line-height:22px;">' + escapeHtml(item.category) + '</span>' : '') +
+                (ref.category ? '<span class="badge badge-cat" style="font-size:10px;padding:0 8px;line-height:22px;">' + escapeHtml(ref.category) + '</span>' : '') +
+                (ref.condition ? '<span class="badge" style="font-size:10px;padding:0 8px;line-height:22px;background:#B1B5C3;color:#fff;">' + escapeHtml(ref.condition.replace(/_/g, ' ')) + '</span>' : '') +
                 (priceStr ? '<span class="row-price">' + escapeHtml(priceStr) + '</span>' : '') +
-                (item.quantity > 1 ? '<span class="row-qty">Qty: ' + item.quantity + '</span>' : '') +
-                (item.reffoSynced ? '<span class="badge badge-synced" style="font-size:10px;padding:0 8px;line-height:22px;">Synced</span>' : '') +
+                (attrSummary ? '<span class="row-qty">' + escapeHtml(attrSummary) + '</span>' : '') +
+                (ref.quantity > 1 ? '<span class="row-qty">Qty: ' + ref.quantity + '</span>' : '') +
+                (ref.reffoSynced ? '<span class="badge badge-synced" style="font-size:10px;padding:0 8px;line-height:22px;">Synced</span>' : '') +
               '</div>' +
             '</div>';
           }).join('') + '</div>';
         } else {
-          container.innerHTML = '<div class="cards">' + items.map(item => {
-            const itemOffers = offerMap[item.id] || [];
-            const activeOffer = itemOffers.find(o => o.status === 'active');
+          container.innerHTML = '<div class="cards">' + refs.map(ref => {
+            const refOffers = offerMap[ref.id] || [];
+            const activeOffer = refOffers.find(o => o.status === 'active');
             const priceStr = activeOffer ? activeOffer.priceCurrency + ' ' + activeOffer.price.toFixed(2) : '';
-            const photos = (mediaMap[item.id] || []).filter(m => m.mediaType === 'photo');
+            const photos = (mediaMap[ref.id] || []).filter(m => m.mediaType === 'photo');
             const firstPhoto = photos[0];
-            const catBadges = [item.category, item.subcategory].filter(Boolean).map(b =>
+            const catBadges = [ref.category, ref.subcategory].filter(Boolean).map(b =>
               '<span class="badge badge-cat">' + escapeHtml(b) + '</span>'
             ).join('');
-            const statusClass = statusBadgeClass[item.listingStatus] || 'badge-private';
-            const statusLabel = statusLabels[item.listingStatus] || 'Private';
+            const statusClass = statusBadgeClass[ref.listingStatus] || 'badge-private';
+            const statusLabel = statusLabels[ref.listingStatus] || 'Private';
+            const cardAttrSummary = buildAttributeSummary(ref.category, ref.subcategory, ref.attributes, ref.condition);
 
             const imgHtml = firstPhoto
               ? '<div class="card-img"><img src="/' + escapeHtml(firstPhoto.filePath) + '" alt=""></div>'
               : '<div class="card-img"><span class="placeholder"><svg width="40" height="40" viewBox="0 0 40 71" fill="none"><path d="M36.3314 2.40738C36.3314 2.40738 36.8264 1.42463 36.4263 0.662012C36.0263 -0.10061 35.0534 0.00517205 35.0534 0.00517205H11.1756C11.1756 0.00517205 10.5428 -0.0279334 10.1477 0.343949C9.75251 0.715831 9.59304 1.49138 9.59304 1.49138L0.238015 32.5907C0.238015 32.5907 -0.24866 33.7655 0.169465 34.6704C0.58759 35.5752 1.5753 35.4965 1.5753 35.4965H10.0645L0.5629 66.8837C0.5629 66.8837 -0.162543 68.519 1.00281 69.3381C2.16816 70.1572 3.37309 68.9223 3.37309 68.9223L37.7402 24.6034C37.7402 24.6034 38.3085 23.9493 37.9286 22.9371C37.5486 21.9249 36.7018 22.0235 36.7018 22.0235H26.875L36.3314 2.40738Z" fill="#E6E8EC"/></svg></span></div>';
 
-            return '<div class="card" onclick="openDetail(\\'' + item.id + '\\')">' +
+            return '<div class="card" onclick="openDetail(\\'' + ref.id + '\\')">' +
               imgHtml +
               '<div class="card-body">' +
-                '<h3>' + escapeHtml(item.name) + '</h3>' +
+                '<h3>' + escapeHtml(ref.name) + '</h3>' +
                 '<div class="card-meta"><span class="badge ' + statusClass + '">' + statusLabel + '</span>' + catBadges +
-                (item.reffoSynced ? '<span class="badge badge-synced">Synced</span>' : '') + '</div>' +
+                (ref.reffoSynced ? '<span class="badge badge-synced">Synced</span>' : '') + '</div>' +
                 (priceStr ? '<div class="card-price">' + escapeHtml(priceStr) + '</div>' : '') +
-                (item.quantity > 1 ? '<div class="card-qty">Qty: ' + item.quantity + '</div>' : '') +
-                (item.description ? '<div class="card-desc">' + escapeHtml(item.description) + '</div>' : '') +
+                (cardAttrSummary ? '<div class="card-desc" style="font-size:12px;color:#777E90;margin-top:4px;">' + escapeHtml(cardAttrSummary) + '</div>' : '') +
+                (ref.quantity > 1 ? '<div class="card-qty">Qty: ' + ref.quantity + '</div>' : '') +
+                (ref.description ? '<div class="card-desc">' + escapeHtml(ref.description) + '</div>' : '') +
               '</div></div>';
           }).join('') + '</div>';
         }
       } catch {
-        container.innerHTML = '<p class="empty">Failed to load items</p>';
+        container.innerHTML = '<p class="empty">Failed to load refs</p>';
       }
     }
 
-    // ===== Item Detail / Edit View =====
-    async function openDetail(itemId) {
+    // ===== Ref Detail / Edit View =====
+    async function openDetail(refId) {
       const container = document.getElementById('detailContent');
       container.innerHTML = '<p class="empty">Loading...</p>';
       switchTab('detail');
 
       try {
-        const [itemRes, mediaRes, offersRes, negRes] = await Promise.all([
-          fetch('/items/' + itemId),
-          fetch('/items/' + itemId + '/media'),
+        const [refRes, mediaRes, offersRes, negRes] = await Promise.all([
+          fetch('/refs/' + refId),
+          fetch('/refs/' + refId + '/media'),
           fetch('/offers'),
           fetch('/negotiations')
         ]);
-        const item = await itemRes.json();
+        const ref = await refRes.json();
         const media = await mediaRes.json();
         const offers = await offersRes.json();
         const allNegs = await negRes.json();
-        const itemNegs = allNegs.filter(n => n.itemId === itemId);
-        const itemOffers = offers.filter(o => o.itemId === itemId);
-        const activeOffer = itemOffers.find(o => o.status === 'active');
+        const refNegs = allNegs.filter(n => n.refId === refId);
+        const refOffers = offers.filter(o => o.refId === refId);
+        const activeOffer = refOffers.find(o => o.status === 'active');
 
         const photos = media.filter(m => m.mediaType === 'photo');
         const video = media.find(m => m.mediaType === 'video');
@@ -1141,9 +1299,9 @@ export function renderUI(): string {
         }
 
         // Build detail HTML
-        let html = '<span class="detail-back" onclick="switchTab(\\'items\\')">';
+        let html = '<span class="detail-back" onclick="switchTab(\\'refs\\')">';
         html += '<svg width="6" height="10" viewBox="0 0 4 6" fill="none"><path d="M3.4711 0.2C3.5961 0.325075 3.66632 0.494669 3.66632 0.6715C3.66632 0.848331 3.5961 1.01792 3.4711 1.143L1.6091 3L3.4711 4.862C3.59116 4.98806 3.65718 5.15606 3.65505 5.33013C3.65293 5.5042 3.58284 5.67055 3.45974 5.79364C3.33665 5.91674 3.17031 5.98683 2.99623 5.98895C2.82216 5.99107 2.65416 5.92506 2.5281 5.805L0.200102 3.471C0.0751014 3.34592 0.00488281 3.17633 0.00488281 2.9995C0.00488281 2.82267 0.0751014 2.65308 0.200102 2.528L2.5291 0.2C2.65414 0.0753044 2.82352 0.00527954 3.0001 0.00527954C3.17669 0.00527954 3.34607 0.0753044 3.4711 0.2Z" fill="#EC526F"/></svg>';
-        html += ' Back to items</span>';
+        html += ' Back to refs</span>';
 
         html += '<div class="detail-gallery">';
         html += '<div class="detail-main-img" id="detailMainImg">' + mainImgHtml + '</div>';
@@ -1154,28 +1312,29 @@ export function renderUI(): string {
 
         // Left: edit form
         html += '<div class="detail-left">';
-        html += '<h2>Edit Item</h2>';
+        html += '<h2>Edit Ref</h2>';
         html += '<div id="detailMsg"></div>';
-        html += '<form id="detailForm" data-item-id="' + item.id + '">';
-        html += '<label>Name</label><input id="dName" value="' + escapeHtml(item.name) + '">';
-        html += '<label>Description</label><textarea id="dDesc">' + escapeHtml(item.description) + '</textarea>';
+        html += '<form id="detailForm" data-ref-id="' + ref.id + '">';
+        html += '<label>Name</label><input id="dName" value="' + escapeHtml(ref.name) + '">';
+        html += '<label>Description</label><textarea id="dDesc">' + escapeHtml(ref.description) + '</textarea>';
         html += '<div class="row"><div><label>Category</label><select id="dCat"><option value="">Select...</option></select></div>';
         html += '<div><label>Subcategory</label><select id="dSubcat"><option value="">Select...</option></select></div></div>';
-        html += '<div class="row"><div><label>Quantity</label><input id="dQty" type="number" min="1" value="' + item.quantity + '"></div>';
-        html += '<div><label>SKU</label><input id="dSku" value="' + escapeHtml(item.sku || '') + '"></div></div>';
+        html += '<div id="detailCategoryFields"></div>';
+        html += '<div class="row"><div><label>Quantity</label><input id="dQty" type="number" min="1" value="' + ref.quantity + '"></div>';
+        html += '<div><label>SKU</label><input id="dSku" value="' + escapeHtml(ref.sku || '') + '"></div></div>';
         html += '<details style="margin-bottom:14px;border:2px solid #E6E8EC;border-radius:12px;padding:14px;">';
         html += '<summary style="cursor:pointer;font-size:12px;font-weight:600;color:#777E90;text-transform:uppercase;letter-spacing:0.02em;">Location</summary>';
-        html += '<div class="row"><div><label>City</label><input id="dLocCity" value="' + escapeHtml(item.locationCity || '') + '"></div>';
-        html += '<div><label>State</label><input id="dLocState" value="' + escapeHtml(item.locationState || '') + '"></div>';
-        html += '<div><label>Zip</label><input id="dLocZip" value="' + escapeHtml(item.locationZip || '') + '"></div></div>';
-        html += '<div class="row"><div><label>Latitude</label><input id="dLocLat" type="number" step="any" value="' + (item.locationLat || '') + '"></div>';
-        html += '<div><label>Longitude</label><input id="dLocLng" type="number" step="any" value="' + (item.locationLng || '') + '"></div></div>';
+        html += '<div class="row"><div><label>City</label><input id="dLocCity" value="' + escapeHtml(ref.locationCity || '') + '"></div>';
+        html += '<div><label>State</label><input id="dLocState" value="' + escapeHtml(ref.locationState || '') + '"></div>';
+        html += '<div><label>Zip</label><input id="dLocZip" value="' + escapeHtml(ref.locationZip || '') + '"></div></div>';
+        html += '<div class="row"><div><label>Latitude</label><input id="dLocLat" type="number" step="any" value="' + (ref.locationLat || '') + '"></div>';
+        html += '<div><label>Longitude</label><input id="dLocLng" type="number" step="any" value="' + (ref.locationLng || '') + '"></div></div>';
         html += '<div class="row"><div><label>Selling Scope</label><select id="dSellingScope">';
         ['global','national','range'].forEach(s => {
-          html += '<option value="' + s + '"' + ((item.sellingScope || 'global') === s ? ' selected' : '') + '>' + ({global:'Global',national:'National',range:'Range (miles)'})[s] + '</option>';
+          html += '<option value="' + s + '"' + ((ref.sellingScope || 'global') === s ? ' selected' : '') + '>' + ({global:'Global',national:'National',range:'Range (miles)'})[s] + '</option>';
         });
         html += '</select></div>';
-        html += '<div><label>Radius (miles)</label><input id="dSellingRadius" type="number" min="1" value="' + (item.sellingRadiusMiles || '') + '"></div></div>';
+        html += '<div><label>Radius (miles)</label><input id="dSellingRadius" type="number" min="1" value="' + (ref.sellingRadiusMiles || '') + '"></div></div>';
         html += '</details>';
         html += '</form>';
 
@@ -1188,19 +1347,19 @@ export function renderUI(): string {
           html += isVid
             ? '<video src="/' + escapeHtml(m.filePath) + '" muted></video>'
             : '<img src="/' + escapeHtml(m.filePath) + '" alt="">';
-          html += '<button class="del-btn" onclick="deleteMedia(\\'' + item.id + '\\', \\'' + m.id + '\\')" title="Delete">&times;</button>';
+          html += '<button class="del-btn" onclick="deleteMedia(\\'' + ref.id + '\\', \\'' + m.id + '\\')" title="Delete">&times;</button>';
           html += '</div>';
         });
         html += '</div>';
         html += '<div class="upload-area" onclick="document.getElementById(\\'detailFileInput\\').click()" style="max-width:200px;">';
         html += '<div class="upload-icon">+</div><p>Upload</p>';
-        html += '<input type="file" id="detailFileInput" accept="image/*,video/*" multiple onchange="uploadDetailMedia(\\'' + item.id + '\\')">';
+        html += '<input type="file" id="detailFileInput" accept="image/*,video/*" multiple onchange="uploadDetailMedia(\\'' + ref.id + '\\')">';
         html += '</div>';
 
-        // Negotiations for this item
-        if (itemNegs.length > 0) {
+        // Negotiations for this ref
+        if (refNegs.length > 0) {
           html += '<h2 style="margin-top:24px;">Negotiations</h2>';
-          html += renderNegotiationCards(itemNegs, true);
+          html += renderNegotiationCards(refNegs, true);
         }
 
         html += '</div>'; // end detail-left
@@ -1214,29 +1373,32 @@ export function renderUI(): string {
         html += '<div class="action-row"><span class="action-label">Status</span><span class="action-value">';
         html += '<select id="dStatus" style="width:auto;height:36px;padding:0 10px;font-size:14px;border-radius:12px;border:2px solid #E6E8EC;margin:0;font-family:Poppins,sans-serif;font-weight:600;background:#FCFCFD;">';
         ['private','for_sale','willing_to_sell'].forEach(s => {
-          html += '<option value="' + s + '"' + (item.listingStatus === s ? ' selected' : '') + '>' + statusLabels[s] + '</option>';
+          html += '<option value="' + s + '"' + (ref.listingStatus === s ? ' selected' : '') + '>' + statusLabels[s] + '</option>';
         });
         html += '</select></span></div>';
-        html += '<div class="action-row"><span class="action-label">Quantity</span><span class="action-value">' + item.quantity + '</span></div>';
-        if (item.category) html += '<div class="action-row"><span class="action-label">Category</span><span class="action-value">' + escapeHtml(item.category) + '</span></div>';
-        if (item.subcategory) html += '<div class="action-row"><span class="action-label">Subcategory</span><span class="action-value">' + escapeHtml(item.subcategory) + '</span></div>';
-        if (item.sku) html += '<div class="action-row"><span class="action-label">SKU</span><span class="action-value">' + escapeHtml(item.sku) + '</span></div>';
-        const locParts = [item.locationCity, item.locationState, item.locationZip].filter(Boolean);
+        html += '<div class="action-row"><span class="action-label">Quantity</span><span class="action-value">' + ref.quantity + '</span></div>';
+        if (ref.category) html += '<div class="action-row"><span class="action-label">Category</span><span class="action-value">' + escapeHtml(ref.category) + '</span></div>';
+        if (ref.subcategory) html += '<div class="action-row"><span class="action-label">Subcategory</span><span class="action-value">' + escapeHtml(ref.subcategory) + '</span></div>';
+        if (ref.condition) html += '<div class="action-row"><span class="action-label">Condition</span><span class="action-value">' + escapeHtml(ref.condition.replace(/_/g, ' ').replace(/\\b\\w/g, function(c) { return c.toUpperCase(); })) + '</span></div>';
+        var detailAttrSummary = buildAttributeSummary(ref.category, ref.subcategory, ref.attributes, null);
+        if (detailAttrSummary) html += '<div class="action-row"><span class="action-label">Details</span><span class="action-value" style="font-size:12px;">' + escapeHtml(detailAttrSummary) + '</span></div>';
+        if (ref.sku) html += '<div class="action-row"><span class="action-label">SKU</span><span class="action-value">' + escapeHtml(ref.sku) + '</span></div>';
+        const locParts = [ref.locationCity, ref.locationState, ref.locationZip].filter(Boolean);
         if (locParts.length > 0) {
           html += '<div class="action-row"><span class="action-label">Location</span><span class="action-value">' + escapeHtml(locParts.join(', ')) + '</span></div>';
         }
         const scopeLabels = { global: 'Global', national: 'National', range: 'Range' };
-        if (item.sellingScope) {
-          let scopeText = scopeLabels[item.sellingScope] || item.sellingScope;
-          if (item.sellingScope === 'range' && item.sellingRadiusMiles) scopeText += ' (' + item.sellingRadiusMiles + ' mi)';
+        if (ref.sellingScope) {
+          let scopeText = scopeLabels[ref.sellingScope] || ref.sellingScope;
+          if (ref.sellingScope === 'range' && ref.sellingRadiusMiles) scopeText += ' (' + ref.sellingRadiusMiles + ' mi)';
           html += '<div class="action-row"><span class="action-label">Selling Scope</span><span class="action-value">' + escapeHtml(scopeText) + '</span></div>';
         }
         html += '<div class="action-row"><span class="action-label">Share on Reffo</span><span class="action-value">';
-        html += '<label class="sync-toggle"><input type="checkbox" ' + (item.reffoSynced ? 'checked' : '') + ' onchange="toggleSync(\\'' + item.id + '\\', this)"><span class="toggle-track"></span></label>';
+        html += '<label class="sync-toggle"><input type="checkbox" ' + (ref.reffoSynced ? 'checked' : '') + ' onchange="toggleSync(\\'' + ref.id + '\\', this)"><span class="toggle-track"></span></label>';
         html += '</span></div>';
         html += '<div style="margin-top:20px;display:flex;gap:10px;flex-direction:column;">';
-        html += '<button class="btn-primary" style="width:100%;" onclick="saveDetail(\\'' + item.id + '\\')">Save Changes</button>';
-        html += '<button class="btn-danger" style="width:100%;" onclick="deleteItem(\\'' + item.id + '\\')"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M18 10C18 11.5823 17.5308 13.129 16.6518 14.4446C15.7727 15.7602 14.5233 16.7855 13.0615 17.391C11.5997 17.9965 9.99113 18.155 8.43928 17.8463C6.88743 17.5376 5.46197 16.7757 4.34315 15.6569C3.22433 14.538 2.4624 13.1126 2.15372 11.5607C1.84504 10.0089 2.00347 8.40034 2.60897 6.93853C3.21447 5.47672 4.23985 4.22729 5.55544 3.34824C6.87104 2.46919 8.41775 2 10 2C12.1217 2 14.1566 2.84285 15.6569 4.34315C17.1572 5.84344 18 7.87827 18 10ZM20 10C20 11.9778 19.4135 13.9112 18.3147 15.5557C17.2159 17.2002 15.6541 18.4819 13.8268 19.2388C11.9996 19.9957 9.98891 20.1937 8.0491 19.8079C6.10929 19.422 4.32746 18.4696 2.92894 17.0711C1.53041 15.6725 0.578004 13.8907 0.192152 11.9509C-0.193701 10.0111 0.00433284 8.00043 0.761209 6.17317C1.51809 4.3459 2.79981 2.78412 4.4443 1.6853C6.08879 0.58649 8.02219 0 10 0C12.6522 0 15.1957 1.05357 17.0711 2.92893C18.9464 4.8043 20 7.34784 20 10ZM5 9C4.73479 9 4.48043 9.10536 4.2929 9.29289C4.10536 9.48043 4 9.73478 4 10C4 10.2652 4.10536 10.5196 4.2929 10.7071C4.48043 10.8946 4.73479 11 5 11H15C15.2652 11 15.5196 10.8946 15.7071 10.7071C15.8946 10.5196 16 10.2652 16 10C16 9.73478 15.8946 9.48043 15.7071 9.29289C15.5196 9.10536 15.2652 9 15 9H5Z" fill="currentColor"/></svg> Archive Item</button>';
+        html += '<button class="btn-primary" style="width:100%;" onclick="saveDetail(\\'' + ref.id + '\\')">Save Changes</button>';
+        html += '<button class="btn-danger" style="width:100%;" onclick="deleteRef(\\'' + ref.id + '\\')"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M18 10C18 11.5823 17.5308 13.129 16.6518 14.4446C15.7727 15.7602 14.5233 16.7855 13.0615 17.391C11.5997 17.9965 9.99113 18.155 8.43928 17.8463C6.88743 17.5376 5.46197 16.7757 4.34315 15.6569C3.22433 14.538 2.4624 13.1126 2.15372 11.5607C1.84504 10.0089 2.00347 8.40034 2.60897 6.93853C3.21447 5.47672 4.23985 4.22729 5.55544 3.34824C6.87104 2.46919 8.41775 2 10 2C12.1217 2 14.1566 2.84285 15.6569 4.34315C17.1572 5.84344 18 7.87827 18 10ZM20 10C20 11.9778 19.4135 13.9112 18.3147 15.5557C17.2159 17.2002 15.6541 18.4819 13.8268 19.2388C11.9996 19.9957 9.98891 20.1937 8.0491 19.8079C6.10929 19.422 4.32746 18.4696 2.92894 17.0711C1.53041 15.6725 0.578004 13.8907 0.192152 11.9509C-0.193701 10.0111 0.00433284 8.00043 0.761209 6.17317C1.51809 4.3459 2.79981 2.78412 4.4443 1.6853C6.08879 0.58649 8.02219 0 10 0C12.6522 0 15.1957 1.05357 17.0711 2.92893C18.9464 4.8043 20 7.34784 20 10ZM5 9C4.73479 9 4.48043 9.10536 4.2929 9.29289C4.10536 9.48043 4 9.73478 4 10C4 10.2652 4.10536 10.5196 4.2929 10.7071C4.48043 10.8946 4.73479 11 5 11H15C15.2652 11 15.5196 10.8946 15.7071 10.7071C15.8946 10.5196 16 10.2652 16 10C16 9.73478 15.8946 9.48043 15.7071 9.29289C15.5196 9.10536 15.2652 9 15 9H5Z" fill="currentColor"/></svg> Archive Ref</button>';
         html += '</div>';
         html += '</div>'; // end action-card
         html += '</div>'; // end detail-right
@@ -1249,11 +1411,18 @@ export function renderUI(): string {
         const dCat = document.getElementById('dCat');
         const dSubcat = document.getElementById('dSubcat');
         populateCategories(dCat, () => populateSubcategories(dCat, dSubcat));
-        dCat.value = item.category || '';
+        dCat.value = ref.category || '';
         populateSubcategories(dCat, dSubcat);
-        dSubcat.value = item.subcategory || '';
+        dSubcat.value = ref.subcategory || '';
+        renderCategoryFields('detailCategoryFields', ref.category || '', ref.subcategory || '', Object.assign({}, ref.attributes || {}, ref.condition ? { _condition: ref.condition } : {}));
+        dCat.addEventListener('change', function() {
+          renderCategoryFields('detailCategoryFields', this.value, dSubcat.value, {});
+        });
+        dSubcat.addEventListener('change', function() {
+          renderCategoryFields('detailCategoryFields', dCat.value, this.value, {});
+        });
       } catch (err) {
-        container.innerHTML = '<p class="empty">Failed to load item details</p>';
+        container.innerHTML = '<p class="empty">Failed to load ref details</p>';
       }
     }
     window.openDetail = openDetail;
@@ -1262,11 +1431,15 @@ export function renderUI(): string {
       document.getElementById('detailMainImg').innerHTML = '<img src="' + src + '" alt="">';
     };
 
-    window.saveDetail = async function(itemId) {
+    window.saveDetail = async function(refId) {
       try {
         const dLocLat = document.getElementById('dLocLat');
         const dLocLng = document.getElementById('dLocLng');
-        const res = await fetch('/items/' + itemId, {
+        const detailCatAttrs = collectCategoryAttrs('detailCategoryFields', document.getElementById('dCat').value, document.getElementById('dSubcat').value);
+        const detailCondition = detailCatAttrs._condition || null;
+        delete detailCatAttrs._condition;
+        const detailAttributes = Object.keys(detailCatAttrs).length > 0 ? detailCatAttrs : null;
+        const res = await fetch('/refs/' + refId, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1284,23 +1457,25 @@ export function renderUI(): string {
             locationLng: dLocLng && dLocLng.value ? parseFloat(dLocLng.value) : null,
             sellingScope: document.getElementById('dSellingScope').value,
             sellingRadiusMiles: document.getElementById('dSellingRadius').value ? parseInt(document.getElementById('dSellingRadius').value) : null,
+            condition: detailCondition,
+            attributes: detailAttributes,
           })
         });
         if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
         showMsg('detailMsg', 'Saved!', true);
-        openDetail(itemId);
+        openDetail(refId);
       } catch (err) {
         showMsg('detailMsg', err.message, false);
       }
     };
 
-    window.deleteMedia = async function(itemId, mediaId) {
+    window.deleteMedia = async function(refId, mediaId) {
       if (!confirm('Delete this media?')) return;
-      await fetch('/items/' + itemId + '/media/' + mediaId, { method: 'DELETE' });
-      openDetail(itemId);
+      await fetch('/refs/' + refId + '/media/' + mediaId, { method: 'DELETE' });
+      openDetail(refId);
     };
 
-    window.uploadDetailMedia = async function(itemId) {
+    window.uploadDetailMedia = async function(refId) {
       const input = document.getElementById('detailFileInput');
       if (!input.files.length) return;
       const errors = [];
@@ -1314,7 +1489,7 @@ export function renderUI(): string {
       if (photos.length > 0) {
         const fd = new FormData();
         photos.forEach(f => fd.append('files', f));
-        const res = await fetch('/items/' + itemId + '/media', { method: 'POST', body: fd });
+        const res = await fetch('/refs/' + refId + '/media', { method: 'POST', body: fd });
         if (!res.ok) {
           try { const err = await res.json(); errors.push(err.error || 'Photo upload failed'); }
           catch { errors.push('Photo upload failed (server error ' + res.status + ')'); }
@@ -1323,7 +1498,7 @@ export function renderUI(): string {
       if (videos.length > 0) {
         const fd = new FormData();
         videos.forEach(f => fd.append('files', f));
-        const res = await fetch('/items/' + itemId + '/media', { method: 'POST', body: fd });
+        const res = await fetch('/refs/' + refId + '/media', { method: 'POST', body: fd });
         if (!res.ok) {
           try { const err = await res.json(); errors.push(err.error || 'Video upload failed'); }
           catch { errors.push('Video upload failed (server error ' + res.status + ')'); }
@@ -1331,19 +1506,19 @@ export function renderUI(): string {
       }
       if (errors.length > 0) alert(errors.join('\\n'));
       input.value = '';
-      openDetail(itemId);
+      openDetail(refId);
     };
 
-    window.deleteItem = async function(itemId) {
-      if (!confirm('Archive this item? You can restore it later from the Archive tab.')) return;
+    window.deleteRef = async function(refId) {
+      if (!confirm('Archive this ref? You can restore it later from the Archive tab.')) return;
       try {
-        const res = await fetch('/items/' + itemId, { method: 'DELETE' });
+        const res = await fetch('/refs/' + refId, { method: 'DELETE' });
         if (!res.ok) throw new Error('Failed to archive');
-        showToast('Item archived', '');
-        switchTab('items');
-        loadMyItems();
+        showToast('Ref archived', '');
+        switchTab('refs');
+        loadMyRefs();
       } catch {
-        alert('Failed to archive item');
+        alert('Failed to archive ref');
       }
     };
 
@@ -1358,24 +1533,24 @@ export function renderUI(): string {
       let cards = '';
       lastSearchResults = [];
       data.results.forEach(peer => {
-        const peerItems = peer.items || [];
+        const peerRefs = peer.refs || [];
         const peerOffers = peer.offers || [];
         const peerMedia = peer.media || {};
         const peerHttpPort = peer.httpPort || 0;
         const offerMap = {};
-        peerOffers.forEach(o => { if (!offerMap[o.itemId]) offerMap[o.itemId] = []; offerMap[o.itemId].push(o); });
+        peerOffers.forEach(o => { if (!offerMap[o.refId]) offerMap[o.refId] = []; offerMap[o.refId].push(o); });
 
-        peerItems.forEach(item => {
-          const itemOffers = offerMap[item.id] || [];
-          const activeOffer = itemOffers.find(o => o.status === 'active');
+        peerRefs.forEach(item => {
+          const refOffers = offerMap[item.id] || [];
+          const activeOffer = refOffers.find(o => o.status === 'active');
           const priceStr = activeOffer ? activeOffer.priceCurrency + ' ' + activeOffer.price.toFixed(2) : '';
           const badges = [item.category, item.subcategory].filter(Boolean).map(b =>
             '<span class="badge badge-cat">' + escapeHtml(b) + '</span>'
           ).join('');
           const statusClass = statusBadgeClass[item.listingStatus] || 'badge-for-sale';
           const statusLabel = statusLabels[item.listingStatus] || '';
-          const itemMedia = peerMedia[item.id] || [];
-          const firstPhoto = itemMedia.find(m => m.mediaType === 'photo');
+          const refMedia = peerMedia[item.id] || [];
+          const firstPhoto = refMedia.find(m => m.mediaType === 'photo');
 
           let actionBtn = '';
           if (item.listingStatus === 'for_sale' && activeOffer) {
@@ -1385,7 +1560,7 @@ export function renderUI(): string {
           }
 
           const idx = lastSearchResults.length;
-          lastSearchResults.push({ item: item, peer: peer, offer: activeOffer || null, media: itemMedia, httpPort: peerHttpPort });
+          lastSearchResults.push({ item: item, peer: peer, offer: activeOffer || null, media: refMedia, httpPort: peerHttpPort });
 
           const imgHtml = (firstPhoto && peerHttpPort)
             ? '<div class="card-img"><img src="http://' + location.hostname + ':' + peerHttpPort + '/' + escapeHtml(firstPhoto.filePath) + '" alt=""></div>'
@@ -1480,7 +1655,7 @@ export function renderUI(): string {
       }
     });
 
-    // ===== Remote Item Detail (read-only) =====
+    // ===== Remote Ref Detail (read-only) =====
     window.openRemoteDetail = function(idx) {
       const entry = lastSearchResults[idx];
       if (!entry) return;
@@ -1538,7 +1713,7 @@ export function renderUI(): string {
 
       html += '<div class="detail-columns">';
 
-      // Left: item info
+      // Left: ref info
       html += '<div class="detail-left">';
       html += '<h1 style="font-size:24px;font-weight:700;color:#141416;margin-bottom:12px;">' + escapeHtml(item.name) + '</h1>';
       html += '<div class="card-meta" style="margin-bottom:12px;"><span class="badge ' + statusClass + '">' + statusLabel + '</span>' + catBadges + '</div>';
@@ -1572,27 +1747,27 @@ export function renderUI(): string {
     };
 
     // ===== Proposal Modal =====
-    window.openBuyModal = function(itemId, itemName, sellerBeaconId, price, currency) {
-      document.getElementById('modalItemId').value = itemId;
-      document.getElementById('modalItemName').value = itemName;
+    window.openBuyModal = function(refId, refName, sellerBeaconId, price, currency) {
+      document.getElementById('modalRefId').value = refId;
+      document.getElementById('modalRefName').value = refName;
       document.getElementById('modalSellerBeaconId').value = sellerBeaconId;
       document.getElementById('modalPrice').value = price;
       document.getElementById('modalCurrency').value = currency;
       document.getElementById('modalMessage').value = 'Accepting listed price';
-      document.getElementById('modalTitle').textContent = 'Buy: ' + itemName;
+      document.getElementById('modalTitle').textContent = 'Buy: ' + refName;
       document.getElementById('modalSendBtn').textContent = 'Send Proposal';
       document.getElementById('modalMsg').innerHTML = '';
       document.getElementById('proposalModal').classList.remove('hidden');
     };
 
-    window.openOfferModal = function(itemId, itemName, sellerBeaconId) {
-      document.getElementById('modalItemId').value = itemId;
-      document.getElementById('modalItemName').value = itemName;
+    window.openOfferModal = function(refId, refName, sellerBeaconId) {
+      document.getElementById('modalRefId').value = refId;
+      document.getElementById('modalRefName').value = refName;
       document.getElementById('modalSellerBeaconId').value = sellerBeaconId;
       document.getElementById('modalPrice').value = '';
       document.getElementById('modalCurrency').value = 'USD';
       document.getElementById('modalMessage').value = '';
-      document.getElementById('modalTitle').textContent = 'Make Offer: ' + itemName;
+      document.getElementById('modalTitle').textContent = 'Make Offer: ' + refName;
       document.getElementById('modalSendBtn').textContent = 'Send Offer';
       document.getElementById('modalMsg').innerHTML = '';
       document.getElementById('proposalModal').classList.remove('hidden');
@@ -1610,8 +1785,8 @@ export function renderUI(): string {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            itemId: document.getElementById('modalItemId').value,
-            itemName: document.getElementById('modalItemName').value,
+            refId: document.getElementById('modalRefId').value,
+            refName: document.getElementById('modalRefName').value,
             sellerBeaconId: document.getElementById('modalSellerBeaconId').value,
             price: parseFloat(document.getElementById('modalPrice').value),
             priceCurrency: document.getElementById('modalCurrency').value,
@@ -1644,7 +1819,7 @@ export function renderUI(): string {
         if (isSeller && n.role === 'seller' && n.status === 'pending') {
           // Single "Respond" button opens the respond modal
           actions = '<div class="neg-actions">' +
-            '<button class="btn-primary btn-sm" onclick="openRespondModal(\\'' + n.id + '\\', \\'' + escapeHtml(n.itemName || n.itemId.slice(0,8)) + '\\', ' + n.price + ', \\'' + escapeHtml(n.priceCurrency) + '\\', \\'' + escapeHtml(n.message || '') + '\\')">Respond</button>' +
+            '<button class="btn-primary btn-sm" onclick="openRespondModal(\\'' + n.id + '\\', \\'' + escapeHtml(n.refName || n.refId.slice(0,8)) + '\\', ' + n.price + ', \\'' + escapeHtml(n.priceCurrency) + '\\', \\'' + escapeHtml(n.message || '') + '\\')">Respond</button>' +
             '</div>';
         } else if (isSeller && n.role === 'seller' && n.status === 'accepted') {
           actions = '<div class="neg-actions">' +
@@ -1663,7 +1838,7 @@ export function renderUI(): string {
 
         return '<div class="neg-card ' + n.status + '">' +
           '<div class="neg-header">' +
-            '<span class="neg-item-name">' + escapeHtml(n.itemName || n.itemId.slice(0, 8)) + '</span>' +
+            '<span class="neg-item-name">' + escapeHtml(n.refName || n.refId.slice(0, 8)) + '</span>' +
             '<span class="neg-status ' + n.status + '">' + displayStatus + '</span>' +
           '</div>' +
           '<div class="neg-details">' + details + '</div>' +
@@ -1677,12 +1852,12 @@ export function renderUI(): string {
       if (negs.length === 0) return '<p class="empty">No negotiations yet</p>';
       const groups = {};
       negs.forEach(n => {
-        if (!groups[n.itemId]) groups[n.itemId] = { itemName: n.itemName || n.itemId.slice(0, 8), negs: [] };
-        groups[n.itemId].negs.push(n);
+        if (!groups[n.refId]) groups[n.refId] = { refName: n.refName || n.refId.slice(0, 8), negs: [] };
+        groups[n.refId].negs.push(n);
       });
       const tab = isSeller ? 'incoming' : 'outgoing';
-      return Object.keys(groups).map(itemId => {
-        const g = groups[itemId];
+      return Object.keys(groups).map(refId => {
+        const g = groups[refId];
         const total = g.negs.length;
         const pendingCount = g.negs.filter(n => n.status === 'pending' || n.status === 'countered').length;
         const latestStatus = g.negs[0].status;
@@ -1690,9 +1865,9 @@ export function renderUI(): string {
         const countClass = pendingCount > 0 ? 'neg-group-count has-pending' : 'neg-group-count';
         const countLabel = pendingCount > 0 ? total + ' (' + pendingCount + ' active)' : String(total);
         const displayStatus = negStatusLabels[latestStatus] || latestStatus;
-        return '<div class="neg-group-row" onclick="showItemNegotiations(\\'' + escapeHtml(itemId) + '\\', ' + (isSeller ? 'true' : 'false') + ', \\'' + tab + '\\')">' +
+        return '<div class="neg-group-row" onclick="showRefNegotiations(\\'' + escapeHtml(refId) + '\\', ' + (isSeller ? 'true' : 'false') + ', \\'' + tab + '\\')">' +
           '<div class="neg-group-left">' +
-            '<span class="neg-group-name">' + escapeHtml(g.itemName) + '</span>' +
+            '<span class="neg-group-name">' + escapeHtml(g.refName) + '</span>' +
             '<span class="' + countClass + '">' + countLabel + '</span>' +
           '</div>' +
           '<div class="neg-group-right">' +
@@ -1703,16 +1878,16 @@ export function renderUI(): string {
       }).join('');
     }
 
-    window.showItemNegotiations = function(itemId, isSeller, tab) {
+    window.showRefNegotiations = function(refId, isSeller, tab) {
       const source = isSeller ? cachedIncoming : cachedOutgoing;
-      const filtered = source.filter(n => n.itemId === itemId);
+      const filtered = source.filter(n => n.refId === refId);
       const containerId = tab === 'incoming' ? 'negIncoming' : 'negOutgoing';
       const container = document.getElementById(containerId);
-      const itemName = filtered.length > 0 ? escapeHtml(filtered[0].itemName || itemId.slice(0, 8)) : escapeHtml(itemId.slice(0, 8));
+      const refName = filtered.length > 0 ? escapeHtml(filtered[0].refName || refId.slice(0, 8)) : escapeHtml(refId.slice(0, 8));
       let html = '<span class="neg-group-back" onclick="renderNegGroupedView(\\'' + tab + '\\')">';
       html += '<svg width="6" height="10" viewBox="0 0 4 6" fill="none"><path d="M3.4711 0.2C3.5961 0.325075 3.66632 0.494669 3.66632 0.6715C3.66632 0.848331 3.5961 1.01792 3.4711 1.143L1.6091 3L3.4711 4.862C3.59116 4.98806 3.65718 5.15606 3.65505 5.33013C3.65293 5.5042 3.58284 5.67055 3.45974 5.79364C3.33665 5.91674 3.17031 5.98683 2.99623 5.98895C2.82216 5.99107 2.65416 5.92506 2.5281 5.805L0.200102 3.471C0.0751014 3.34592 0.00488281 3.17633 0.00488281 2.9995C0.00488281 2.82267 0.0751014 2.65308 0.200102 2.528L2.5291 0.2C2.65414 0.0753044 2.82352 0.00527954 3.0001 0.00527954C3.17669 0.00527954 3.34607 0.0753044 3.4711 0.2Z" fill="#EC526F"/></svg>';
-      html += ' Back to all items</span>';
-      html += '<h3 style="font-size:18px;font-weight:700;color:#141416;margin-bottom:16px;">' + itemName + '</h3>';
+      html += ' Back to all refs</span>';
+      html += '<h3 style="font-size:18px;font-weight:700;color:#141416;margin-bottom:16px;">' + refName + '</h3>';
       html += renderNegotiationCards(filtered, isSeller);
       container.innerHTML = html;
     };
@@ -1751,9 +1926,9 @@ export function renderUI(): string {
     }
 
     // ===== Respond Modal (seller) =====
-    window.openRespondModal = function(negId, itemName, price, currency, message) {
+    window.openRespondModal = function(negId, refName, price, currency, message) {
       document.getElementById('respondNegId').value = negId;
-      document.getElementById('respondModalTitle').textContent = 'Respond: ' + itemName;
+      document.getElementById('respondModalTitle').textContent = 'Respond: ' + refName;
       document.getElementById('respondOfferPrice').textContent = currency + ' ' + parseFloat(price).toFixed(2);
       document.getElementById('respondOfferMessage').textContent = message || '';
       document.getElementById('respondOfferMessage').style.display = message ? 'block' : 'none';
@@ -1850,7 +2025,7 @@ export function renderUI(): string {
     };
 
     window.markAsSold = async function(negId) {
-      if (!confirm('Mark this deal as sold? This will decrement the item quantity.')) return;
+      if (!confirm('Mark this deal as sold? This will decrement the ref quantity.')) return;
       try {
         const res = await fetch('/negotiations/' + negId + '/mark-sold', {
           method: 'PATCH',
@@ -1859,7 +2034,7 @@ export function renderUI(): string {
         if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
         showToast('Deal marked as sold!', 'sold');
         loadNegotiations();
-        loadMyItems();
+        loadMyRefs();
       } catch (err) {
         showToast('Failed: ' + err.message, 'rejected');
       }
@@ -2021,10 +2196,10 @@ export function renderUI(): string {
       }
     };
 
-    window.toggleSync = async function(itemId, checkbox) {
+    window.toggleSync = async function(refId, checkbox) {
       const sync = checkbox.checked;
       try {
-        const res = await fetch('/settings/sync-item/' + itemId, {
+        const res = await fetch('/settings/sync-item/' + refId, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sync: sync })
@@ -2035,33 +2210,33 @@ export function renderUI(): string {
           throw new Error(data.error);
         }
         if (data.warning) {
-          showToast(sync ? 'Item marked for sync (remote pending)' : 'Item unsynced locally (remote pending)', 'accepted');
+          showToast(sync ? 'Ref marked for sync (remote pending)' : 'Ref unsynced locally (remote pending)', 'accepted');
         } else {
-          showToast(sync ? 'Item synced to Reffo.ai' : 'Item removed from Reffo.ai', sync ? 'accepted' : '');
+          showToast(sync ? 'Ref synced to Reffo.ai' : 'Ref removed from Reffo.ai', sync ? 'accepted' : '');
         }
-        // Refresh items list to update synced badges
-        loadMyItems();
+        // Refresh refs list to update synced badges
+        loadMyRefs();
       } catch (err) {
         showToast('Sync failed: ' + err.message, 'rejected');
       }
     };
 
     // ===== Layout Toggle =====
-    let itemLayout = 'card';
-    window.setItemLayout = function(layout) {
-      itemLayout = layout;
+    let refLayout = 'card';
+    window.setRefLayout = function(layout) {
+      refLayout = layout;
       document.getElementById('layoutCardBtn').classList.toggle('active', layout === 'card');
       document.getElementById('layoutRowBtn').classList.toggle('active', layout === 'row');
-      loadMyItems();
+      loadMyRefs();
     };
 
-    // ===== List Item Modal =====
-    window.openListItemModal = function() {
-      document.getElementById('listItemModal').classList.remove('hidden');
+    // ===== List Ref Modal =====
+    window.openListRefModal = function() {
+      document.getElementById('listRefModal').classList.remove('hidden');
     };
 
-    window.closeListItemModal = function() {
-      document.getElementById('listItemModal').classList.add('hidden');
+    window.closeListRefModal = function() {
+      document.getElementById('listRefModal').classList.add('hidden');
     };
 
     // ===== Init =====
@@ -2075,7 +2250,7 @@ export function renderUI(): string {
       } catch {}
     }
 
-    loadMyItems();
+    loadMyRefs();
     initOutgoingSnapshot();
 
     // Check for pending negotiations periodically
@@ -2100,16 +2275,16 @@ export function renderUI(): string {
         for (const neg of outgoing) {
           const prev = prevOutgoingStatuses[neg.id];
           if (prev && prev !== neg.status && neg.status !== 'pending' && neg.status !== 'withdrawn') {
-            const itemLabel = neg.itemName || neg.itemId;
+            const refLabel = neg.refName || neg.refId;
             if (neg.status === 'accepted') {
-              showToast('\u2713 Your offer on "' + itemLabel + '" was accepted!', 'accepted');
+              showToast('\u2713 Your offer on "' + refLabel + '" was accepted!', 'accepted');
             } else if (neg.status === 'rejected') {
-              showToast('\u2717 Your offer on "' + itemLabel + '" was declined.', 'rejected');
+              showToast('\u2717 Your offer on "' + refLabel + '" was declined.', 'rejected');
             } else if (neg.status === 'countered') {
               const cp = neg.counterPrice ? ' at $' + neg.counterPrice : '';
-              showToast('\u21a9 Counter offer received for "' + itemLabel + '"' + cp, 'countered');
+              showToast('\u21a9 Counter offer received for "' + refLabel + '"' + cp, 'countered');
             } else if (neg.status === 'sold') {
-              showToast('\u2713 Deal for "' + itemLabel + '" is complete!', 'sold');
+              showToast('\u2713 Deal for "' + refLabel + '" is complete!', 'sold');
             }
           }
           prevOutgoingStatuses[neg.id] = neg.status;

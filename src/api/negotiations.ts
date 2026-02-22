@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { v4 as uuid } from 'uuid';
-import { NegotiationQueries, ItemQueries } from '../db';
+import { NegotiationQueries, RefQueries } from '../db';
 import type { DhtDiscovery } from '../dht/discovery';
 import type { SyncManager } from '../sync';
 import type { NegotiationStatus } from '../types';
@@ -39,10 +39,10 @@ router.post('/', async (req: Request, res: Response) => {
   const beaconId = req.app.get('beaconId') as string;
   const dht: DhtDiscovery | undefined = req.app.get('dht');
 
-  const { itemId, itemName, sellerBeaconId, price, priceCurrency, message } = req.body;
+  const { refId, refName, sellerBeaconId, price, priceCurrency, message } = req.body;
 
-  if (!itemId || typeof itemId !== 'string') {
-    return res.status(400).json({ error: 'itemId is required' });
+  if (!refId || typeof refId !== 'string') {
+    return res.status(400).json({ error: 'refId is required' });
   }
   if (!sellerBeaconId || typeof sellerBeaconId !== 'string') {
     return res.status(400).json({ error: 'sellerBeaconId is required' });
@@ -60,8 +60,8 @@ router.post('/', async (req: Request, res: Response) => {
       beaconId,
       payload: {
         negotiationId,
-        itemId,
-        itemName: itemName || '',
+        refId,
+        refName: refName || '',
         price,
         priceCurrency: priceCurrency || 'USD',
         message: message || '',
@@ -76,8 +76,8 @@ router.post('/', async (req: Request, res: Response) => {
   // Create buyer-side record
   const negotiation = negotiations.create({
     id: negotiationId,
-    itemId,
-    itemName: itemName || '',
+    refId,
+    refName: refName || '',
     buyerBeaconId: beaconId,
     sellerBeaconId,
     price,
@@ -140,9 +140,9 @@ router.patch('/:id/respond', async (req: Request, res: Response) => {
     ).catch(() => {});
   }
 
-  // Auto-reject other pending/countered offers for the same item when one is accepted
+  // Auto-reject other pending/countered offers for the same ref when one is accepted
   if (status === 'accepted') {
-    const siblings = negotiations.listPendingForItem(negotiation.itemId, negId);
+    const siblings = negotiations.listPendingForRef(negotiation.refId, negId);
     for (const sib of siblings) {
       negotiations.updateStatus(sib.id, 'rejected', undefined, 'Another offer was accepted');
       // Notify buyer via DHT
@@ -175,7 +175,7 @@ router.patch('/:id/respond', async (req: Request, res: Response) => {
 // PATCH /negotiations/:id/mark-sold — seller marks accepted offer as sold
 router.patch('/:id/mark-sold', async (req: Request, res: Response) => {
   const negotiations = new NegotiationQueries();
-  const items = new ItemQueries();
+  const refs = new RefQueries();
   const beaconId = req.app.get('beaconId') as string;
   const dht: DhtDiscovery | undefined = req.app.get('dht');
   const syncManager: SyncManager | undefined = req.app.get('syncManager');
@@ -189,16 +189,16 @@ router.patch('/:id/mark-sold', async (req: Request, res: Response) => {
   // Update negotiation status to sold
   const updated = negotiations.updateStatus(negId, 'sold');
 
-  // Decrement item quantity
-  const newQuantity = items.decrementQuantity(negotiation.itemId);
+  // Decrement ref quantity
+  const newQuantity = refs.decrementQuantity(negotiation.refId);
 
-  // If quantity reaches 0, archive the item
+  // If quantity reaches 0, archive the ref
   if (newQuantity === 0) {
-    items.archive(negotiation.itemId, 'sold');
+    refs.archive(negotiation.refId, 'sold');
     // Unsync if synced
-    const item = items.get(negotiation.itemId);
-    if (item && syncManager) {
-      syncManager.unsyncItem(negotiation.itemId).catch(() => {});
+    const ref = refs.get(negotiation.refId);
+    if (ref && syncManager) {
+      syncManager.unsyncItem(negotiation.refId).catch(() => {});
     }
   }
 

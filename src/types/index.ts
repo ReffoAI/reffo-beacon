@@ -5,7 +5,7 @@ export type ListingStatus = 'private' | 'for_sale' | 'willing_to_sell' | 'archiv
 
 export type SellingScope = 'global' | 'national' | 'range';
 
-export interface Item {
+export interface Ref {
   id: string;
   /** Schema.org: name */
   name: string;
@@ -23,7 +23,7 @@ export interface Item {
   listingStatus: ListingStatus;
   /** Reffo: quantity available */
   quantity: number;
-  /** Reffo: whether this item is synced to reffo.ai */
+  /** Reffo: whether this ref is synced to reffo.ai */
   reffoSynced: boolean;
   /** Reffo: the ref ID on reffo.ai (if synced) */
   reffoRefId?: string;
@@ -45,7 +45,11 @@ export interface Item {
   sellingScope?: SellingScope;
   /** Selling radius in miles (when scope = 'range') */
   sellingRadiusMiles?: number;
-  /** Reffo: beacon public key that owns this item */
+  /** Category-specific attributes (JSON) */
+  attributes?: Record<string, unknown>;
+  /** Category-appropriate condition */
+  condition?: string;
+  /** Reffo: beacon public key that owns this ref */
   beaconId: string;
   /** Schema.org: dateCreated */
   createdAt: string;
@@ -53,19 +57,19 @@ export interface Item {
   updatedAt: string;
 }
 
-export type ItemCreate = Omit<Item, 'id' | 'beaconId' | 'createdAt' | 'updatedAt' | 'listingStatus' | 'quantity' | 'reffoSynced' | 'reffoRefId'> & {
+export type RefCreate = Omit<Ref, 'id' | 'beaconId' | 'createdAt' | 'updatedAt' | 'listingStatus' | 'quantity' | 'reffoSynced' | 'reffoRefId'> & {
   listingStatus?: ListingStatus;
   quantity?: number;
 };
 
-export type ItemUpdate = Partial<ItemCreate>;
+export type RefUpdate = Partial<RefCreate>;
 
 export type OfferStatus = 'active' | 'sold' | 'withdrawn';
 
 export interface Offer {
   id: string;
-  /** The item being offered */
-  itemId: string;
+  /** The ref being offered */
+  refId: string;
   /** Schema.org: price */
   price: number;
   /** Schema.org: priceCurrency (ISO 4217) */
@@ -84,7 +88,7 @@ export type OfferCreate = Omit<Offer, 'id' | 'sellerId' | 'createdAt' | 'updated
   status?: OfferStatus;
 };
 
-export type OfferUpdate = Partial<Omit<OfferCreate, 'itemId'>>;
+export type OfferUpdate = Partial<Omit<OfferCreate, 'refId'>>;
 
 export interface BeaconSettings {
   id: string;
@@ -102,7 +106,7 @@ export interface BeaconSettings {
 export interface BeaconInfo {
   id: string;
   version: string;
-  itemCount: number;
+  refCount: number;
   offerCount: number;
   uptime: number;
   dht: {
@@ -114,9 +118,9 @@ export interface BeaconInfo {
 // Media types
 export type MediaType = 'photo' | 'video';
 
-export interface ItemMedia {
+export interface RefMedia {
   id: string;
-  itemId: string;
+  refId: string;
   mediaType: MediaType;
   filePath: string;
   mimeType: string;
@@ -131,8 +135,8 @@ export type NegotiationRole = 'buyer' | 'seller';
 
 export interface Negotiation {
   id: string;
-  itemId: string;
-  itemName: string;
+  refId: string;
+  refName: string;
   buyerBeaconId: string;
   sellerBeaconId: string;
   price: number;
@@ -153,8 +157,8 @@ export type NegotiationCreate = Omit<Negotiation, 'createdAt' | 'updatedAt' | 's
 // DHT payloads for negotiations
 export interface ProposalPayload {
   negotiationId: string;
-  itemId: string;
-  itemName: string;
+  refId: string;
+  refName: string;
   price: number;
   priceCurrency: string;
   message: string;
@@ -185,7 +189,7 @@ export interface QueryPayload {
 }
 
 export interface AnnouncePayload {
-  items: (Pick<Item, 'id' | 'name' | 'category' | 'subcategory' | 'listingStatus'> & {
+  refs: (Pick<Ref, 'id' | 'name' | 'category' | 'subcategory' | 'listingStatus'> & {
     locationLat?: number;
     locationLng?: number;
     locationCity?: string;
@@ -195,7 +199,7 @@ export interface AnnouncePayload {
     sellingScope?: SellingScope;
     sellingRadiusMiles?: number;
   })[];
-  offers: Pick<Offer, 'id' | 'itemId' | 'price' | 'priceCurrency' | 'status'>[];
+  offers: Pick<Offer, 'id' | 'refId' | 'price' | 'priceCurrency' | 'status'>[];
 }
 
 /** Blur lat/lng to ~0.7 mile / zip-code precision */
