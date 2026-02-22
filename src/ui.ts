@@ -15,7 +15,8 @@ export function renderUI(): string {
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Poppins', sans-serif; background: #F4F5F6; color: #23262F; line-height: 1.5; }
+    body { font-family: 'Poppins', sans-serif; background: #F4F5F6; color: #23262F; line-height: 1.5; min-height: 100vh; display: flex; flex-direction: column; }
+    .app-content { flex: 1; }
     .container { max-width: 1100px; margin: 0 auto; padding: 24px; }
 
     /* Fade-in animation (from Modal.module.sass) */
@@ -269,6 +270,20 @@ export function renderUI(): string {
     .neg-group-date { font-size: 12px; color: #777E90; font-weight: 500; }
     .neg-group-back { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: #EC526F; cursor: pointer; margin-bottom: 16px; font-weight: 600; transition: color 0.2s; }
     .neg-group-back:hover { color: #DD436C; }
+
+    /* Footer */
+    .app-footer { border-top: 1px solid #E6E8EC; background: #FCFCFD; padding: 32px 24px; }
+    .app-footer-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .app-footer-brand { display: flex; align-items: center; gap: 8px; }
+    .app-footer-brand span { font-size: 14px; font-weight: 600; color: #141416; }
+    .app-footer-links { display: flex; align-items: center; gap: 16px; font-size: 14px; }
+    .app-footer-links a { color: #777E90; text-decoration: none; transition: color 0.2s; }
+    .app-footer-links a:hover { color: #141416; }
+    .app-footer-links .sep { color: #E6E8EC; }
+    .app-footer-copy { font-size: 14px; color: #777E90; }
+    @media (max-width: 768px) {
+      .app-footer-inner { flex-direction: column; text-align: center; gap: 12px; }
+    }
   </style>
 </head>
 <body>
@@ -307,6 +322,7 @@ export function renderUI(): string {
     </div>
   </div>
 
+  <div class="app-content">
   <div class="container">
     <!-- Search Filter Bar -->
     <div style="margin-bottom:24px;">
@@ -657,6 +673,25 @@ export function renderUI(): string {
 
   <!-- Toast container -->
   <div id="toast-container"></div>
+  </div><!-- end app-content -->
+
+  <!-- Footer -->
+  <footer class="app-footer">
+    <div class="app-footer-inner">
+      <div class="app-footer-brand">
+        <svg width="20" height="36" viewBox="0 0 40 71" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M36.33 2.41s.5-.98.1-1.75C36.03-.1 35.05.01 35.05.01H11.18s-.63-.03-1.03.34c-.4.37-.55 1.15-.55 1.15L.24 32.59s-.49 1.18-.07 2.08c.42.9 1.4.83 1.4.83h8.49L.56 66.88s-.73 1.64.44 2.45c1.16.82 2.37-.42 2.37-.42L37.74 24.6s.57-.65.19-1.67c-.38-1.01-1.23-.91-1.23-.91H26.88l9.45-19.61z" fill="#EA526F"/>
+        </svg>
+        <span>Reffo Beacon</span>
+      </div>
+      <div class="app-footer-links">
+        <a href="mailto:help@reffo.ai">Support</a>
+        <span class="sep">|</span>
+        <a href="https://reffo.ai/about" target="_blank" rel="noopener noreferrer">About</a>
+      </div>
+      <div class="app-footer-copy">&copy; <script>document.write(new Date().getFullYear())</script> Reffo.ai</div>
+    </div>
+  </footer>
 
   <script>
     const TAXONOMY = ${taxonomyJSON};
