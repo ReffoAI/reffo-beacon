@@ -329,11 +329,7 @@ export function renderUI(): string {
       <div class="search-filter-bar" id="searchFilterBar">
         <div class="search-filter-segment">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <select id="headerSearchSort">
-            <option value="newest">Newest First</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
-          </select>
+          <input id="headerSearchLoc" placeholder="Search where?" onkeydown="if(event.key==='Enter')executeHeaderSearch()">
         </div>
         <span class="sfb-divider"></span>
         <div class="search-filter-segment">
@@ -394,7 +390,24 @@ export function renderUI(): string {
     <!-- Search Tab -->
     <div id="tab-search" class="hidden">
       <section>
-        <h2>Search Results</h2>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+          <h2 style="margin:0;border:none;padding:0;">Search Results</h2>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <select id="searchRadiusSelect" style="font-size:13px;border:1px solid #E6E8EC;border-radius:8px;padding:4px 8px;font-family:'Poppins',sans-serif;height:32px;display:none;" onchange="executeHeaderSearch()">
+              <option value="10">10 miles</option>
+              <option value="25">25 miles</option>
+              <option value="50" selected>50 miles</option>
+              <option value="100">100 miles</option>
+              <option value="200">200 miles</option>
+              <option value="500">500 miles</option>
+            </select>
+            <select id="searchSortSelect" style="font-size:13px;border:1px solid #E6E8EC;border-radius:8px;padding:4px 8px;font-family:'Poppins',sans-serif;height:32px;">
+              <option value="newest">Newest First</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+            </select>
+          </div>
+        </div>
         <div id="searchResults"><p class="empty">Use the search bar above to find items</p></div>
       </section>
     </div>
@@ -1406,10 +1419,38 @@ export function renderUI(): string {
 
       var q = document.getElementById('headerSearchQ').value.trim();
       var c = document.getElementById('headerSearchCat').value;
+      var loc = document.getElementById('headerSearchLoc').value.trim();
+      var radiusSelect = document.getElementById('searchRadiusSelect');
+      var radius = radiusSelect.value || '50';
 
       var params = new URLSearchParams();
       if (q) params.set('q', q);
       if (c) params.set('c', c);
+
+      // Geocode location if provided
+      if (loc) {
+        try {
+          var geoParams = new URLSearchParams({ q: loc, format: 'json', limit: '1', countrycodes: 'us' });
+          var geoRes = await fetch('https://nominatim.openstreetmap.org/search?' + geoParams.toString(), {
+            headers: { 'User-Agent': 'ReffoBeacon/1.0' }
+          });
+          var geoData = await geoRes.json();
+          if (geoData.length > 0) {
+            params.set('lat', geoData[0].lat);
+            params.set('lng', geoData[0].lon);
+            params.set('radius', radius);
+            radiusSelect.style.display = '';
+          } else {
+            container.innerHTML = '<p class="empty">Location not found. Try a different city or zip code.</p>';
+            return;
+          }
+        } catch (e) {
+          container.innerHTML = '<p class="empty">Failed to look up location.</p>';
+          return;
+        }
+      } else {
+        radiusSelect.style.display = 'none';
+      }
 
       try {
         var res = await fetch('/search?' + params.toString());
