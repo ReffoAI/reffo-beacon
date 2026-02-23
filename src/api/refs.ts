@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { RefQueries, MediaQueries, NegotiationQueries } from '../db';
 import { isValidCategory, isValidSubcategory } from '../taxonomy';
-import type { ListingStatus } from '../types';
+import type { ListingStatus } from '@reffo/protocol';
 
 const VALID_LISTING_STATUSES: ListingStatus[] = ['private', 'for_sale', 'willing_to_sell'];
 

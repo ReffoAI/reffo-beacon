@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { SettingsQueries } from '../db';
-import type { SellingScope } from '../types';
+import type { SellingScope } from '@reffo/protocol';
 
 const router = Router();
 

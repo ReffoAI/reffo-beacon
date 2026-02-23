@@ -5,8 +5,8 @@
 
 import fs from 'fs';
 import path from 'path';
-import type { Ref, Offer, RefMedia } from '../types';
-import { blurLocation } from '../types';
+import type { Ref, Offer, RefMedia } from '@reffo/protocol';
+import { blurLocation } from '@reffo/protocol';
 
 const DEFAULT_BASE_URL = 'https://reffo.ai';
 

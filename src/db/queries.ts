@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import { v4 as uuid } from 'uuid';
 import { getDb } from './schema';
-import type { Ref, RefCreate, RefUpdate, ListingStatus, Offer, OfferCreate, OfferUpdate, RefMedia, MediaType, Negotiation, NegotiationCreate, NegotiationStatus, NegotiationRole, BeaconSettings, SellingScope } from '../types';
+import type { Ref, RefCreate, RefUpdate, ListingStatus, Offer, OfferCreate, OfferUpdate, RefMedia, MediaType, Negotiation, NegotiationCreate, NegotiationStatus, NegotiationRole, BeaconSettings, SellingScope } from '@reffo/protocol';
 
 function rowToRef(row: Record<string, unknown>): Ref {
   return {

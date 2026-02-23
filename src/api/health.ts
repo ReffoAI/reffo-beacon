@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { RefQueries, OfferQueries } from '../db';
-import type { BeaconInfo } from '../types';
+import type { BeaconInfo } from '@reffo/protocol';
 
 const router = Router();
 const startTime = Date.now();

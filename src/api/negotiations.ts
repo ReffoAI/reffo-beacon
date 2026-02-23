@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { NegotiationQueries, RefQueries } from '../db';
 import type { DhtDiscovery } from '../dht/discovery';
 import type { SyncManager } from '../sync';
-import type { NegotiationStatus } from '../types';
+import type { NegotiationStatus } from '@reffo/protocol';
 
 const router = Router();
 
