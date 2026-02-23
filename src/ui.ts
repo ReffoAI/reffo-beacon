@@ -1,5 +1,5 @@
 import { TAXONOMY } from './taxonomy';
-import { CATEGORY_SCHEMAS } from './ref-schemas';
+import { CATEGORY_SCHEMAS } from '@reffo/protocol';
 
 export function renderUI(): string {
   const taxonomyJSON = JSON.stringify(TAXONOMY);
