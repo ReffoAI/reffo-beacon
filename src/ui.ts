@@ -174,10 +174,13 @@ export function renderUI(): string {
     .detail-main-img img { width: 100%; height: 100%; object-fit: cover; }
     .detail-main-img .placeholder { color: #B1B5C3; font-size: 3rem; }
     .detail-side-imgs { flex: 1; display: flex; flex-direction: column; gap: 12px; height: 100%; }
-    .detail-side-img { flex: 1; min-height: 0; border-radius: 16px; overflow: hidden; background: #F4F5F6; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: opacity 0.2s; }
+    .detail-side-img { flex: 1; min-height: 0; border-radius: 16px; overflow: hidden; background: #F4F5F6; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: opacity 0.2s; position: relative; }
     .detail-side-img:hover { opacity: 0.85; }
     .detail-side-img img { width: 100%; height: 100%; object-fit: cover; }
     .detail-side-img .placeholder { color: #E6E8EC; font-size: 1.5rem; }
+    .detail-view-all { position: absolute; inset: 0; background: rgba(20,20,22,0.55); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; border-radius: 16px; }
+    .detail-view-all:hover { background: rgba(20,20,22,0.7); }
+    .detail-view-all span { color: #FCFCFD; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
     .detail-columns { display: flex; gap: 24px; }
     .detail-left { flex: 1; }
     .detail-right { flex: 0 0 320px; }
@@ -260,9 +263,9 @@ export function renderUI(): string {
     /* PaymentCard — Old Reffo: sticky, 15px radius, soft shadow */
     .payment-card { background: #fff; border-radius: 15px; box-shadow: 0px 35px 46px 0px rgba(0,0,0,0.05); border: 1px solid #E6E8EC; position: sticky; top: 100px; overflow: hidden; }
     .payment-card-header { display: flex; justify-content: space-between; align-items: center; padding: 30px 30px 0; }
-    .payment-card-amount { font-size: 40px; font-weight: 700; color: #141416; line-height: 1.2; }
+    .payment-card-amount { font-size: 24px; font-weight: 700; color: #141416; line-height: 1.2; }
     .payment-card-amount small { font-size: 14px; font-weight: 500; color: #777E90; display: block; margin-top: 4px; }
-    .payment-card-thumb { width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: #F4F5F6; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .payment-card-thumb { width: 32px; height: 32px; border-radius: 50%; overflow: hidden; background: #F4F5F6; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
     .payment-card-thumb img { width: 100%; height: 100%; object-fit: cover; }
     .payment-card-details { background: #F4F5F6; border-radius: 15px; padding: 20px; margin: 20px 30px; }
     .payment-card-detail-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; }
@@ -302,10 +305,73 @@ export function renderUI(): string {
     .button-stroke { display: inline-flex; justify-content: center; align-items: center; height: 40px; padding: 0 20px; background: none; border-radius: 20px; font-size: 13px; font-weight: 500; color: #23262F; box-shadow: 0 0 0 2px #E6E8EC inset; border: none; cursor: pointer; transition: all 0.2s; gap: 6px; font-family: 'Poppins', sans-serif; }
     .button-stroke:hover { background: #23262F; box-shadow: 0 0 0 2px #23262F inset; color: #FCFCFD; }
 
+    /* Detail header — above gallery */
+    .detail-header { margin-bottom: 24px; }
+    .detail-header-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 14px; font-weight: 600; color: #23262F;
+      background: #F4F5F6; border: 1px solid #E6E8EC;
+      border-radius: 24px; padding: 8px 16px;
+      cursor: pointer; transition: all 0.2s;
+      text-decoration: none;
+    }
+    .detail-header-back:hover { background: #E6E8EC; }
+    .detail-header-back svg { flex-shrink: 0; }
+
+    .detail-title-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; margin-top: 16px;
+    }
+    .detail-title-row h1 {
+      font-size: 32px; font-weight: 700; color: #141416; margin: 0; flex: 1;
+    }
+    .detail-title-actions { display: flex; align-items: center; gap: 8px; }
+    .detail-title-actions button {
+      width: 40px; height: 40px; border-radius: 50%;
+      border: 1px solid #E6E8EC; background: #FCFCFD;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; color: #777E90; transition: all 0.2s;
+    }
+    .detail-title-actions button:hover { border-color: #141416; color: #141416; }
+
+    .detail-posted-line {
+      display: flex; align-items: center; gap: 10px;
+      margin-top: 8px; font-size: 14px; color: #777E90;
+    }
+    .detail-posted-line .avatar-sm {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #EC526F; color: #fff; font-size: 12px;
+      font-weight: 700; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+    }
+    .detail-posted-line .poster-name { font-weight: 600; color: #23262F; }
+    .detail-posted-line .loc-pin { display: flex; align-items: center; gap: 4px; }
+
+    /* PaymentCard initial-letter avatar */
+    .payment-card-thumb.initial-avatar {
+      background: #EC526F; color: #fff;
+      font-size: 13px; font-weight: 700;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Edit button at top of payment card */
+    .payment-card-edit {
+      display: flex; justify-content: flex-end; padding: 12px 30px 0;
+    }
+    .payment-card-edit button {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 13px; font-weight: 600; color: #EC526F;
+      background: none; border: none; cursor: pointer;
+      font-family: 'Poppins', sans-serif;
+    }
+    .payment-card-edit button:hover { text-decoration: underline; }
+
     @media (max-width: 767px) {
       .deal-body { max-width: 100%; padding-right: 0; }
       .info-item { width: 100%; }
       .payment-card { position: static; }
+      .detail-title-row { flex-wrap: wrap; }
+      .detail-title-row h1 { font-size: 24px; }
     }
 
     /* Sold negotiation status */
@@ -602,15 +668,8 @@ export function renderUI(): string {
 
         <div id="createCategoryFields"></div>
 
+        <input type="hidden" id="refListingStatus" name="listingStatus" value="private">
         <div class="row">
-          <div>
-            <label for="refListingStatus">Listing Status</label>
-            <select id="refListingStatus" name="listingStatus">
-              <option value="private">Private</option>
-              <option value="for_sale">For Sale</option>
-              <option value="willing_to_sell">Willing to Sell</option>
-            </select>
-          </div>
           <div>
             <label for="refQuantity">Quantity</label>
             <input id="refQuantity" name="quantity" type="number" min="1" step="1" value="1">
@@ -683,9 +742,26 @@ export function renderUI(): string {
         </div>
         <div id="videoPreview" style="margin-bottom:12px;"></div>
 
-        <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <div style="display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-bottom:10px;margin-top:20px;">
+          <span style="font-size:13px;font-weight:600;color:#23262F;">Also push to Reffo</span>
+          <label class="sync-toggle" style="margin:0;">
+            <input type="checkbox" id="refAlsoPushReffo">
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center;">
           <button type="button" class="btn-secondary" onclick="closeListRefModal()">Cancel</button>
-          <button type="submit" class="btn-primary">List Ref</button>
+          <div style="position:relative;display:inline-flex;" id="createBtnGroup">
+            <button type="button" class="btn-primary" id="createBtnMain" style="border-radius:24px 0 0 24px;padding-right:12px;" onclick="document.getElementById('refListingStatus').value=this.dataset.status;document.getElementById('listForm').requestSubmit();" data-status="private">Create Private</button>
+            <button type="button" class="btn-primary" id="createBtnToggle" style="border-radius:0 24px 24px 0;padding:0 10px;border-left:1px solid rgba(255,255,255,0.3);" onclick="var m=document.getElementById('createDropdown');m.style.display=m.style.display==='block'?'none':'block';">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <div id="createDropdown" style="display:none;position:absolute;bottom:100%;right:0;margin-bottom:4px;background:#FCFCFD;border:1px solid #E6E8EC;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.12);overflow:hidden;min-width:180px;z-index:10;">
+              <div style="padding:6px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#F4F5F6'" onmouseout="this.style.background=''" onclick="document.getElementById('createBtnMain').textContent='Create Private';document.getElementById('createBtnMain').dataset.status='private';document.getElementById('createDropdown').style.display='none';">Private</div>
+              <div style="padding:6px 16px;font-size:13px;font-weight:600;cursor:pointer;color:#1a8a42;transition:background 0.15s;" onmouseover="this.style.background='#F4F5F6'" onmouseout="this.style.background=''" onclick="document.getElementById('createBtnMain').textContent='Create For Sale';document.getElementById('createBtnMain').dataset.status='for_sale';document.getElementById('createDropdown').style.display='none';">For Sale</div>
+              <div style="padding:6px 16px;font-size:13px;font-weight:600;cursor:pointer;color:#e6a200;transition:background 0.15s;" onmouseover="this.style.background='#F4F5F6'" onmouseout="this.style.background=''" onclick="document.getElementById('createBtnMain').textContent='Create Willing to Sell';document.getElementById('createBtnMain').dataset.status='willing_to_sell';document.getElementById('createDropdown').style.display='none';">Willing to Sell</div>
+            </div>
+          </div>
         </div>
       </form>
     </div>
@@ -1200,11 +1276,33 @@ export function renderUI(): string {
           });
         }
 
+        // Push to Reffo if toggle is checked
+        if (document.getElementById('refAlsoPushReffo').checked) {
+          try {
+            const syncRes = await fetch('/settings/sync-item/' + ref.id, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ sync: true })
+            });
+            const syncData = await syncRes.json();
+            if (syncRes.ok) {
+              showToast(syncData.warning ? 'Ref marked for sync (remote pending)' : 'Ref synced to Reffo.ai', 'accepted');
+            } else {
+              showToast('Sync failed: ' + (syncData.error || 'Unknown error'), 'rejected');
+            }
+          } catch (syncErr) {
+            showToast('Sync failed: ' + syncErr.message, 'rejected');
+          }
+        }
+
         showMsg('listMsg', 'Ref added successfully!', true);
         e.target.reset();
         document.getElementById('refQuantity').value = '1';
         document.getElementById('refSubcat').innerHTML = '<option value="">Select...</option>';
         document.getElementById('createCategoryFields').innerHTML = '';
+        // Reset split button state
+        document.getElementById('createBtnMain').textContent = 'Create Private';
+        document.getElementById('createBtnMain').dataset.status = 'private';
         selectedPhotos = [];
         selectedVideo = null;
         document.getElementById('photoPreview').innerHTML = '';
@@ -1340,11 +1438,14 @@ export function renderUI(): string {
             : '<img src="/' + escapeHtml(mainMedia.filePath) + '" alt="">')
           : '<span class="placeholder">No media</span>';
 
+        const hasVideo = !!video;
+        const showViewAll = photos.length > 4 || (photos.length >= 4 && hasVideo);
         let sideImgsHtml = '';
         for (let i = 0; i < 3; i++) {
           const sm = sideMedia[i];
           if (sm) {
-            sideImgsHtml += '<div class="detail-side-img"><img src="/' + escapeHtml(sm.filePath) + '" alt="" onclick="setMainImage(this.src)"></div>';
+            const viewAllOverlay = (i === 2 && showViewAll) ? '<div class="detail-view-all"><span>View all</span></div>' : '';
+            sideImgsHtml += '<div class="detail-side-img"><img src="/' + escapeHtml(sm.filePath) + '" alt="" onclick="setMainImage(this.src)">' + viewAllOverlay + '</div>';
           } else {
             sideImgsHtml += '<div class="detail-side-img"><span class="placeholder">+</span></div>';
           }
@@ -1362,10 +1463,25 @@ export function renderUI(): string {
         const detailAttrSummary = buildAttributeSummary(ref.category, ref.subcategory, ref.attributes, null);
         const listedDate = ref.createdAt ? new Date(ref.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
 
-        // Build detail HTML
-        let html = '<span class="detail-back" onclick="switchTab(\\'refs\\')">';
-        html += '<svg width="6" height="10" viewBox="0 0 4 6" fill="none"><path d="M3.4711 0.2C3.5961 0.325075 3.66632 0.494669 3.66632 0.6715C3.66632 0.848331 3.5961 1.01792 3.4711 1.143L1.6091 3L3.4711 4.862C3.59116 4.98806 3.65718 5.15606 3.65505 5.33013C3.65293 5.5042 3.58284 5.67055 3.45974 5.79364C3.33665 5.91674 3.17031 5.98683 2.99623 5.98895C2.82216 5.99107 2.65416 5.92506 2.5281 5.805L0.200102 3.471C0.0751014 3.34592 0.00488281 3.17633 0.00488281 2.9995C0.00488281 2.82267 0.0751014 2.65308 0.200102 2.528L2.5291 0.2C2.65414 0.0753044 2.82352 0.00527954 3.0001 0.00527954C3.17669 0.00527954 3.34607 0.0753044 3.4711 0.2Z" fill="#EC526F"/></svg>';
+        // Build detail HTML — New header above gallery
+        let html = '<div class="detail-header">';
+        html += '<span class="detail-header-back" onclick="switchTab(\\'refs\\')">';
+        html += '<svg width="6" height="10" viewBox="0 0 4 6" fill="none"><path d="M3.4711 0.2C3.5961 0.325075 3.66632 0.494669 3.66632 0.6715C3.66632 0.848331 3.5961 1.01792 3.4711 1.143L1.6091 3L3.4711 4.862C3.59116 4.98806 3.65718 5.15606 3.65505 5.33013C3.65293 5.5042 3.58284 5.67055 3.45974 5.79364C3.33665 5.91674 3.17031 5.98683 2.99623 5.98895C2.82216 5.99107 2.65416 5.92506 2.5281 5.805L0.200102 3.471C0.0751014 3.34592 0.00488281 3.17633 0.00488281 2.9995C0.00488281 2.82267 0.0751014 2.65308 0.200102 2.528L2.5291 0.2C2.65414 0.0753044 2.82352 0.00527954 3.0001 0.00527954C3.17669 0.00527954 3.34607 0.0753044 3.4711 0.2Z" fill="#23262F"/></svg>';
         html += ' Back to refs</span>';
+        html += '<div class="detail-title-row">';
+        html += '<h1>' + escapeHtml(ref.name) + '</h1>';
+        html += '<div class="detail-title-actions">';
+        html += '<button onclick="navigator.clipboard.writeText(location.origin + \\'/refs/' + ref.id + '\\').then(function(){ showToast(\\'Link copied!\\',\\'\\'); })" title="Share"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>';
+        html += '<button title="Save"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>';
+        html += '</div></div>';
+        html += '<div class="detail-posted-line">';
+        html += '<div class="avatar-sm">Y</div>';
+        html += '<span class="poster-name">Your Beacon</span>';
+        if (locParts.length > 0) {
+          html += '<span class="loc-pin"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> ' + escapeHtml(locParts.join(', ')) + '</span>';
+        }
+        html += '</div>';
+        html += '</div>'; // end detail-header
 
         html += '<div class="detail-gallery">';
         html += '<div class="detail-main-img" id="detailMainImg">' + mainImgHtml + '</div>';
@@ -1376,35 +1492,19 @@ export function renderUI(): string {
 
         // ===== Left: DealBody =====
         html += '<div class="detail-left deal-body">';
-        html += '<h1 class="deal-title">' + escapeHtml(ref.name) + '</h1>';
         html += '<div id="detailMsg"></div>';
-
-        // Posted By
-        html += '<div class="deal-posted-by">';
-        html += '<div class="avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777E90" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><circle cx="12" cy="12" r="3"/></svg></div>';
-        html += '<div><div class="poster-name">Your Beacon</div><div class="poster-label">' + escapeHtml(ref.beaconId ? ref.beaconId.slice(0, 16) + '...' : '') + '</div></div>';
-        html += '</div>';
 
         // Description
         if (ref.description) {
           html += '<div class="deal-content">' + escapeHtml(ref.description) + '</div>';
         }
 
-        // Information grid
+        // Information grid — simplified: location only
         html += '<div class="deal-heading">Information</div>';
         html += '<div class="info-grid">';
-        html += '<div class="info-item" onclick="document.getElementById(\\'editFormSection\\').style.display=\\'block\\';document.getElementById(\\'editFormSection\\').scrollIntoView({behavior:\\'smooth\\'})">';
-        html += '<div class="info-icon teal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8BC5E5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>';
-        html += '<span class="info-type">View Details</span></div>';
-        html += '<div class="info-item" onclick="document.getElementById(\\'editFormSection\\').style.display=\\'block\\';document.getElementById(\\'dLocCity\\').scrollIntoView({behavior:\\'smooth\\'})">';
+        html += '<div class="info-item">';
         html += '<div class="info-icon blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#92A5EF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>';
-        html += '<span class="info-type">Location</span></div>';
-        html += '<div class="info-item">';
-        html += '<div class="info-icon orange"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FA8F54" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>';
-        html += '<span class="info-type">' + escapeHtml(ref.category || 'Category') + (ref.subcategory ? ' / ' + escapeHtml(ref.subcategory) : '') + '</span></div>';
-        html += '<div class="info-item">';
-        html += '<div class="info-icon green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#58C27D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>';
-        html += '<span class="info-type">' + (conditionDisplay || 'Condition') + '</span></div>';
+        html += '<span class="info-type">' + (locParts.length > 0 ? escapeHtml(locParts.join(', ')) : 'Location not set') + '</span></div>';
         html += '</div>';
 
         // Edit form (collapsible)
@@ -1416,6 +1516,8 @@ export function renderUI(): string {
         html += '<div class="row"><div><label>Category</label><select id="dCat"><option value="">Select...</option></select></div>';
         html += '<div><label>Subcategory</label><select id="dSubcat"><option value="">Select...</option></select></div></div>';
         html += '<div id="detailCategoryFields"></div>';
+        html += '<div class="row"><div><label>Price</label><input id="dPrice" type="number" min="0" step="0.01" value="' + (activeOffer ? activeOffer.price : '') + '"></div>';
+        html += '<div><label>Currency</label><select id="dCurrency"><option value="USD"' + ((activeOffer && activeOffer.priceCurrency === 'USD') || !activeOffer ? ' selected' : '') + '>USD</option><option value="EUR"' + (activeOffer && activeOffer.priceCurrency === 'EUR' ? ' selected' : '') + '>EUR</option><option value="GBP"' + (activeOffer && activeOffer.priceCurrency === 'GBP' ? ' selected' : '') + '>GBP</option></select></div></div>';
         html += '<div class="row"><div><label>Quantity</label><input id="dQty" type="number" min="1" value="' + ref.quantity + '"></div>';
         html += '<div><label>SKU</label><input id="dSku" value="' + escapeHtml(ref.sku || '') + '"></div></div>';
         html += '<details style="margin-bottom:14px;border:2px solid #E6E8EC;border-radius:12px;padding:14px;" open>';
@@ -1465,15 +1567,20 @@ export function renderUI(): string {
         html += '<div class="detail-right">';
         html += '<div class="payment-card">';
 
-        // Header: price + user avatar
+        // Edit button at top (owner view)
+        html += '<div class="payment-card-edit">';
+        html += '<button onclick="document.getElementById(\\'editFormSection\\').style.display=\\'block\\';document.getElementById(\\'editFormSection\\').scrollIntoView({behavior:\\'smooth\\'})">';
+        html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</button>';
+        html += '</div>';
+
+        // Header: price + initial-letter avatar
         html += '<div class="payment-card-header">';
         html += '<div class="payment-card-amount">' + priceDisplay;
         html += '</div>';
-        html += '<div class="payment-card-thumb">';
-        html += '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#777E90" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="M12 18v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="m16.24 16.24 2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><circle cx="12" cy="12" r="3"/></svg>';
-        html += '</div></div>';
+        html += '<div class="payment-card-thumb initial-avatar">Y</div>';
+        html += '</div>';
 
-        // Category + status below price
+        // Status below price (category removed from here, moved to invoice row)
         html += '<div style="padding:0 30px 10px;">';
         html += '<div style="margin-bottom:6px;">';
         html += '<select id="dStatus" style="width:auto;height:32px;padding:0 10px;font-size:13px;border-radius:10px;border:1px solid #E6E8EC;margin:0;font-family:Poppins,sans-serif;font-weight:600;background:#fff;">';
@@ -1481,19 +1588,20 @@ export function renderUI(): string {
           html += '<option value="' + s + '"' + (ref.listingStatus === s ? ' selected' : '') + '>' + statusLabels[s] + '</option>';
         });
         html += '</select></div>';
+        html += '</div>';
+
+        // Share button — own row, icon only
+        html += '<div style="margin:12px 30px 0;"><button class="button-stroke" onclick="navigator.clipboard.writeText(location.origin + \\'/refs/' + ref.id + '\\').then(function(){ showToast(\\'Link copied!\\',\\'\\'); })" title="Share" style="width:40px;height:40px;padding:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button></div>';
+        // Action buttons row
+        html += '<div class="payment-card-buttons">';
+        html += '<button class="button-gradient" onclick="saveDetail(\\'' + ref.id + '\\', \\'' + (activeOffer ? activeOffer.id : '') + '\\')">Save Changes</button>';
+        html += '</div>';
+
+        // Invoice rows — category added as first row
         const catParts = [ref.category, ref.subcategory].filter(Boolean);
         if (catParts.length > 0) {
-          html += '<div style="font-size:13px;color:#777E90;font-weight:500;">' + escapeHtml(catParts.join(' / ')) + '</div>';
+          html += '<div class="invoice-row"><span class="invoice-label">Category</span><span class="invoice-value">' + escapeHtml(catParts.join(' / ')) + '</span></div>';
         }
-        html += '</div>';
-
-        // Buttons row
-        html += '<div class="payment-card-buttons">';
-        html += '<button class="button-stroke" onclick="navigator.clipboard.writeText(location.origin + \\'/refs/' + ref.id + '\\').then(function(){ showToast(\\'Link copied!\\',\\'\\'); })"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share</button>';
-        html += '<button class="button-gradient" onclick="saveDetail(\\'' + ref.id + '\\')"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save Changes</button>';
-        html += '</div>';
-
-        // Invoice rows
         if (conditionDisplay) {
           html += '<div class="invoice-row"><span class="invoice-label">Condition</span><span class="invoice-value">' + escapeHtml(conditionDisplay) + '</span></div>';
         }
@@ -1562,7 +1670,7 @@ export function renderUI(): string {
       document.getElementById('detailMainImg').innerHTML = '<img src="' + src + '" alt="">';
     };
 
-    window.saveDetail = async function(refId) {
+    window.saveDetail = async function(refId, existingOfferId) {
       try {
         const dLocLat = document.getElementById('dLocLat');
         const dLocLng = document.getElementById('dLocLng');
@@ -1570,6 +1678,7 @@ export function renderUI(): string {
         const detailCondition = detailCatAttrs._condition || null;
         delete detailCatAttrs._condition;
         const detailAttributes = Object.keys(detailCatAttrs).length > 0 ? detailCatAttrs : null;
+        const listingStatus = document.getElementById('dStatus').value;
         const res = await fetch('/refs/' + refId, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -1580,7 +1689,7 @@ export function renderUI(): string {
             subcategory: document.getElementById('dSubcat').value,
             quantity: parseInt(document.getElementById('dQty').value) || 1,
             sku: document.getElementById('dSku').value.trim() || undefined,
-            listingStatus: document.getElementById('dStatus').value,
+            listingStatus: listingStatus,
             locationCity: document.getElementById('dLocCity').value.trim() || null,
             locationState: document.getElementById('dLocState').value.trim() || null,
             locationZip: document.getElementById('dLocZip').value.trim() || null,
@@ -1593,7 +1702,44 @@ export function renderUI(): string {
           })
         });
         if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
+
+        // Create or update offer if price is set and not private
+        const priceVal = document.getElementById('dPrice').value;
+        const price = priceVal ? parseFloat(priceVal) : 0;
+        const currency = document.getElementById('dCurrency').value;
+        if (price > 0 && listingStatus !== 'private') {
+          if (existingOfferId) {
+            await fetch('/offers/' + existingOfferId, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ price: price, priceCurrency: currency })
+            });
+          } else {
+            await fetch('/offers', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ refId: refId, price: price, priceCurrency: currency })
+            });
+          }
+        }
+
         showMsg('detailMsg', 'Saved!', true);
+
+        // Prompt to push to Reffo
+        if (listingStatus !== 'private' && confirm('Want to push to Reffo as well?')) {
+          const syncRes = await fetch('/settings/sync-item/' + refId, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sync: true })
+          });
+          const syncData = await syncRes.json();
+          if (syncRes.ok) {
+            showToast(syncData.warning ? 'Ref marked for sync (remote pending)' : 'Ref synced to Reffo.ai', 'accepted');
+          } else {
+            showToast('Sync failed: ' + (syncData.error || 'Unknown error'), 'rejected');
+          }
+        }
+
         openDetail(refId);
       } catch (err) {
         showMsg('detailMsg', err.message, false);
@@ -1809,12 +1955,15 @@ export function renderUI(): string {
         ? '<img src="' + baseUrl + '/' + escapeHtml(mainPhoto.filePath) + '" alt="">'
         : '<span class="placeholder">No media</span>';
 
+      const hasVideo = mediaList.some(m => m.mediaType === 'video');
+      const showViewAll = photos.length > 4 || (photos.length >= 4 && hasVideo);
       let sideImgsHtml = '';
       for (let i = 0; i < 3; i++) {
         const sm = sidePhotos[i];
         if (sm && baseUrl) {
           const src = baseUrl + '/' + escapeHtml(sm.filePath);
-          sideImgsHtml += '<div class="detail-side-img"><img src="' + src + '" alt="" onclick="setMainImage(this.src)"></div>';
+          const viewAllOverlay = (i === 2 && showViewAll) ? '<div class="detail-view-all"><span>View all</span></div>' : '';
+          sideImgsHtml += '<div class="detail-side-img"><img src="' + src + '" alt="" onclick="setMainImage(this.src)">' + viewAllOverlay + '</div>';
         } else {
           sideImgsHtml += '<div class="detail-side-img"><span class="placeholder">+</span></div>';
         }
@@ -1836,9 +1985,26 @@ export function renderUI(): string {
       }
 
       let html = '';
-      html += '<span class="detail-back" onclick="switchTab(\\'search\\')">';
-      html += '<svg width="6" height="10" viewBox="0 0 4 6" fill="none"><path d="M3.4711 0.2C3.5961 0.325075 3.66632 0.494669 3.66632 0.6715C3.66632 0.848331 3.5961 1.01792 3.4711 1.143L1.6091 3L3.4711 4.862C3.59116 4.98806 3.65718 5.15606 3.65505 5.33013C3.65293 5.5042 3.58284 5.67055 3.45974 5.79364C3.33665 5.91674 3.17031 5.98683 2.99623 5.98895C2.82216 5.99107 2.65416 5.92506 2.5281 5.805L0.200102 3.471C0.0751014 3.34592 0.00488281 3.17633 0.00488281 2.9995C0.00488281 2.82267 0.0751014 2.65308 0.200102 2.528L2.5291 0.2C2.65414 0.0753044 2.82352 0.00527954 3.0001 0.00527954C3.17669 0.00527954 3.34607 0.0753044 3.4711 0.2Z" fill="#EC526F"/></svg>';
+      // New header above gallery
+      const sellerInitial = (peer.beaconId || 'S')[0].toUpperCase();
+      html += '<div class="detail-header">';
+      html += '<span class="detail-header-back" onclick="switchTab(\\'search\\')">';
+      html += '<svg width="6" height="10" viewBox="0 0 4 6" fill="none"><path d="M3.4711 0.2C3.5961 0.325075 3.66632 0.494669 3.66632 0.6715C3.66632 0.848331 3.5961 1.01792 3.4711 1.143L1.6091 3L3.4711 4.862C3.59116 4.98806 3.65718 5.15606 3.65505 5.33013C3.65293 5.5042 3.58284 5.67055 3.45974 5.79364C3.33665 5.91674 3.17031 5.98683 2.99623 5.98895C2.82216 5.99107 2.65416 5.92506 2.5281 5.805L0.200102 3.471C0.0751014 3.34592 0.00488281 3.17633 0.00488281 2.9995C0.00488281 2.82267 0.0751014 2.65308 0.200102 2.528L2.5291 0.2C2.65414 0.0753044 2.82352 0.00527954 3.0001 0.00527954C3.17669 0.00527954 3.34607 0.0753044 3.4711 0.2Z" fill="#23262F"/></svg>';
       html += ' Back to Search</span>';
+      html += '<div class="detail-title-row">';
+      html += '<h1>' + escapeHtml(item.name) + '</h1>';
+      html += '<div class="detail-title-actions">';
+      html += '<button onclick="navigator.clipboard.writeText(location.href).then(function(){ showToast(\\'Link copied!\\',\\'\\'); })" title="Share"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>';
+      html += '<button title="Save"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>';
+      html += '</div></div>';
+      html += '<div class="detail-posted-line">';
+      html += '<div class="avatar-sm">' + sellerInitial + '</div>';
+      html += '<span class="poster-name">Seller Beacon</span>';
+      if (remoteLoc.length > 0) {
+        html += '<span class="loc-pin"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> Near ' + escapeHtml(remoteLoc.join(', ')) + '</span>';
+      }
+      html += '</div>';
+      html += '</div>'; // end detail-header
 
       html += '<div class="detail-gallery">';
       html += '<div class="detail-main-img" id="detailMainImg">' + mainImgHtml + '</div>';
@@ -1849,34 +2015,21 @@ export function renderUI(): string {
 
       // ===== Left: DealBody =====
       html += '<div class="detail-left deal-body">';
-      html += '<h1 class="deal-title">' + escapeHtml(item.name) + '</h1>';
-
-      // Posted By
-      html += '<div class="deal-posted-by">';
-      html += '<div class="avatar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777E90" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>';
-      html += '<div><div class="poster-name">Seller Beacon</div><div class="poster-label">' + escapeHtml(peer.beaconId.slice(0, 16)) + '...</div></div>';
-      html += '</div>';
 
       // Description
       if (item.description) {
         html += '<div class="deal-content">' + escapeHtml(item.description) + '</div>';
       }
 
-      // Information grid
+      // Information grid — simplified: location + beacon only
       html += '<div class="deal-heading">Information</div>';
       html += '<div class="info-grid">';
       html += '<div class="info-item">';
       html += '<div class="info-icon blue"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#92A5EF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div>';
       html += '<span class="info-type">' + (remoteLoc.length > 0 ? 'Near ' + escapeHtml(remoteLoc.join(', ')) : 'Location N/A') + '</span></div>';
       html += '<div class="info-item">';
-      html += '<div class="info-icon teal"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8BC5E5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>';
-      html += '<span class="info-type">' + escapeHtml(item.category || 'General') + (item.subcategory ? ' / ' + escapeHtml(item.subcategory) : '') + '</span></div>';
-      html += '<div class="info-item">';
       html += '<div class="info-icon orange"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FA8F54" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>';
       html += '<span class="info-type">Beacon: ' + escapeHtml(peer.beaconId.slice(0, 12)) + '...</span></div>';
-      html += '<div class="info-item">';
-      html += '<div class="info-icon green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#58C27D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>';
-      html += '<span class="info-type">' + (conditionDisplay || 'Condition N/A') + '</span></div>';
       html += '</div>';
 
       html += '</div>'; // end detail-left deal-body
@@ -1885,31 +2038,31 @@ export function renderUI(): string {
       html += '<div class="detail-right">';
       html += '<div class="payment-card">';
 
-      // Header: price + seller avatar
+      // Header: price + initial-letter avatar
       html += '<div class="payment-card-header">';
       html += '<div class="payment-card-amount">' + priceDisplay;
       html += '</div>';
-      html += '<div class="payment-card-thumb">';
-      html += '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#777E90" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
-      html += '</div></div>';
-
-      // Status badge + category below price
-      html += '<div style="padding:0 30px 10px;">';
-      html += '<div style="margin-bottom:6px;"><span class="badge badge-' + (item.listingStatus === 'for_sale' ? 'for-sale' : 'willing-to-sell') + '">' + statusLabel + '</span></div>';
-      const remoteCatParts = [item.category, item.subcategory].filter(Boolean);
-      if (remoteCatParts.length > 0) {
-        html += '<div style="font-size:13px;color:#777E90;font-weight:500;">' + escapeHtml(remoteCatParts.join(' / ')) + '</div>';
-      }
+      html += '<div class="payment-card-thumb initial-avatar">' + sellerInitial + '</div>';
       html += '</div>';
 
-      // Buttons row
+      // Status badge below price (category moved to invoice row)
+      html += '<div style="padding:0 30px 10px;">';
+      html += '<div style="margin-bottom:6px;"><span class="badge badge-' + (item.listingStatus === 'for_sale' ? 'for-sale' : 'willing-to-sell') + '">' + statusLabel + '</span></div>';
+      html += '</div>';
+
+      // Share button — own row, icon only
+      html += '<div style="margin:12px 30px 0;"><button class="button-stroke" onclick="navigator.clipboard.writeText(location.href).then(function(){ showToast(\\'Link copied!\\',\\'\\'); })" title="Share" style="width:40px;height:40px;padding:0;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button></div>';
+      // Action buttons row
       html += '<div class="payment-card-buttons">';
-      html += '<button class="button-stroke" onclick="navigator.clipboard.writeText(location.href).then(function(){ showToast(\\'Link copied!\\',\\'\\'); })"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share</button>';
       if (negotiateBtn) html += negotiateBtn;
       if (purchaseBtn) html += purchaseBtn;
       html += '</div>';
 
-      // Invoice rows
+      // Invoice rows — category added
+      const remoteCatParts = [item.category, item.subcategory].filter(Boolean);
+      if (remoteCatParts.length > 0) {
+        html += '<div class="invoice-row"><span class="invoice-label">Category</span><span class="invoice-value">' + escapeHtml(remoteCatParts.join(' / ')) + '</span></div>';
+      }
       if (offer) {
         html += '<div class="invoice-row"><span class="invoice-label">Item Price</span><span class="invoice-value">' + escapeHtml(offer.priceCurrency + ' ' + offer.price.toFixed(2)) + '</span></div>';
       }
