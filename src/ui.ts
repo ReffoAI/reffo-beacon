@@ -143,6 +143,7 @@ export function renderUI(): string {
     .badge-private { background: #E6E8EC; color: #353945; }
     .badge-for-sale { background: #e6f9ed; color: #1a8a42; }
     .badge-willing { background: #fff8e1; color: #e6a200; }
+    .badge-for-rent { background: #e6f0ff; color: #1a6aba; }
     .card-price { font-size: 16px; font-weight: 700; color: #1a8a42; margin-top: 4px; }
     .card-qty { font-size: 12px; color: #777E90; margin-top: 4px; font-weight: 500; }
     .card-desc { font-size: 14px; color: #777E90; margin-top: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.71; }
@@ -694,6 +695,24 @@ export function renderUI(): string {
         <label for="refSku">SKU</label>
         <input id="refSku" name="sku" placeholder="Optional SKU or part number">
 
+        <div id="rentalFieldsCreate" style="display:none;margin-bottom:14px;border:2px solid #e6f0ff;border-radius:12px;padding:14px;background:#f8fbff;">
+          <div style="font-size:12px;font-weight:600;color:#1a6aba;text-transform:uppercase;letter-spacing:0.02em;margin-bottom:10px;">Rental Details</div>
+          <label for="refRentalTerms">Rental Terms</label>
+          <textarea id="refRentalTerms" placeholder="Terms and conditions for rental..." rows="2" style="resize:vertical;"></textarea>
+          <div class="row">
+            <div><label for="refRentalDeposit">Deposit</label><input id="refRentalDeposit" type="number" min="0" step="0.01" placeholder="0.00"></div>
+            <div><label for="refRentalDuration">Duration</label><input id="refRentalDuration" type="number" min="1" placeholder="e.g. 7"></div>
+            <div><label for="refRentalDurationUnit">Unit</label>
+              <select id="refRentalDurationUnit">
+                <option value="days">Days</option>
+                <option value="hours">Hours</option>
+                <option value="weeks">Weeks</option>
+                <option value="months">Months</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         <details style="margin-bottom:14px;border:2px solid #E6E8EC;border-radius:12px;padding:14px;">
           <summary style="cursor:pointer;font-size:12px;font-weight:600;color:#777E90;text-transform:uppercase;letter-spacing:0.02em;">Location Override</summary>
           <p style="font-size:12px;color:#B1B5C3;margin:8px 0;">Leave blank to use your default location from Settings.</p>
@@ -754,9 +773,10 @@ export function renderUI(): string {
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </button>
             <div id="createDropdown" style="display:none;position:absolute;bottom:100%;right:0;margin-bottom:4px;background:#FCFCFD;border:1px solid #E6E8EC;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.12);overflow:hidden;min-width:180px;z-index:10;">
-              <div style="padding:6px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#F4F5F6'" onmouseout="this.style.background=''" onclick="document.getElementById('createBtnMain').textContent='Create Private';document.getElementById('createBtnMain').dataset.status='private';document.getElementById('createDropdown').style.display='none';">Private</div>
-              <div style="padding:6px 16px;font-size:13px;font-weight:600;cursor:pointer;color:#1a8a42;transition:background 0.15s;" onmouseover="this.style.background='#F4F5F6'" onmouseout="this.style.background=''" onclick="document.getElementById('createBtnMain').textContent='Create For Sale';document.getElementById('createBtnMain').dataset.status='for_sale';document.getElementById('createDropdown').style.display='none';">For Sale</div>
-              <div style="padding:6px 16px;font-size:13px;font-weight:600;cursor:pointer;color:#e6a200;transition:background 0.15s;" onmouseover="this.style.background='#F4F5F6'" onmouseout="this.style.background=''" onclick="document.getElementById('createBtnMain').textContent='Create Willing to Sell';document.getElementById('createBtnMain').dataset.status='willing_to_sell';document.getElementById('createDropdown').style.display='none';">Willing to Sell</div>
+              <div style="padding:6px 16px;font-size:13px;font-weight:600;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#F4F5F6'" onmouseout="this.style.background=''" onclick="document.getElementById('createBtnMain').textContent='Create Private';document.getElementById('createBtnMain').dataset.status='private';document.getElementById('createDropdown').style.display='none';document.getElementById('rentalFieldsCreate').style.display='none';">Private</div>
+              <div style="padding:6px 16px;font-size:13px;font-weight:600;cursor:pointer;color:#1a8a42;transition:background 0.15s;" onmouseover="this.style.background='#F4F5F6'" onmouseout="this.style.background=''" onclick="document.getElementById('createBtnMain').textContent='Create For Sale';document.getElementById('createBtnMain').dataset.status='for_sale';document.getElementById('createDropdown').style.display='none';document.getElementById('rentalFieldsCreate').style.display='none';">For Sale</div>
+              <div style="padding:6px 16px;font-size:13px;font-weight:600;cursor:pointer;color:#e6a200;transition:background 0.15s;" onmouseover="this.style.background='#F4F5F6'" onmouseout="this.style.background=''" onclick="document.getElementById('createBtnMain').textContent='Create Willing to Sell';document.getElementById('createBtnMain').dataset.status='willing_to_sell';document.getElementById('createDropdown').style.display='none';document.getElementById('rentalFieldsCreate').style.display='none';">Willing to Sell</div>
+              <div style="padding:6px 16px;font-size:13px;font-weight:600;cursor:pointer;color:#1a6aba;transition:background 0.15s;" onmouseover="this.style.background='#F4F5F6'" onmouseout="this.style.background=''" onclick="document.getElementById('createBtnMain').textContent='Create For Rent';document.getElementById('createBtnMain').dataset.status='for_rent';document.getElementById('createDropdown').style.display='none';document.getElementById('rentalFieldsCreate').style.display='block';">For Rent</div>
             </div>
           </div>
         </div>
@@ -839,7 +859,7 @@ export function renderUI(): string {
         <span class="sep">|</span>
         <a href="https://reffo.ai/about" target="_blank" rel="noopener noreferrer">About</a>
       </div>
-      <div class="app-footer-copy">&copy; <script>document.write(new Date().getFullYear())</script> Reffo.ai</div>
+      <div class="app-footer-copy">&copy; <script>document.write(new Date().getFullYear())</script> Reffo Beacon</div>
     </div>
   </footer>
 
@@ -1133,8 +1153,8 @@ export function renderUI(): string {
       }, 5000);
     }
 
-    const statusLabels = { private: 'Private', for_sale: 'For Sale', willing_to_sell: 'Willing to Sell', archived_sold: 'Sold (Archived)', archived_deleted: 'Deleted (Archived)' };
-    const statusBadgeClass = { private: 'badge-private', for_sale: 'badge-for-sale', willing_to_sell: 'badge-willing', archived_sold: 'badge-archived-sold', archived_deleted: 'badge-archived-deleted' };
+    const statusLabels = { private: 'Private', for_sale: 'For Sale', willing_to_sell: 'Willing to Sell', for_rent: 'For Rent', archived_sold: 'Sold (Archived)', archived_deleted: 'Deleted (Archived)' };
+    const statusBadgeClass = { private: 'badge-private', for_sale: 'badge-for-sale', willing_to_sell: 'badge-willing', for_rent: 'badge-for-rent', archived_sold: 'badge-archived-sold', archived_deleted: 'badge-archived-deleted' };
     const negStatusLabels = { pending: 'Pending', accepted: 'Under Contract', rejected: 'Rejected', countered: 'Countered', withdrawn: 'Withdrawn', sold: 'Sold' };
 
     let lastSearchResults = [];
@@ -1229,13 +1249,19 @@ export function renderUI(): string {
         delete categoryAttrs._condition;
         const attributes = Object.keys(categoryAttrs).length > 0 ? categoryAttrs : undefined;
 
+        const rentalTerms = listingStatus === 'for_rent' ? (document.getElementById('refRentalTerms').value.trim() || null) : null;
+        const rentalDeposit = listingStatus === 'for_rent' ? (document.getElementById('refRentalDeposit').value ? parseFloat(document.getElementById('refRentalDeposit').value) : null) : null;
+        const rentalDuration = listingStatus === 'for_rent' ? (document.getElementById('refRentalDuration').value ? parseInt(document.getElementById('refRentalDuration').value) : null) : null;
+        const rentalDurationUnit = listingStatus === 'for_rent' ? (document.getElementById('refRentalDurationUnit').value || null) : null;
+
         const refRes = await fetch('/refs', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, description, category, subcategory, listingStatus, quantity, sku,
             locationCity: locCity, locationState: locState, locationZip: locZip,
             locationLat: locLat, locationLng: locLng,
-            sellingScope, sellingRadiusMiles, condition, attributes })
+            sellingScope, sellingRadiusMiles, condition, attributes,
+            rentalTerms, rentalDeposit, rentalDuration, rentalDurationUnit })
         });
         if (!refRes.ok) { const err = await refRes.json(); throw new Error(err.error || 'Failed to create ref'); }
         const ref = await refRes.json();
@@ -1300,6 +1326,7 @@ export function renderUI(): string {
         // Reset split button state
         document.getElementById('createBtnMain').textContent = 'Create Private';
         document.getElementById('createBtnMain').dataset.status = 'private';
+        document.getElementById('rentalFieldsCreate').style.display = 'none';
         selectedPhotos = [];
         selectedVideo = null;
         document.getElementById('photoPreview').innerHTML = '';
@@ -1531,6 +1558,18 @@ export function renderUI(): string {
         html += '</select></div>';
         html += '<div><label>Radius (miles)</label><input id="dSellingRadius" type="number" min="1" value="' + (ref.sellingRadiusMiles || '') + '"></div></div>';
         html += '</details>';
+        // Rental fields (shown when for_rent)
+        html += '<div id="rentalFieldsDetail" style="display:' + (ref.listingStatus === 'for_rent' ? 'block' : 'none') + ';margin-bottom:14px;border:2px solid #e6f0ff;border-radius:12px;padding:14px;background:#f8fbff;">';
+        html += '<div style="font-size:12px;font-weight:600;color:#1a6aba;text-transform:uppercase;letter-spacing:0.02em;margin-bottom:10px;">Rental Details</div>';
+        html += '<label>Rental Terms</label><textarea id="dRentalTerms" rows="2" style="resize:vertical;">' + escapeHtml(ref.rentalTerms || '') + '</textarea>';
+        html += '<div class="row"><div><label>Deposit</label><input id="dRentalDeposit" type="number" min="0" step="0.01" value="' + (ref.rentalDeposit || '') + '"></div>';
+        html += '<div><label>Duration</label><input id="dRentalDuration" type="number" min="1" value="' + (ref.rentalDuration || '') + '"></div>';
+        html += '<div><label>Unit</label><select id="dRentalDurationUnit">';
+        ['hours','days','weeks','months'].forEach(u => {
+          html += '<option value="' + u + '"' + ((ref.rentalDurationUnit || 'days') === u ? ' selected' : '') + '>' + u.charAt(0).toUpperCase() + u.slice(1) + '</option>';
+        });
+        html += '</select></div></div>';
+        html += '</div>';
         html += '</form>';
         html += '</div>';
 
@@ -1581,7 +1620,7 @@ export function renderUI(): string {
         html += '<div style="padding:0 30px 10px;">';
         html += '<div style="margin-bottom:6px;">';
         html += '<select id="dStatus" style="width:auto;height:32px;padding:0 10px;font-size:13px;border-radius:10px;border:1px solid #E6E8EC;margin:0;font-family:Poppins,sans-serif;font-weight:600;background:#fff;">';
-        ['private','for_sale','willing_to_sell'].forEach(s => {
+        ['private','for_sale','willing_to_sell','for_rent'].forEach(s => {
           html += '<option value="' + s + '"' + (ref.listingStatus === s ? ' selected' : '') + '>' + statusLabels[s] + '</option>';
         });
         html += '</select></div>';
@@ -1614,6 +1653,15 @@ export function renderUI(): string {
         if (scopeText) {
           html += '<div class="invoice-row"><span class="invoice-label">Selling Scope</span><span class="invoice-value">' + escapeHtml(scopeText) + '</span></div>';
         }
+        if (ref.rentalTerms) {
+          html += '<div class="invoice-row"><span class="invoice-label">Rental Terms</span><span class="invoice-value" style="font-size:12px;max-width:160px;text-align:right;">' + escapeHtml(ref.rentalTerms) + '</span></div>';
+        }
+        if (ref.rentalDeposit) {
+          html += '<div class="invoice-row"><span class="invoice-label">Deposit</span><span class="invoice-value">$' + Number(ref.rentalDeposit).toFixed(2) + '</span></div>';
+        }
+        if (ref.rentalDuration) {
+          html += '<div class="invoice-row"><span class="invoice-label">Duration</span><span class="invoice-value">' + ref.rentalDuration + ' ' + (ref.rentalDurationUnit || 'days') + '</span></div>';
+        }
 
         // Hidden invoice rows (future use)
         html += '<div class="invoice-row" style="display:none;"><span class="invoice-label">Commission</span><span class="invoice-value">$0.00</span></div>';
@@ -1628,6 +1676,7 @@ export function renderUI(): string {
         if (listedDate) {
           let footerText = 'Listed ' + listedDate;
           if (ref.listingStatus === 'for_sale' || ref.listingStatus === 'willing_to_sell') footerText += ' · Open to negotiation';
+          if (ref.listingStatus === 'for_rent') footerText += ' · Available for rent';
           html += '<div class="payment-card-footer">' + footerText + '</div>';
         }
 
@@ -1657,6 +1706,14 @@ export function renderUI(): string {
         dSubcat.addEventListener('change', function() {
           renderCategoryFields('detailCategoryFields', dCat.value, this.value, {});
         });
+        // Toggle rental fields visibility when status changes
+        const dStatusEl = document.getElementById('dStatus');
+        if (dStatusEl) {
+          dStatusEl.addEventListener('change', function() {
+            const rentalSection = document.getElementById('rentalFieldsDetail');
+            if (rentalSection) rentalSection.style.display = this.value === 'for_rent' ? 'block' : 'none';
+          });
+        }
       } catch (err) {
         container.innerHTML = '<p class="empty">Failed to load ref details</p>';
       }
@@ -1676,6 +1733,10 @@ export function renderUI(): string {
         delete detailCatAttrs._condition;
         const detailAttributes = Object.keys(detailCatAttrs).length > 0 ? detailCatAttrs : null;
         const listingStatus = document.getElementById('dStatus').value;
+        const rentalTerms = listingStatus === 'for_rent' ? (document.getElementById('dRentalTerms') ? document.getElementById('dRentalTerms').value.trim() || null : null) : null;
+        const rentalDeposit = listingStatus === 'for_rent' ? (document.getElementById('dRentalDeposit') && document.getElementById('dRentalDeposit').value ? parseFloat(document.getElementById('dRentalDeposit').value) : null) : null;
+        const rentalDuration = listingStatus === 'for_rent' ? (document.getElementById('dRentalDuration') && document.getElementById('dRentalDuration').value ? parseInt(document.getElementById('dRentalDuration').value) : null) : null;
+        const rentalDurationUnit = listingStatus === 'for_rent' ? (document.getElementById('dRentalDurationUnit') ? document.getElementById('dRentalDurationUnit').value || null : null) : null;
         const res = await fetch('/refs/' + refId, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
@@ -1696,6 +1757,7 @@ export function renderUI(): string {
             sellingRadiusMiles: document.getElementById('dSellingRadius').value ? parseInt(document.getElementById('dSellingRadius').value) : null,
             condition: detailCondition,
             attributes: detailAttributes,
+            rentalTerms, rentalDeposit, rentalDuration, rentalDurationUnit,
           })
         });
         if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
