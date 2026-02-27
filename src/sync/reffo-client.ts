@@ -101,6 +101,10 @@ export class ReffoClient {
           locationCountry: ref.locationCountry,
           sellingScope: ref.sellingScope,
           sellingRadiusMiles: ref.sellingRadiusMiles,
+          rentalTerms: ref.rentalTerms,
+          rentalDeposit: ref.rentalDeposit,
+          rentalDuration: ref.rentalDuration,
+          rentalDurationUnit: ref.rentalDurationUnit,
         }),
       });
       const data = await res.json() as Record<string, unknown>;

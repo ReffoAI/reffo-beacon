@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import { v4 as uuid } from 'uuid';
 import { getDb } from './schema';
-import type { Ref, RefCreate, RefUpdate, ListingStatus, Offer, OfferCreate, OfferUpdate, RefMedia, MediaType, Negotiation, NegotiationCreate, NegotiationStatus, NegotiationRole, BeaconSettings, SellingScope } from '@reffo/protocol';
+import type { Ref, RefCreate, RefUpdate, ListingStatus, Offer, OfferCreate, OfferUpdate, RefMedia, MediaType, Negotiation, NegotiationCreate, NegotiationStatus, NegotiationRole, BeaconSettings, SellingScope, RentalDurationUnit } from '@reffo/protocol';
 
 function rowToRef(row: Record<string, unknown>): Ref {
   return {
@@ -30,6 +30,10 @@ function rowToRef(row: Record<string, unknown>): Ref {
     updatedAt: row.updated_at as string,
     attributes: row.attributes ? JSON.parse(row.attributes as string) : undefined,
     condition: row.condition as string | undefined,
+    rentalTerms: row.rental_terms as string | undefined,
+    rentalDeposit: row.rental_deposit as number | undefined,
+    rentalDuration: row.rental_duration as number | undefined,
+    rentalDurationUnit: row.rental_duration_unit as RentalDurationUnit | undefined,
   };
 }
 
@@ -112,12 +116,16 @@ export class RefQueries {
     this.db.prepare(`
       INSERT INTO refs (id, name, description, category, subcategory, image, sku, listing_status, quantity,
         location_lat, location_lng, location_address, location_city, location_state, location_zip, location_country,
-        selling_scope, selling_radius_miles, attributes, condition, beacon_id, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        selling_scope, selling_radius_miles, attributes, condition,
+        rental_terms, rental_deposit, rental_duration, rental_duration_unit,
+        beacon_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(id, data.name, data.description || '', data.category || '', data.subcategory || '', data.image || null, data.sku || null,
       data.listingStatus || 'private', data.quantity || 1,
       locLat, locLng, locAddress, locCity, locState, locZip, locCountry,
-      scope || 'global', radiusMiles, JSON.stringify(data.attributes) || null, data.condition || null, beaconId, now, now);
+      scope || 'global', radiusMiles, JSON.stringify(data.attributes) || null, data.condition || null,
+      data.rentalTerms || null, data.rentalDeposit ?? null, data.rentalDuration ?? null, data.rentalDurationUnit || null,
+      beaconId, now, now);
     return this.get(id)!;
   }
 
@@ -147,6 +155,10 @@ export class RefQueries {
     if (data.sellingRadiusMiles !== undefined) { fields.push('selling_radius_miles = ?'); values.push(data.sellingRadiusMiles); }
     if (data.attributes !== undefined) { fields.push('attributes = ?'); values.push(JSON.stringify(data.attributes)); }
     if (data.condition !== undefined) { fields.push('condition = ?'); values.push(data.condition); }
+    if (data.rentalTerms !== undefined) { fields.push('rental_terms = ?'); values.push(data.rentalTerms); }
+    if (data.rentalDeposit !== undefined) { fields.push('rental_deposit = ?'); values.push(data.rentalDeposit); }
+    if (data.rentalDuration !== undefined) { fields.push('rental_duration = ?'); values.push(data.rentalDuration); }
+    if (data.rentalDurationUnit !== undefined) { fields.push('rental_duration_unit = ?'); values.push(data.rentalDurationUnit); }
 
     if (fields.length === 0) return existing;
 
@@ -170,7 +182,7 @@ export class RefQueries {
   }
 
   listDiscoverable(category?: string, subcategory?: string): Ref[] {
-    let sql = "SELECT * FROM refs WHERE listing_status IN ('for_sale', 'willing_to_sell')";
+    let sql = "SELECT * FROM refs WHERE listing_status IN ('for_sale', 'willing_to_sell', 'for_rent')";
     const params: string[] = [];
 
     if (category) {
@@ -189,7 +201,7 @@ export class RefQueries {
 
   searchDiscoverable(term: string): Ref[] {
     const rows = this.db.prepare(
-      "SELECT * FROM refs WHERE listing_status IN ('for_sale', 'willing_to_sell') AND (name LIKE ? OR description LIKE ?) ORDER BY created_at DESC"
+      "SELECT * FROM refs WHERE listing_status IN ('for_sale', 'willing_to_sell', 'for_rent') AND (name LIKE ? OR description LIKE ?) ORDER BY created_at DESC"
     ).all(`%${term}%`, `%${term}%`);
     return rows.map(r => rowToRef(r as Record<string, unknown>));
   }

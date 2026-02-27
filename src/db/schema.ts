@@ -139,7 +139,7 @@ function initSchema(database: Database.Database): void {
       subcategory TEXT NOT NULL DEFAULT '',
       image TEXT,
       sku TEXT,
-      listing_status TEXT NOT NULL DEFAULT 'private' CHECK(listing_status IN ('private', 'for_sale', 'willing_to_sell', 'archived_sold', 'archived_deleted')),
+      listing_status TEXT NOT NULL DEFAULT 'private' CHECK(listing_status IN ('private', 'for_sale', 'willing_to_sell', 'for_rent', 'archived_sold', 'archived_deleted')),
       quantity INTEGER NOT NULL DEFAULT 1,
       location_lat REAL,
       location_lng REAL,
@@ -152,6 +152,10 @@ function initSchema(database: Database.Database): void {
       selling_radius_miles INTEGER,
       attributes TEXT,
       condition TEXT,
+      rental_terms TEXT,
+      rental_deposit REAL,
+      rental_duration INTEGER,
+      rental_duration_unit TEXT,
       beacon_id TEXT NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -198,6 +202,14 @@ function initSchema(database: Database.Database): void {
     database.exec(`ALTER TABLE refs ADD COLUMN condition TEXT`);
   }
 
+  // Migration: add rental fields to existing databases
+  if (!columns.some(c => c.name === 'rental_terms')) {
+    database.exec(`ALTER TABLE refs ADD COLUMN rental_terms TEXT`);
+    database.exec(`ALTER TABLE refs ADD COLUMN rental_deposit REAL`);
+    database.exec(`ALTER TABLE refs ADD COLUMN rental_duration INTEGER`);
+    database.exec(`ALTER TABLE refs ADD COLUMN rental_duration_unit TEXT`);
+  }
+
   // Migration: expand CHECK constraints for archived statuses on refs table
   const refsCheckInfo = database.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='refs'").get() as { sql: string } | undefined;
   if (refsCheckInfo && !refsCheckInfo.sql.includes('archived_sold')) {
@@ -212,7 +224,7 @@ function initSchema(database: Database.Database): void {
         subcategory TEXT NOT NULL DEFAULT '',
         image TEXT,
         sku TEXT,
-        listing_status TEXT NOT NULL DEFAULT 'private' CHECK(listing_status IN ('private', 'for_sale', 'willing_to_sell', 'archived_sold', 'archived_deleted')),
+        listing_status TEXT NOT NULL DEFAULT 'private' CHECK(listing_status IN ('private', 'for_sale', 'willing_to_sell', 'for_rent', 'archived_sold', 'archived_deleted')),
         quantity INTEGER NOT NULL DEFAULT 1,
         reffo_synced INTEGER NOT NULL DEFAULT 0,
         reffo_ref_id TEXT,
@@ -234,6 +246,57 @@ function initSchema(database: Database.Database): void {
       INSERT INTO refs_new SELECT id, name, description, category, subcategory, image, sku, listing_status, quantity, reffo_synced, reffo_ref_id, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'global', NULL, NULL, NULL, beacon_id, created_at, updated_at FROM refs;
       DROP TABLE refs;
       ALTER TABLE refs_new RENAME TO refs;
+      CREATE INDEX IF NOT EXISTS idx_refs_category ON refs(category);
+      CREATE INDEX IF NOT EXISTS idx_refs_cat_subcat ON refs(category, subcategory);
+      CREATE INDEX IF NOT EXISTS idx_refs_beacon ON refs(beacon_id);
+      CREATE INDEX IF NOT EXISTS idx_refs_listing_status ON refs(listing_status);
+      COMMIT;
+      PRAGMA foreign_keys = ON;
+    `);
+  }
+
+  // Migration: expand CHECK constraints to include 'for_rent' status on refs table
+  const refsForRentCheck = database.prepare("SELECT sql FROM sqlite_master WHERE type='table' AND name='refs'").get() as { sql: string } | undefined;
+  if (refsForRentCheck && refsForRentCheck.sql.includes('archived_sold') && !refsForRentCheck.sql.includes('for_rent')) {
+    database.exec(`
+      PRAGMA foreign_keys = OFF;
+      BEGIN TRANSACTION;
+      CREATE TABLE refs_new2 AS SELECT * FROM refs;
+      DROP TABLE refs;
+      CREATE TABLE refs (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        description TEXT NOT NULL DEFAULT '',
+        category TEXT NOT NULL DEFAULT '',
+        subcategory TEXT NOT NULL DEFAULT '',
+        image TEXT,
+        sku TEXT,
+        listing_status TEXT NOT NULL DEFAULT 'private' CHECK(listing_status IN ('private', 'for_sale', 'willing_to_sell', 'for_rent', 'archived_sold', 'archived_deleted')),
+        quantity INTEGER NOT NULL DEFAULT 1,
+        reffo_synced INTEGER NOT NULL DEFAULT 0,
+        reffo_ref_id TEXT,
+        location_lat REAL,
+        location_lng REAL,
+        location_address TEXT,
+        location_city TEXT,
+        location_state TEXT,
+        location_zip TEXT,
+        location_country TEXT,
+        selling_scope TEXT DEFAULT 'global',
+        selling_radius_miles INTEGER,
+        attributes TEXT,
+        condition TEXT,
+        rental_terms TEXT,
+        rental_deposit REAL,
+        rental_duration INTEGER,
+        rental_duration_unit TEXT,
+        beacon_id TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      INSERT INTO refs (id, name, description, category, subcategory, image, sku, listing_status, quantity, reffo_synced, reffo_ref_id, location_lat, location_lng, location_address, location_city, location_state, location_zip, location_country, selling_scope, selling_radius_miles, attributes, condition, beacon_id, created_at, updated_at)
+        SELECT id, name, description, category, subcategory, image, sku, listing_status, quantity, reffo_synced, reffo_ref_id, location_lat, location_lng, location_address, location_city, location_state, location_zip, location_country, selling_scope, selling_radius_miles, attributes, condition, beacon_id, created_at, updated_at FROM refs_new2;
+      DROP TABLE refs_new2;
       CREATE INDEX IF NOT EXISTS idx_refs_category ON refs(category);
       CREATE INDEX IF NOT EXISTS idx_refs_cat_subcat ON refs(category, subcategory);
       CREATE INDEX IF NOT EXISTS idx_refs_beacon ON refs(beacon_id);

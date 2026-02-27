@@ -1,7 +1,9 @@
 // Schema.org-based types with Reffo extensions
 // See: https://schema.org/Product, https://schema.org/Offer
 
-export type ListingStatus = 'private' | 'for_sale' | 'willing_to_sell' | 'archived_sold' | 'archived_deleted';
+export type ListingStatus = 'private' | 'for_sale' | 'willing_to_sell' | 'for_rent' | 'archived_sold' | 'archived_deleted';
+
+export type RentalDurationUnit = 'hours' | 'days' | 'weeks' | 'months';
 
 export type SellingScope = 'global' | 'national' | 'range';
 
@@ -49,6 +51,14 @@ export interface Ref {
   attributes?: Record<string, unknown>;
   /** Category-appropriate condition */
   condition?: string;
+  /** Rental: terms and conditions */
+  rentalTerms?: string;
+  /** Rental: deposit amount */
+  rentalDeposit?: number;
+  /** Rental: duration value */
+  rentalDuration?: number;
+  /** Rental: duration unit */
+  rentalDurationUnit?: RentalDurationUnit;
   /** Reffo: beacon public key that owns this ref */
   beaconId: string;
   /** Schema.org: dateCreated */
