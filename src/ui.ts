@@ -47,6 +47,8 @@ export function renderUI(): string {
     .header-settings-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #E6E8EC; background: #FCFCFD; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; position: relative; color: #777E90; }
     .header-settings-btn:hover { border-color: #141416; color: #141416; }
     .header-settings-btn .notif-dot { position: absolute; top: 6px; right: 6px; width: 8px; height: 8px; border-radius: 50%; background: #EC526F; display: none; }
+    .header-link-btn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 18px; background: linear-gradient(90deg, #8101B4 0%, #EA526F 100%); border: none; border-radius: 18px; font-size: 13px; font-weight: 500; color: #FCFCFD; cursor: pointer; transition: opacity 0.2s; font-family: 'Poppins', sans-serif; white-space: nowrap; }
+    .header-link-btn:hover { opacity: 0.9; }
 
     /* Avatar dropdown */
     .header-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #E6E8EC; background: #FCFCFD; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: border-color 0.2s; overflow: hidden; font-size: 14px; font-weight: 700; color: #EC526F; font-family: 'Poppins', sans-serif; }
@@ -62,6 +64,7 @@ export function renderUI(): string {
     @media (max-width: 768px) {
       .app-header-inner { gap: 8px; }
       .app-header-logo h1 { display: none; }
+      .header-link-btn { padding: 0 12px; font-size: 12px; height: 32px; }
       .search-filter-segment { padding: 0 10px; }
     }
 
@@ -444,8 +447,12 @@ export function renderUI(): string {
         <h1>beacon</h1>
       </div>
 
-      <!-- Header actions: bell + avatar -->
+      <!-- Header actions: link + bell + avatar -->
       <div class="app-header-actions">
+        <button class="header-link-btn" id="headerLinkBtn" style="display:none;" onclick="switchTab('settings')" title="Connect to Reffo.ai">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+          Link to Reffo.ai
+        </button>
         <button class="header-settings-btn" onclick="switchTab('negotiations')" title="Negotiations">
           <svg width="18" height="18" viewBox="0 0 18 19" fill="none"><path d="M17.97 15.02c0 .24-.09.46-.26.63-.16.17-.39.26-.62.26H.85c-.23-.01-.45-.1-.61-.27a.87.87 0 010-1.23c.16-.16.38-.26.61-.27h.02V7.98c.02-2.13.88-4.17 2.4-5.67C4.79.82 6.84-.02 8.97 0c2.13-.02 4.18.82 5.7 2.31 1.52 1.5 2.38 3.5 2.4 5.67v6.16h.02c.23 0 .46.09.62.26.17.17.26.39.26.62zM2.67 14.14h12.6V7.98c0-1.67-.66-3.27-1.85-4.45-1.18-1.18-2.78-1.85-4.45-1.85s-3.27.67-4.45 1.85C3.33 4.71 2.67 6.31 2.67 7.98v6.16zm4.28 3.62c-.25-.5.22-.97.77-.97h2.5c.55 0 1.02.47.77.97-.11.22-.26.42-.43.6-.43.41-1 .65-1.6.65-.59 0-1.16-.24-1.59-.65-.18-.17-.32-.38-.43-.6z" fill="currentColor"/></svg>
           <span class="notif-dot" id="headerNotifDot"></span>
@@ -2626,6 +2633,10 @@ export function renderUI(): string {
           errorDetail.style.display = 'none';
         }
 
+        // Update header link button visibility
+        var linkBtn = document.getElementById('headerLinkBtn');
+        if (linkBtn) linkBtn.style.display = data.hasApiKey ? 'none' : '';
+
         if (data.hasApiKey) {
           document.getElementById('settingsApiKey').value = '';
           document.getElementById('settingsApiKey').placeholder = data.apiKey;
@@ -2916,6 +2927,17 @@ export function renderUI(): string {
 
     loadMyRefs();
     initOutgoingSnapshot();
+
+    // Show "Link to Reffo.ai" header button if no API key is configured
+    async function updateHeaderLinkBtn() {
+      try {
+        const res = await fetch('/settings');
+        const data = await res.json();
+        const btn = document.getElementById('headerLinkBtn');
+        if (btn) btn.style.display = data.hasApiKey ? 'none' : '';
+      } catch {}
+    }
+    updateHeaderLinkBtn();
 
     // Check for pending negotiations periodically
     setInterval(async () => {
