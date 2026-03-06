@@ -17,6 +17,7 @@
 6. [Edge Cases & Error States](#6-edge-cases--error-states)
 7. [Auto-Update Notification](#7-auto-update-notification)
 8. [Favorites](#8-favorites)
+9. [MCP Server (`@reffo/mcp`)](#9-mcp-server-reffomcp)
 
 ---
 
@@ -393,6 +394,88 @@ Restart the webapp dev server after adding the env var. No changes are needed to
 
 
 
+## 9. MCP Server (`@reffo/mcp`)
+
+These tests verify the MCP server package that exposes the beacon's REST API as MCP tools for AI agents (Claude Desktop, etc.).
+
+### 9.1 Prerequisites
+
+1. Beacon is running at `http://localhost:3000` (start with `npm run dev` in `reffo-beacon/`)
+2. MCP server is built: `cd reffo-mcp-server && npm install && npm run build`
+
+### 9.2 Build Verification
+
+| # | Test Case | Steps | Expected Result | Pass/Fail | Notes |
+|---|-----------|-------|-----------------|-----------|-------|
+| 9.1 | **npm install succeeds** | `cd reffo-mcp-server && npm install` | No errors. 100+ packages installed. | ☐ | |
+| 9.2 | **TypeScript compiles** | `npm run build` | Compiles with zero errors. `dist/` directory created with `.js`, `.d.ts`, and `.js.map` files. | ☐ | |
+| 9.3 | **Lint passes** | `npm run lint` (`tsc --noEmit`) | Zero errors, zero warnings. | ☐ | |
+| 9.4 | **Shebang present** | `head -1 dist/index.js` | First line is `#!/usr/bin/env node` | ☐ | |
+| 9.5 | **All tool files compiled** | `ls dist/tools/` | Contains 7 `.js` files: `favorites.js`, `inventory.js`, `media.js`, `negotiations.js`, `offers.js`, `search.js`, `settings.js` | ☐ | |
+
+### 9.3 Claude Desktop Integration
+
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or the equivalent Claude Code MCP config:
+
+```json
+{
+  "mcpServers": {
+    "reffo": {
+      "command": "node",
+      "args": ["/Users/dougkinnison/apps/reffo/reffo-mcp-server/dist/index.js"],
+      "env": { "REFFO_BEACON_URL": "http://localhost:3000" }
+    }
+  }
+}
+```
+
+| # | Test Case | Steps | Expected Result | Pass/Fail | Notes |
+|---|-----------|-------|-----------------|-----------|-------|
+| 9.6 | **Server connects** | 1. Add config above 2. Restart Claude Desktop 3. Check MCP server list | "reffo-mcp" appears in the server list with a green/connected indicator. | ☐ | |
+| 9.7 | **Tools visible** | 1. In Claude Desktop, check available MCP tools | 26 tools listed: `list_items`, `get_item`, `create_item`, `update_item`, `delete_item`, `list_media`, `delete_media`, `list_offers`, `get_offer`, `create_offer`, `update_offer`, `delete_offer`, `list_negotiations`, `get_negotiation`, `send_proposal`, `respond_to_proposal`, `withdraw_proposal`, `mark_sold`, `search_network`, `get_taxonomy`, `get_settings`, `get_health`, `set_location`, `list_favorites`, `toggle_favorite` | ☐ | |
+| 9.8 | **Resources visible** | Check MCP resources | `reffo://inventory` and `reffo://health` listed | ☐ | |
+| 9.9 | **Prompts visible** | Check MCP prompts | `list-an-item` and `search-and-buy` listed | ☐ | |
+
+### 9.4 Tool Smoke Tests
+
+Run these with the beacon running at `http://localhost:3000`. You can test via Claude Desktop or Claude Code with the MCP server configured.
+
+| # | Test Case | Steps | Expected Result | Pass/Fail | Notes |
+|---|-----------|-------|-----------------|-----------|-------|
+| 9.10 | **get_health** | Ask: "Check the beacon health" | Returns JSON with `id`, `version`, `refCount`, `offerCount`, `uptime`, `dht` fields. No errors. | ☐ | |
+| 9.11 | **get_settings** | Ask: "Show my beacon settings" | Returns JSON with `apiKey`, `hasApiKey`, `connected`, `beaconId`, `version`, `location` fields. | ☐ | |
+| 9.12 | **get_taxonomy** | Ask: "Show available categories" | Returns the full category/subcategory taxonomy tree. | ☐ | |
+| 9.13 | **list_items — empty** | Ask: "List my inventory" (with no items) | Returns empty array `[]`. No errors. | ☐ | |
+| 9.14 | **create_item** | Ask: "Create an item called 'Test Widget' with category 'Other'" | Returns the created ref JSON with an `id`, `name: "Test Widget"`, `listingStatus: "private"`. | ☐ | |
+| 9.15 | **list_items — with items** | Ask: "List my inventory" | Returns array containing the item from 9.14. | ☐ | |
+| 9.16 | **get_item** | Ask: "Get details for item [id from 9.14]" | Returns the full ref JSON matching the created item. | ☐ | |
+| 9.17 | **update_item** | Ask: "Update item [id] to set listing status to for_sale" | Returns updated ref with `listingStatus: "for_sale"`. | ☐ | |
+| 9.18 | **create_offer** | Ask: "Create an offer for item [id] at $25" | Returns offer JSON with `price: 25`, `refId` matching item, `status: "active"`. | ☐ | |
+| 9.19 | **list_offers** | Ask: "List all offers" | Returns array containing the offer from 9.18. | ☐ | |
+| 9.20 | **delete_offer** | Ask: "Delete offer [id from 9.18]" | Returns success message. Offer no longer appears in list_offers. | ☐ | |
+| 9.21 | **delete_item** | Ask: "Delete item [id from 9.14]" | Returns "Item [id] has been archived." Item moves to archived status. | ☐ | |
+| 9.22 | **search_network** | Ask: "Search the P2P network for widgets" | Returns JSON with `peers` count and `results` array. No errors (results depend on DHT peers). | ☐ | |
+| 9.23 | **list_favorites** | Ask: "Show my favorites" | Returns array (empty or with data). No errors. | ☐ | |
+| 9.24 | **set_location** | Ask: "Set my beacon location to New York City" (or provide lat/lng) | Returns success with updated location settings. | ☐ | |
+
+### 9.5 Error Handling
+
+| # | Test Case | Steps | Expected Result | Pass/Fail | Notes |
+|---|-----------|-------|-----------------|-----------|-------|
+| 9.25 | **Beacon offline** | 1. Stop the beacon server 2. Ask: "Check beacon health" | Returns error: "Beacon not reachable at http://localhost:3000. Is reffo-beacon running?" with `isError: true`. | ☐ | |
+| 9.26 | **Invalid item ID** | Ask: "Get item with ID nonexistent-id" | Returns error: "Beacon error (404): Ref not found" with `isError: true`. | ☐ | |
+| 9.27 | **Missing required field** | Ask Claude to create an item without a name (if possible) | Returns 400 error from beacon: "name is required". | ☐ | |
+| 9.28 | **Invalid offer ID** | Ask: "Get offer nonexistent-id" | Returns error: "Beacon error (404): Offer not found" with `isError: true`. | ☐ | |
+
+### 9.6 Prompt Workflows
+
+| # | Test Case | Steps | Expected Result | Pass/Fail | Notes |
+|---|-----------|-------|-----------------|-----------|-------|
+| 9.29 | **list-an-item prompt** | Use the `list-an-item` prompt with "2018 Toyota Camry with 45k miles" | Agent calls `get_taxonomy`, then `create_item` with appropriate category/subcategory/attributes, then `create_offer`. Produces a complete listing. | ☐ | |
+| 9.30 | **search-and-buy prompt** | Use the `search-and-buy` prompt with "used furniture under $200" | Agent calls `search_network`, presents results, and offers to send a proposal if items found. | ☐ | |
+
+---
+
 ## Summary
 
 | Section | Total Tests | Passed | Failed |
@@ -404,7 +487,8 @@ Restart the webapp dev server after adding the env var. No changes are needed to
 | 6. Edge Cases & Error States | 10 | | |
 | 7. Auto-Update Notification | 8 | | |
 | 8. Favorites | 12 | | |
-| **Total** | **59** | | |
+| 9. MCP Server | 30 | | |
+| **Total** | **89** | | |
 
 **Tested by:** ____________________
 **Date:** ____________________
