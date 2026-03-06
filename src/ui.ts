@@ -102,6 +102,14 @@ export function renderUI(): string {
     section { background: #FCFCFD; border-radius: 16px; padding: 24px; margin-bottom: 24px; box-shadow: 0 16px 32px -8px rgba(15,15,15,0.12); }
     h2 { font-size: 16px; font-weight: 700; color: #141416; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #EC526F; text-transform: uppercase; letter-spacing: 0.02em; }
 
+    /* Settings cards — scoped overrides to match webapp Account page */
+    .settings-card { padding: 32px; margin-bottom: 32px; }
+    .settings-card h2 { font-size: 18px; font-weight: 600; color: #23262F; text-transform: none; letter-spacing: 0; border-bottom: 1px solid #E6E8EC; padding-bottom: 16px; margin-bottom: 24px; }
+    .settings-card .info-row { display: flex; justify-content: space-between; font-size: 14px; padding: 12px 0; border-bottom: 1px solid #F4F5F6; }
+    .settings-card .info-row:last-child { border-bottom: none; }
+    .settings-card .info-label { color: #777E90; font-weight: 500; }
+    .settings-card .info-value { font-weight: 600; color: #23262F; }
+
     /* Forms — Form.module.sass: 48px height, pill shape, 2px border */
     label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #777E90; text-transform: uppercase; letter-spacing: 0.02em; }
     input, select { width: 100%; height: 48px; padding: 0 14px; border: 2px solid #E6E8EC; border-radius: 12px; font-size: 14px; font-family: 'Poppins', sans-serif; font-weight: 500; margin-bottom: 14px; background: #FCFCFD; color: #23262F; transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none; }
@@ -577,7 +585,8 @@ export function renderUI(): string {
 
     <!-- Settings Tab -->
     <div id="tab-settings" class="hidden">
-      <section>
+      <h1 style="font-size:24px;font-weight:600;color:#23262F;margin-bottom:32px;">Settings</h1>
+      <section class="settings-card">
         <h2>Profile Picture</h2>
         <div style="display:flex;align-items:center;gap:20px;">
           <div id="profilePicPreview" style="width:80px;height:80px;border-radius:50%;border:2px solid #E6E8EC;background:#FCFCFD;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;flex-shrink:0;" onclick="document.getElementById('profilePicInput').click()">
@@ -592,7 +601,7 @@ export function renderUI(): string {
         </div>
       </section>
 
-      <section>
+      <section class="settings-card">
         <h2>Reffo.ai Connection</h2>
         <div id="settingsMsg"></div>
 
@@ -629,20 +638,14 @@ export function renderUI(): string {
             <span style="font-size:13px;color:#777E90;" id="connectedKeyPrefix"></span>
             <button class="btn-danger btn-sm" id="removeKeyBtn" onclick="removeApiKey()">Remove</button>
           </div>
-        </div>
-      </section>
-
-      <section>
-        <h2>Sync Status</h2>
-        <div style="display:flex;gap:24px;flex-wrap:wrap;">
-          <div>
-            <span style="font-size:12px;font-weight:600;color:#777E90;text-transform:uppercase;">Synced Refs</span>
-            <div id="syncedCount" style="font-size:24px;font-weight:700;color:#141416;">0</div>
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid #E6E8EC;display:flex;align-items:center;gap:8px;">
+            <span style="font-size:13px;font-weight:500;color:#777E90;">Synced Refs:</span>
+            <span id="syncedCount" style="font-size:15px;font-weight:700;color:#141416;">0</span>
           </div>
         </div>
       </section>
 
-      <section>
+      <section class="settings-card">
         <h2>Default Location</h2>
         <div id="locationMsg"></div>
         <p style="font-size:12px;color:#B1B5C3;margin-bottom:12px;">Set your default location. New refs will inherit these values. Street address is stored locally and never shared.</p>
@@ -688,13 +691,11 @@ export function renderUI(): string {
         <button class="btn-primary" onclick="saveLocation()">Save Location</button>
       </section>
 
-      <section>
+      <section class="settings-card">
         <h2>Beacon Info</h2>
-        <div class="action-card" style="position:static;">
-          <div class="action-row"><span class="action-label">Beacon ID</span><span class="action-value" id="settingsBeaconId" style="word-break:break-all;font-size:12px;"></span></div>
-          <div class="action-row"><span class="action-label">Version</span><span class="action-value" id="settingsVersion"></span></div>
-          <div class="action-row"><span class="action-label">Uptime</span><span class="action-value" id="settingsUptime"></span></div>
-        </div>
+        <div class="info-row"><span class="info-label">Beacon ID</span><span class="info-value" id="settingsBeaconId" style="word-break:break-all;font-size:12px;"></span></div>
+        <div class="info-row"><span class="info-label">Version</span><span class="info-value" id="settingsVersion"></span></div>
+        <div class="info-row"><span class="info-label">Uptime</span><span class="info-value" id="settingsUptime"></span></div>
       </section>
     </div>
   </div>
