@@ -925,6 +925,8 @@ export function renderUI(): string {
         <a href="mailto:help@reffo.ai">Support</a>
         <span class="sep">|</span>
         <a href="https://reffo.ai/about" target="_blank" rel="noopener noreferrer">About</a>
+        <span class="sep">|</span>
+        <a href="https://reffo.ai/docs" target="_blank" rel="noopener noreferrer">Docs</a>
       </div>
       <div class="app-footer-copy">&copy; <script>document.write(new Date().getFullYear())</script> Reffo Beacon</div>
     </div>
