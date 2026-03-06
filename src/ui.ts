@@ -110,6 +110,16 @@ export function renderUI(): string {
     .settings-card .info-label { color: #777E90; font-weight: 500; }
     .settings-card .info-value { font-weight: 600; color: #23262F; }
 
+    /* Favorite heart button — absolute-positioned on search result cards */
+    .fav-heart { position: absolute; top: 8px; right: 8px; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.85); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; transition: all 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
+    .fav-heart:hover { background: #fff; transform: scale(1.1); }
+    .fav-heart.active { background: #FFF0F3; }
+    .fav-heart.active svg { fill: #EA526F; stroke: #EA526F; }
+    /* Favorite filter toggle button in search toolbar */
+    .fav-filter-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; border: 1px solid #E6E8EC; background: #FCFCFD; cursor: pointer; color: #777E90; transition: all 0.2s; flex-shrink: 0; }
+    .fav-filter-btn:hover { border-color: #EA526F; color: #EA526F; }
+    .fav-filter-btn.active { background: #FFF0F3; border-color: #EA526F; color: #EA526F; }
+
     .update-banner {
       background: linear-gradient(90deg, rgba(129,1,180,0.06), rgba(234,82,111,0.06));
       border: 1px solid rgba(129,1,180,0.15);
@@ -523,6 +533,7 @@ export function renderUI(): string {
       <div class="ref-subtabs">
         <div class="ref-subtab active" data-reftab="active" onclick="switchRefSubTab('active')">Active</div>
         <div class="ref-subtab" data-reftab="archive" onclick="switchRefSubTab('archive')">Archive</div>
+        <div class="ref-subtab" data-reftab="favorites" onclick="switchRefSubTab('favorites')">Favorites</div>
       </div>
 
       <div id="refSubtabActive">
@@ -551,6 +562,13 @@ export function renderUI(): string {
         <div id="archivedRefs"><p class="empty">No archived refs</p></div>
       </section>
       </div>
+
+      <div id="refSubtabFavorites" class="hidden">
+      <section>
+        <h2>Favorite Refs</h2>
+        <div id="favoriteRefs"><p class="empty">No favorites yet. Search for items and click the heart to save them.</p></div>
+      </section>
+      </div>
     </div>
 
     <!-- Ref Detail View (hidden by default) -->
@@ -577,6 +595,9 @@ export function renderUI(): string {
               <option value="price_asc">Price: Low to High</option>
               <option value="price_desc">Price: High to Low</option>
             </select>
+            <button id="favFilterBtn" class="fav-filter-btn" onclick="toggleFavFilter()" title="Show favorites only">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
           </div>
         </div>
         <div id="searchResults"><p class="empty">Use the search bar above to find refs</p></div>
@@ -982,8 +1003,10 @@ export function renderUI(): string {
       document.querySelectorAll('.ref-subtab').forEach(t => t.classList.toggle('active', t.dataset.reftab === tab));
       document.getElementById('refSubtabActive').classList.toggle('hidden', tab !== 'active');
       document.getElementById('refSubtabArchive').classList.toggle('hidden', tab !== 'archive');
+      document.getElementById('refSubtabFavorites').classList.toggle('hidden', tab !== 'favorites');
       if (tab === 'archive') loadArchivedRefs();
       if (tab === 'active') loadMyRefs();
+      if (tab === 'favorites') loadFavorites();
     }
 
     async function loadArchivedRefs() {
@@ -2004,12 +2027,19 @@ export function renderUI(): string {
     };
 
     // ===== Search Network =====
-    function renderSearchResults(data) {
+    async function renderSearchResults(data) {
       const container = document.getElementById('searchResults');
       if (data.results.length === 0) {
         container.innerHTML = '<p class="empty">No peers responded. Are other beacons running?</p>';
         return;
       }
+
+      // Fetch favorite IDs for heart overlay
+      try {
+        const favRes = await fetch('/favorites/ids');
+        const favIds = await favRes.json();
+        window._favSet = new Set(favIds);
+      } catch { window._favSet = new Set(); }
 
       // Flatten all items from all peers into one array
       var allItems = [];
@@ -2064,9 +2094,16 @@ export function renderUI(): string {
           const idx = lastSearchResults.length;
           lastSearchResults.push({ item: item, peer: peer, offer: activeOffer || null, media: refMedia, httpPort: peerHttpPort });
 
+          const favKey = item.id + ':' + peer.beaconId;
+          const isFav = window._favSet && window._favSet.has(favKey);
+          const heartFill = isFav ? '#EA526F' : 'none';
+          const heartStroke = isFav ? '#EA526F' : '#777E90';
+          const heartClass = isFav ? 'fav-heart active' : 'fav-heart';
+          const heartBtn = '<button class="' + heartClass + '" onclick="event.stopPropagation(); toggleFavorite(this, ' + idx + ')"><svg width="16" height="16" viewBox="0 0 24 24" fill="' + heartFill + '" stroke="' + heartStroke + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>';
+
           const imgHtml = (firstPhoto && peerHttpPort)
-            ? '<div class="card-img"><img src="http://' + location.hostname + ':' + peerHttpPort + '/' + escapeHtml(firstPhoto.filePath) + '" alt=""></div>'
-            : '<div class="card-img"><span class="placeholder"><svg width="40" height="40" viewBox="0 0 40 71" fill="none"><path d="M36.3314 2.40738C36.3314 2.40738 36.8264 1.42463 36.4263 0.662012C36.0263 -0.10061 35.0534 0.00517205 35.0534 0.00517205H11.1756C11.1756 0.00517205 10.5428 -0.0279334 10.1477 0.343949C9.75251 0.715831 9.59304 1.49138 9.59304 1.49138L0.238015 32.5907C0.238015 32.5907 -0.24866 33.7655 0.169465 34.6704C0.58759 35.5752 1.5753 35.4965 1.5753 35.4965H10.0645L0.5629 66.8837C0.5629 66.8837 -0.162543 68.519 1.00281 69.3381C2.16816 70.1572 3.37309 68.9223 3.37309 68.9223L37.7402 24.6034C37.7402 24.6034 38.3085 23.9493 37.9286 22.9371C37.5486 21.9249 36.7018 22.0235 36.7018 22.0235H26.875L36.3314 2.40738Z" fill="#E6E8EC"/></svg></span></div>';
+            ? '<div class="card-img" style="position:relative;"><img src="http://' + location.hostname + ':' + peerHttpPort + '/' + escapeHtml(firstPhoto.filePath) + '" alt="">' + heartBtn + '</div>'
+            : '<div class="card-img" style="position:relative;"><span class="placeholder"><svg width="40" height="40" viewBox="0 0 40 71" fill="none"><path d="M36.3314 2.40738C36.3314 2.40738 36.8264 1.42463 36.4263 0.662012C36.0263 -0.10061 35.0534 0.00517205 35.0534 0.00517205H11.1756C11.1756 0.00517205 10.5428 -0.0279334 10.1477 0.343949C9.75251 0.715831 9.59304 1.49138 9.59304 1.49138L0.238015 32.5907C0.238015 32.5907 -0.24866 33.7655 0.169465 34.6704C0.58759 35.5752 1.5753 35.4965 1.5753 35.4965H10.0645L0.5629 66.8837C0.5629 66.8837 -0.162543 68.519 1.00281 69.3381C2.16816 70.1572 3.37309 68.9223 3.37309 68.9223L37.7402 24.6034C37.7402 24.6034 38.3085 23.9493 37.9286 22.9371C37.5486 21.9249 36.7018 22.0235 36.7018 22.0235H26.875L36.3314 2.40738Z" fill="#E6E8EC"/></svg></span>' + heartBtn + '</div>';
 
           cards += '<div class="card result-card" onclick="openRemoteDetail(' + idx + ')">' +
             imgHtml +
@@ -2156,6 +2193,127 @@ export function renderUI(): string {
       }
     });
 
+    // ===== Favorites =====
+    let favFilterActive = false;
+
+    async function loadFavorites() {
+      const container = document.getElementById('favoriteRefs');
+      try {
+        const res = await fetch('/favorites');
+        const favs = await res.json();
+        if (favs.length === 0) {
+          container.innerHTML = '<p class="empty">No favorites yet. Search for items and click the heart to save them.</p>';
+          return;
+        }
+        const statusLabelsLocal = { for_sale: 'For Sale', willing_to_sell: 'Open to Offers', for_rent: 'For Rent' };
+        const statusBadgeClassLocal = { for_sale: 'badge-for-sale', willing_to_sell: 'badge-willing', for_rent: 'badge-for-rent' };
+        container.innerHTML = '<div class="cards">' + favs.map(function(fav) {
+          const priceStr = fav.offerPrice ? (fav.offerCurrency || 'USD') + ' ' + Number(fav.offerPrice).toFixed(2) : '';
+          const badges = [fav.category, fav.subcategory].filter(Boolean).map(function(b) {
+            return '<span class="badge badge-cat">' + escapeHtml(b) + '</span>';
+          }).join('');
+          const sLabel = statusLabelsLocal[fav.listingStatus] || '';
+          const sClass = statusBadgeClassLocal[fav.listingStatus] || '';
+          const locParts = [fav.locationCity, fav.locationState, fav.locationZip].filter(Boolean);
+          const imgHtml = fav.imageUrl
+            ? '<div class="card-img"><img src="' + escapeHtml(fav.imageUrl) + '" alt=""></div>'
+            : '<div class="card-img"><span class="placeholder"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#B1B5C3" stroke-width="1.5"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg></span></div>';
+          return '<div class="card">' +
+            imgHtml +
+            '<div class="card-body">' +
+              '<h3>' + escapeHtml(fav.refName) + '</h3>' +
+              '<div class="card-meta">' + (sLabel ? '<span class="badge ' + sClass + '">' + sLabel + '</span>' : '') + badges + '</div>' +
+              (priceStr ? '<div class="card-price">' + escapeHtml(priceStr) + '</div>' : '') +
+              (locParts.length > 0 ? '<div style="font-size:12px;color:#777E90;margin-top:4px;font-weight:500;">Near ' + escapeHtml(locParts.join(', ')) + '</div>' : '') +
+              '<div class="beacon-id">Beacon: ' + escapeHtml(fav.beaconId.slice(0, 16)) + '...</div>' +
+              '<div style="margin-top:10px;"><button class="btn-danger btn-sm" onclick="event.stopPropagation(); removeFavorite(\\'' + escapeHtml(fav.refId) + '\\', \\'' + escapeHtml(fav.beaconId) + '\\')">Remove</button></div>' +
+            '</div></div>';
+        }).join('') + '</div>';
+      } catch {
+        container.innerHTML = '<p class="empty">Failed to load favorites</p>';
+      }
+    }
+
+    window.removeFavorite = async function(refId, beaconId) {
+      try {
+        await fetch('/favorites', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refId, beaconId }) });
+        // Remove from favSet
+        if (window._favSet) window._favSet.delete(refId + ':' + beaconId);
+        loadFavorites();
+        showToast('Removed from favorites', '');
+      } catch {}
+    };
+
+    window.toggleFavorite = async function(btn, idx) {
+      const entry = lastSearchResults[idx];
+      if (!entry) return;
+      const item = entry.item;
+      const peer = entry.peer;
+      const offer = entry.offer;
+      const mediaList = entry.media || [];
+      const httpPort = entry.httpPort || 0;
+      const firstPhoto = mediaList.find(function(m) { return m.mediaType === 'photo'; });
+      const imageUrl = (firstPhoto && httpPort) ? 'http://' + location.hostname + ':' + httpPort + '/' + firstPhoto.filePath : '';
+
+      try {
+        const res = await fetch('/favorites/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            refId: item.id,
+            refName: item.name || '',
+            beaconId: peer.beaconId,
+            offerPrice: offer ? offer.price : undefined,
+            offerCurrency: offer ? offer.priceCurrency : 'USD',
+            listingStatus: item.listingStatus,
+            category: item.category || '',
+            subcategory: item.subcategory || '',
+            locationCity: item.locationCity || '',
+            locationState: item.locationState || '',
+            locationZip: item.locationZip || '',
+            imageUrl: imageUrl
+          })
+        });
+        const result = await res.json();
+        const key = item.id + ':' + peer.beaconId;
+        if (result.favorited) {
+          btn.classList.add('active');
+          btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="#EA526F" stroke="#EA526F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+          if (window._favSet) window._favSet.add(key);
+          showToast('Added to favorites', '');
+        } else {
+          btn.classList.remove('active');
+          btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#777E90" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+          if (window._favSet) window._favSet.delete(key);
+          showToast('Removed from favorites', '');
+        }
+      } catch {
+        showToast('Failed to toggle favorite', '');
+      }
+    };
+
+    window.toggleDetailFavorite = async function(idx, btn) {
+      await window.toggleFavorite(btn, idx);
+    };
+
+    window.toggleFavFilter = function() {
+      favFilterActive = !favFilterActive;
+      var filterBtn = document.getElementById('favFilterBtn');
+      filterBtn.classList.toggle('active', favFilterActive);
+      var cards = document.querySelectorAll('.result-card');
+      if (favFilterActive && window._favSet) {
+        cards.forEach(function(card, i) {
+          var entry = lastSearchResults[i];
+          if (entry) {
+            var key = entry.item.id + ':' + entry.peer.beaconId;
+            card.style.display = window._favSet.has(key) ? '' : 'none';
+          }
+        });
+      } else {
+        cards.forEach(function(card) { card.style.display = ''; });
+      }
+    };
+
     // ===== Remote Ref Detail (read-only) =====
     window.openRemoteDetail = function(idx) {
       const entry = lastSearchResults[idx];
@@ -2219,7 +2377,12 @@ export function renderUI(): string {
       html += '<h1>' + escapeHtml(item.name) + '</h1>';
       html += '<div class="detail-title-actions">';
       html += '<button onclick="navigator.clipboard.writeText(location.href).then(function(){ showToast(\\'Link copied!\\',\\'\\'); })" title="Share"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>';
-      html += '<button title="Save"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>';
+      const detailFavKey = item.id + ':' + peer.beaconId;
+      const detailIsFav = window._favSet && window._favSet.has(detailFavKey);
+      const detailHeartFill = detailIsFav ? '#EA526F' : 'none';
+      const detailHeartStroke = detailIsFav ? '#EA526F' : 'currentColor';
+      const detailHeartBg = detailIsFav ? 'background:#FFF0F3;' : '';
+      html += '<button id="detailHeartBtn" title="Save" style="' + detailHeartBg + '" onclick="toggleDetailFavorite(' + idx + ', this)"><svg width="18" height="18" viewBox="0 0 24 24" fill="' + detailHeartFill + '" stroke="' + detailHeartStroke + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>';
       html += '</div></div>';
       html += '<div class="detail-posted-line">';
       html += '<div class="avatar-sm">' + sellerInitial + '</div>';
