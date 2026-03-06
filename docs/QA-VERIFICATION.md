@@ -16,6 +16,7 @@
 5. [CLI Installer Verification](#5-cli-installer-verification)
 6. [Edge Cases & Error States](#6-edge-cases--error-states)
 7. [Auto-Update Notification](#7-auto-update-notification)
+8. [Favorites](#8-favorites)
 
 ---
 
@@ -365,6 +366,30 @@ Restart the webapp dev server after adding the env var. No changes are needed to
 
 ** FEATURE ADDS **
 
+## 8. Favorites
+
+### Beacon
+
+| # | Test Case | Steps | Expected Result | Pass/Fail | Notes |
+|---|-----------|-------|-----------------|-----------|-------|
+| 8.1 | **Search + favorite** | 1. Run a search 2. Click heart on a result card | Heart fills pink, toast "Added to favorites" | ☐ | |
+| 8.2 | **Favorites subtab** | 1. Switch to My Items > Favorites | See the saved item with name, price, category, location, beacon ID | ☐ | |
+| 8.3 | **Search filter toggle** | 1. Click heart filter button in search toolbar | Only favorited results remain visible | ☐ | |
+| 8.4 | **Remote detail heart** | 1. Open a search result detail 2. Click heart icon | Heart icon toggles, reflects saved state | ☐ | |
+| 8.5 | **Unfavorite** | 1. Click filled heart on search card or use Remove button in Favorites subtab | Heart unfills, item removed from favorites subtab | ☐ | |
+
+### Webapp
+
+| # | Test Case | Steps | Expected Result | Pass/Fail | Notes |
+|---|-----------|-------|-----------------|-----------|-------|
+| 8.6 | **Run SQL migration** | 1. Run `sql/create_favorites.sql` in Supabase SQL Editor | Table, index, and RLS policies created without error | ☐ | |
+| 8.7 | **Search card hearts** | 1. Log in 2. Browse search page | Hearts appear on item cards, clickable | ☐ | |
+| 8.8 | **Toggle favorite** | 1. Click heart on card | Fills pink (optimistic update), persists on refresh | ☐ | |
+| 8.9 | **Filter toggle** | 1. Click heart filter in toolbar | Only favorited items shown | ☐ | |
+| 8.10 | **Item detail heart** | 1. Open item detail page 2. Click heart button | Heart button toggles, reflects saved state | ☐ | |
+| 8.11 | **No auth — sign-in prompt** | 1. Log out 2. Click any heart button | Sign-in prompt modal appears with Log In / Sign Up links | ☐ | |
+| 8.12 | **Build check** | 1. `npx tsc --noEmit` in beacon | Passes with no errors | ☐ | |
+
 
 
 
@@ -378,7 +403,8 @@ Restart the webapp dev server after adding the env var. No changes are needed to
 | 5. CLI Installer Verification | 4 | | |
 | 6. Edge Cases & Error States | 10 | | |
 | 7. Auto-Update Notification | 8 | | |
-| **Total** | **47** | | |
+| 8. Favorites | 12 | | |
+| **Total** | **59** | | |
 
 **Tested by:** ____________________
 **Date:** ____________________

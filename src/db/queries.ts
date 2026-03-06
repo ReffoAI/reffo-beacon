@@ -465,6 +465,95 @@ export class NegotiationQueries {
   }
 }
 
+interface Favorite {
+  id: string;
+  refId: string;
+  refName: string;
+  beaconId: string;
+  offerPrice: number | undefined;
+  offerCurrency: string;
+  listingStatus: string | undefined;
+  category: string;
+  subcategory: string;
+  locationCity: string | undefined;
+  locationState: string | undefined;
+  locationZip: string | undefined;
+  imageUrl: string | undefined;
+  createdAt: string;
+}
+
+function rowToFavorite(row: Record<string, unknown>): Favorite {
+  return {
+    id: row.id as string,
+    refId: row.ref_id as string,
+    refName: row.ref_name as string,
+    beaconId: row.beacon_id as string,
+    offerPrice: row.offer_price as number | undefined,
+    offerCurrency: (row.offer_currency as string) || 'USD',
+    listingStatus: row.listing_status as string | undefined,
+    category: (row.category as string) || '',
+    subcategory: (row.subcategory as string) || '',
+    locationCity: row.location_city as string | undefined,
+    locationState: row.location_state as string | undefined,
+    locationZip: row.location_zip as string | undefined,
+    imageUrl: row.image_url as string | undefined,
+    createdAt: row.created_at as string,
+  };
+}
+
+export class FavoriteQueries {
+  private db: Database.Database;
+
+  constructor(db?: Database.Database) {
+    this.db = db || getDb();
+  }
+
+  list(): Favorite[] {
+    const rows = this.db.prepare('SELECT * FROM favorites ORDER BY created_at DESC').all();
+    return rows.map(r => rowToFavorite(r as Record<string, unknown>));
+  }
+
+  isFavorited(refId: string, beaconId: string): boolean {
+    const row = this.db.prepare('SELECT id FROM favorites WHERE ref_id = ? AND beacon_id = ?').get(refId, beaconId);
+    return !!row;
+  }
+
+  add(data: { refId: string; refName: string; beaconId: string; offerPrice?: number; offerCurrency?: string; listingStatus?: string; category?: string; subcategory?: string; locationCity?: string; locationState?: string; locationZip?: string; imageUrl?: string }): Favorite {
+    const id = uuid();
+    this.db.prepare(`
+      INSERT INTO favorites (id, ref_id, ref_name, beacon_id, offer_price, offer_currency, listing_status, category, subcategory, location_city, location_state, location_zip, image_url)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(id, data.refId, data.refName || '', data.beaconId, data.offerPrice ?? null, data.offerCurrency || 'USD', data.listingStatus || null, data.category || '', data.subcategory || '', data.locationCity || null, data.locationState || null, data.locationZip || null, data.imageUrl || null);
+    const row = this.db.prepare('SELECT * FROM favorites WHERE id = ?').get(id);
+    return rowToFavorite(row as Record<string, unknown>);
+  }
+
+  remove(refId: string, beaconId: string): boolean {
+    const result = this.db.prepare('DELETE FROM favorites WHERE ref_id = ? AND beacon_id = ?').run(refId, beaconId);
+    return result.changes > 0;
+  }
+
+  toggle(data: { refId: string; refName: string; beaconId: string; offerPrice?: number; offerCurrency?: string; listingStatus?: string; category?: string; subcategory?: string; locationCity?: string; locationState?: string; locationZip?: string; imageUrl?: string }): { favorited: boolean } {
+    if (this.isFavorited(data.refId, data.beaconId)) {
+      this.remove(data.refId, data.beaconId);
+      return { favorited: false };
+    } else {
+      this.add(data);
+      return { favorited: true };
+    }
+  }
+
+  listKeys(): string[] {
+    const rows = this.db.prepare('SELECT ref_id, beacon_id FROM favorites').all() as Array<{ ref_id: string; beacon_id: string }>;
+    return rows.map(r => r.ref_id + ':' + r.beacon_id);
+  }
+
+  count(): number {
+    const row = this.db.prepare('SELECT COUNT(*) as cnt FROM favorites').get() as { cnt: number };
+    return row.cnt;
+  }
+}
+
 function rowToSettings(row: Record<string, unknown>): BeaconSettings {
   return {
     id: row.id as string,

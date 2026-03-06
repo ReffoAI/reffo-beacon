@@ -6,6 +6,7 @@ import offersRouter from './offers';
 import mediaRouter from './media';
 import negotiationsRouter from './negotiations';
 import settingsRouter from './settings';
+import favoritesRouter from './favorites';
 import { renderUI } from '../ui';
 import { TAXONOMY } from '../taxonomy';
 
@@ -38,6 +39,7 @@ export function createApp(): express.Express {
   app.use('/offers', offersRouter);
   app.use('/negotiations', negotiationsRouter);
   app.use('/settings', settingsRouter);
+  app.use('/favorites', favoritesRouter);
 
   // Global error handler — catches multer errors, etc., and returns JSON instead of HTML
   app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

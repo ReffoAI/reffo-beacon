@@ -415,6 +415,24 @@ function initSchema(database: Database.Database): void {
       profile_picture_path TEXT,
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS favorites (
+      id TEXT PRIMARY KEY,
+      ref_id TEXT NOT NULL,
+      ref_name TEXT NOT NULL DEFAULT '',
+      beacon_id TEXT NOT NULL,
+      offer_price REAL,
+      offer_currency TEXT DEFAULT 'USD',
+      listing_status TEXT,
+      category TEXT DEFAULT '',
+      subcategory TEXT DEFAULT '',
+      location_city TEXT,
+      location_state TEXT,
+      location_zip TEXT,
+      image_url TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_favorites_ref_beacon ON favorites(ref_id, beacon_id);
   `);
 
   // Migration: add profile_picture_path to existing beacon_settings
