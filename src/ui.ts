@@ -56,9 +56,13 @@ export function renderUI(): string {
     .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .avatar-dropdown { position: absolute; right: 0; top: 100%; margin-top: 8px; width: 220px; background: #FCFCFD; border: 1px solid #E6E8EC; border-radius: 16px; box-shadow: 0 16px 32px -8px rgba(15,15,15,0.12); padding: 8px 0; z-index: 200; display: none; }
     .avatar-dropdown.open { display: block; }
-    .avatar-dropdown .dd-item { display: block; width: 100%; padding: 10px 20px; font-size: 14px; font-weight: 500; color: #23262F; cursor: pointer; transition: background 0.15s; border: none; background: none; text-align: left; font-family: 'Poppins', sans-serif; }
+    .avatar-dropdown .dd-header { padding: 12px 20px; border-bottom: 1px solid #E6E8EC; }
+    .avatar-dropdown .dd-header-name { font-size: 14px; font-weight: 600; color: #141416; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .avatar-dropdown .dd-header-sub { font-size: 12px; color: #777E90; margin-top: 2px; }
+    .avatar-dropdown .dd-item { display: block; width: 100%; padding: 10px 20px; font-size: 14px; font-weight: 500; color: #23262F; cursor: pointer; transition: background 0.15s; border: none; background: none; text-align: left; font-family: 'Poppins', sans-serif; text-decoration: none; }
     .avatar-dropdown .dd-item:hover { background: #F4F5F6; }
     .avatar-dropdown .dd-divider { height: 1px; background: #E6E8EC; margin: 4px 0; }
+    .avatar-dropdown .dd-label { padding: 8px 20px 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #777E90; }
 
     /* Mobile responsive */
     @media (max-width: 768px) {
@@ -526,10 +530,25 @@ export function renderUI(): string {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           </button>
           <div class="avatar-dropdown" id="avatarDropdown">
+            <div class="dd-header">
+              <div class="dd-header-name" id="ddBeaconName">Reffo Beacon</div>
+              <div class="dd-header-sub" id="ddBeaconSub">Local Node</div>
+            </div>
             <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('refs');">My Refs</button>
             <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('negotiations');">Negotiations</button>
-            <div class="dd-divider"></div>
             <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('settings');">Settings</button>
+            <div class="dd-divider"></div>
+            <a class="dd-item" href="https://reffo.ai/about" target="_blank" rel="noopener noreferrer">About</a>
+            <a class="dd-item" href="https://reffo.ai/docs" target="_blank" rel="noopener noreferrer">Docs</a>
+            <a class="dd-item" href="https://reffo.ai/agents" target="_blank" rel="noopener noreferrer">AI Agents</a>
+            <a class="dd-item" href="https://reffo.ai/skills" target="_blank" rel="noopener noreferrer">Skills</a>
+            <a class="dd-item" href="https://reffo.ai/support?source=beacon" target="_blank" rel="noopener noreferrer">Support</a>
+            <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('for-bots');">&#x1F916; For Bots</button>
+            <div class="dd-divider"></div>
+            <div class="dd-label">Legal</div>
+            <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('terms');">Terms of Service</button>
+            <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('privacy');">Privacy Policy</button>
+            <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('acceptable-use');">Acceptable Use</button>
           </div>
         </div>
       </div>
@@ -994,6 +1013,226 @@ export function renderUI(): string {
     </div>
   </div>
 
+  <!-- Legal: Terms of Service -->
+  <div id="tab-terms" class="hidden">
+    <section>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;cursor:pointer;" onclick="switchTab('refs')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#777E90" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        <span style="font-size:13px;color:#777E90;">Back</span>
+      </div>
+      <h2 style="border-bottom:none;margin-bottom:4px;">Terms of Service</h2>
+      <p style="font-size:13px;color:#777E90;margin-bottom:24px;">Last updated: March 6, 2026</p>
+      <div style="font-size:14px;color:#23262F;line-height:1.7;">
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">1. Acceptance of Terms</h3>
+        <p>By accessing or using Reffo.ai (the &ldquo;Service&rdquo;), the Reffo protocol, the Reffo Beacon software, or any associated APIs, you agree to be bound by these Terms of Service (&ldquo;Terms&rdquo;). If you do not agree to these Terms, do not use the Service.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">2. Description of Services</h3>
+        <p>Reffo is a decentralized commerce protocol. The Service consists of:</p>
+        <ul style="padding-left:24px;margin:8px 0;">
+          <li><strong>Reffo.ai Webapp</strong> &mdash; A web-based discovery layer and search interface for the Reffo network.</li>
+          <li><strong>Reffo Beacon</strong> &mdash; Open-source, self-hosted inventory server software that runs on your machine.</li>
+          <li><strong>Reffo API</strong> &mdash; Programmatic access to search, listings, and network data.</li>
+          <li><strong>Reffo Protocol</strong> &mdash; The open specification that enables interoperability between beacons.</li>
+        </ul>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">3. User Accounts and Responsibilities</h3>
+        <p>You may create an account on Reffo.ai to access certain features. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You agree to provide accurate and complete information when creating your account and to keep it up to date.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">4. User-Generated Content and Listings</h3>
+        <p>You retain ownership of all content you create and list through the Service, including item descriptions, images, and pricing information. By listing content on the Reffo network, you grant Reffo.ai a limited, non-exclusive, royalty-free license to display, index, and make your listings discoverable through the webapp and API.</p>
+        <p style="margin-top:8px;">You are solely responsible for the accuracy, legality, and appropriateness of your listings and content.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">5. Peer-to-Peer Transactions</h3>
+        <p>Reffo.ai is a discovery and communication layer. All transactions on the Reffo network occur directly between users (peer-to-peer). Reffo.ai is not a party to any transaction, does not provide escrow services, and makes no guarantees regarding the quality, safety, legality, or delivery of items listed on the network.</p>
+        <p style="margin-top:8px;">You acknowledge that you engage in peer-to-peer transactions at your own risk. Reffo.ai is not responsible for disputes between users.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">6. Prohibited Uses</h3>
+        <p>You agree to comply with our <a href="javascript:void(0)" onclick="switchTab('acceptable-use')" style="color:#EA526F;">Acceptable Use Policy</a>, which is incorporated into these Terms by reference. Violation of the Acceptable Use Policy may result in suspension or termination of your account.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">7. API Usage</h3>
+        <p>Access to the Reffo API is subject to rate limits and usage policies. API keys are personal and non-transferable. You may not use the API to scrape, spam, or otherwise abuse the Service. We reserve the right to revoke API access for violations.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">8. Intellectual Property</h3>
+        <p>The Reffo name, logo, and branding are trademarks of Reffo.ai. The Reffo Protocol specification is released under a CC0 public domain dedication. The Reffo Beacon software is released under an open-source license (see the respective repository for details). This webapp and its original content are the property of Reffo.ai.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">9. Disclaimers</h3>
+        <p>THE SERVICE IS PROVIDED &ldquo;AS IS&rdquo; AND &ldquo;AS AVAILABLE&rdquo; WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. REFFO.AI DOES NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, SECURE, OR ERROR-FREE. WE MAKE NO WARRANTIES REGARDING THE RELIABILITY, ACCURACY, OR COMPLETENESS OF ANY LISTINGS, USER CONTENT, OR PEER-TO-PEER TRANSACTIONS ON THE NETWORK.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">10. Limitation of Liability</h3>
+        <p>TO THE FULLEST EXTENT PERMITTED BY LAW, REFFO.AI SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING OUT OF OR RELATING TO YOUR USE OF THE SERVICE, INCLUDING BUT NOT LIMITED TO DAMAGES FROM PEER-TO-PEER TRANSACTIONS, LOST PROFITS, DATA LOSS, OR BUSINESS INTERRUPTION.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">11. Indemnification</h3>
+        <p>You agree to indemnify and hold harmless Reffo.ai, its officers, directors, employees, and agents from any claims, liabilities, damages, or expenses arising from your use of the Service, your listings, your transactions with other users, or your violation of these Terms.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">12. Termination</h3>
+        <p>We may suspend or terminate your account and access to the Service at our discretion, with or without notice, for conduct that we believe violates these Terms or is harmful to other users or the Service. Upon termination, your right to use the Service ceases immediately, though your locally stored beacon data remains yours.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">13. Governing Law</h3>
+        <p>These Terms shall be governed by and construed in accordance with the laws of the State of Delaware, United States, without regard to its conflict-of-law provisions.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">14. Changes to These Terms</h3>
+        <p>We may update these Terms from time to time. When we do, we will revise the &ldquo;Last updated&rdquo; date at the top of this page. Continued use of the Service after changes constitutes acceptance of the revised Terms.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">15. Contact</h3>
+        <p>If you have questions about these Terms, please contact us at <a href="mailto:help@reffo.ai" style="color:#EA526F;">help@reffo.ai</a>.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- Legal: Privacy Policy -->
+  <div id="tab-privacy" class="hidden">
+    <section>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;cursor:pointer;" onclick="switchTab('refs')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#777E90" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        <span style="font-size:13px;color:#777E90;">Back</span>
+      </div>
+      <h2 style="border-bottom:none;margin-bottom:4px;">Privacy Policy</h2>
+      <p style="font-size:13px;color:#777E90;margin-bottom:24px;">Last updated: March 6, 2026</p>
+      <div style="font-size:14px;color:#23262F;line-height:1.7;">
+        <p>Reffo.ai (&ldquo;we,&rdquo; &ldquo;us,&rdquo; or &ldquo;our&rdquo;) is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use the Reffo.ai webapp, the Reffo Beacon software, and associated APIs (collectively, the &ldquo;Service&rdquo;).</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">1. Information We Collect</h3>
+        <p><strong>Account Data:</strong> When you create an account, we collect your email address and store a password hash through our authentication provider (Supabase). You may optionally provide a display name, username, and avatar.</p>
+        <p style="margin-top:8px;"><strong>Listing Data:</strong> When your beacon syncs with Reffo.ai, we receive and index your listing data (item titles, descriptions, images, prices, and categories) to make it discoverable through search.</p>
+        <p style="margin-top:8px;"><strong>Search Queries:</strong> We collect search queries to improve search relevance and service quality. Search queries are not linked to your account unless you are logged in.</p>
+        <p style="margin-top:8px;"><strong>Usage Data:</strong> We collect standard web analytics data including page views, browser type, device information, and IP address for service improvement and security purposes.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">2. How We Use Your Information</h3>
+        <ul style="padding-left:24px;margin:8px 0;">
+          <li>To provide and operate the Service, including search and discovery features.</li>
+          <li>To improve search relevance and overall service quality.</li>
+          <li>To communicate important updates about the Service or your account.</li>
+          <li>To enforce our Terms of Service and Acceptable Use Policy.</li>
+          <li>To detect and prevent fraud, abuse, or security threats.</li>
+        </ul>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">3. Data Sharing</h3>
+        <p>We do not sell your personal information. We may share data with the following third-party service providers that help us operate the Service:</p>
+        <ul style="padding-left:24px;margin:8px 0;">
+          <li><strong>Supabase</strong> &mdash; Authentication and database services.</li>
+          <li><strong>Vercel</strong> &mdash; Web hosting and deployment.</li>
+        </ul>
+        <p style="margin-top:8px;">These providers process data on our behalf and are contractually obligated to protect your information. We may also disclose information if required by law or to protect the rights, safety, or property of Reffo.ai, its users, or the public.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">4. Data Retention</h3>
+        <p>Account data is retained for as long as your account is active. Beacon sync data (listings indexed for search) is periodically refreshed and updated as your beacon syncs. If you delete your account, your account data will be removed, and your listings will be de-indexed from search.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">5. Your Rights</h3>
+        <p>Depending on your jurisdiction (including under GDPR and CCPA), you may have the right to:</p>
+        <ul style="padding-left:24px;margin:8px 0;">
+          <li>Access the personal data we hold about you.</li>
+          <li>Request correction of inaccurate data.</li>
+          <li>Request deletion of your data.</li>
+          <li>Object to or restrict certain processing of your data.</li>
+          <li>Request data portability.</li>
+        </ul>
+        <p style="margin-top:8px;">To exercise any of these rights, contact us at <a href="mailto:help@reffo.ai" style="color:#EA526F;">help@reffo.ai</a>.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">6. Security</h3>
+        <p>We implement industry-standard security measures to protect your data, including encryption in transit (TLS), secure password hashing, and access controls. However, no method of transmission over the internet is 100% secure, and we cannot guarantee absolute security.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">7. Children&rsquo;s Privacy</h3>
+        <p>The Service is not intended for children under 13 years of age. We do not knowingly collect personal information from children under 13. If we learn that we have collected such information, we will take steps to delete it promptly.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">8. International Transfers</h3>
+        <p>Your information may be transferred to and processed in countries other than your own. By using the Service, you consent to the transfer of your information to the United States and other jurisdictions where our service providers operate.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">9. Cookies</h3>
+        <p>We use cookies for authentication and essential service functionality.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">10. Changes to This Policy</h3>
+        <p>We may update this Privacy Policy from time to time. When we do, we will revise the &ldquo;Last updated&rdquo; date at the top of this page. Continued use of the Service after changes constitutes acceptance of the revised policy.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">11. Contact</h3>
+        <p>If you have questions about this Privacy Policy, please contact us at <a href="mailto:help@reffo.ai" style="color:#EA526F;">help@reffo.ai</a>.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- Legal: Acceptable Use Policy -->
+  <div id="tab-acceptable-use" class="hidden">
+    <section>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;cursor:pointer;" onclick="switchTab('refs')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#777E90" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        <span style="font-size:13px;color:#777E90;">Back</span>
+      </div>
+      <h2 style="border-bottom:none;margin-bottom:4px;">Acceptable Use Policy</h2>
+      <p style="font-size:13px;color:#777E90;margin-bottom:24px;">Last updated: March 6, 2026</p>
+      <div style="font-size:14px;color:#23262F;line-height:1.7;">
+        <p>This Acceptable Use Policy (&ldquo;AUP&rdquo;) governs your use of the Reffo.ai webapp, the Reffo network, and associated services. By using the Service, you agree to comply with this policy. Violation may result in listing removal, account suspension, or reporting to law enforcement.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">1. Prohibited Items</h3>
+        <p>You may not list, offer, or facilitate the sale or exchange of:</p>
+        <ul style="padding-left:24px;margin:8px 0;">
+          <li>Illegal goods or services under applicable law.</li>
+          <li>Weapons, firearms, ammunition, or explosives (unless permitted by local law and properly licensed).</li>
+          <li>Controlled substances, illegal drugs, or drug paraphernalia.</li>
+          <li>Stolen property or goods obtained through illegal means.</li>
+          <li>Counterfeit goods, including fake branded merchandise.</li>
+          <li>Hazardous materials that pose a risk to health or safety.</li>
+          <li>Items that infringe on intellectual property rights.</li>
+          <li>Human remains, body parts, or products derived from endangered species.</li>
+        </ul>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">2. Prohibited Conduct</h3>
+        <p>You may not:</p>
+        <ul style="padding-left:24px;margin:8px 0;">
+          <li>Engage in fraud, misrepresentation, or deceptive practices.</li>
+          <li>Harass, threaten, or abuse other users.</li>
+          <li>Send spam, unsolicited messages, or bulk communications.</li>
+          <li>Manipulate search results, the DHT, or any ranking or discovery mechanism.</li>
+          <li>Impersonate other users, beacons, or Reffo.ai staff.</li>
+          <li>Attempt to gain unauthorized access to other users&rsquo; accounts, beacons, or data.</li>
+          <li>Use the Service for money laundering, terrorist financing, or other financial crimes.</li>
+          <li>Interfere with or disrupt the Service, network, or other users&rsquo; beacons.</li>
+        </ul>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">3. Listing Accuracy</h3>
+        <p>All listings must accurately represent the item or service being offered. Descriptions, photos, pricing, and condition must be truthful and not misleading. Bait-and-switch tactics are strictly prohibited.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">4. Enforcement</h3>
+        <p>Reffo.ai reserves the right to take action against violations of this AUP, including but not limited to:</p>
+        <ul style="padding-left:24px;margin:8px 0;">
+          <li>Removing or de-indexing offending listings from search.</li>
+          <li>Issuing warnings to account holders.</li>
+          <li>Suspending or terminating user accounts.</li>
+          <li>Revoking API access.</li>
+          <li>Reporting illegal activity to the appropriate authorities.</li>
+        </ul>
+        <p style="margin-top:8px;">Note: Because the Reffo network is decentralized, Reffo.ai can remove listings from its own search index and webapp but cannot control content on individual beacons. Beacon operators are independently responsible for the content they host.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">5. Reporting Violations</h3>
+        <p>If you encounter a listing or user that violates this policy, please report it to <a href="mailto:help@reffo.ai" style="color:#EA526F;">help@reffo.ai</a> with as much detail as possible, including the listing URL or description and the nature of the violation.</p>
+
+        <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">6. Changes to This Policy</h3>
+        <p>We may update this AUP from time to time. When we do, we will revise the &ldquo;Last updated&rdquo; date at the top of this page.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- For Bots -->
+  <div id="tab-for-bots" class="hidden">
+    <section>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;cursor:pointer;" onclick="switchTab('refs')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#777E90" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        <span style="font-size:13px;color:#777E90;">Back</span>
+      </div>
+      <h2 style="border-bottom:none;margin-bottom:4px;">&#x1F916; For Bots Only</h2>
+      <p style="font-size:13px;color:#777E90;margin-bottom:24px;">Structured info for AI agents, crawlers, and bots. Humans: you probably want <a href="https://reffo.ai/docs" target="_blank" rel="noopener noreferrer" style="color:#EA526F;">Docs</a> or <a href="https://reffo.ai/agents" target="_blank" rel="noopener noreferrer" style="color:#EA526F;">AI Agents</a>.</p>
+      <div style="font-size:14px;color:#23262F;line-height:1.7;">
+        <p>For full bot-readable documentation, visit <a href="https://reffo.ai/for-bots" target="_blank" rel="noopener noreferrer" style="color:#EA526F;">reffo.ai/for-bots</a></p>
+        <pre style="background:#1a1a2e;color:#e0e0e0;border-radius:12px;padding:20px;overflow-x:auto;font-size:13px;line-height:1.6;margin-top:16px;">Reffo = open-source decentralized commerce protocol
+Beacon = self-hosted marketplace node (Express + SQLite + DHT)
+MCP = @reffo/mcp &mdash; connect AI agents to a beacon
+Skills = plugin system for extending beacons
+API = REST on port 3737
+Quickstart = npm create reffo-beacon
+GitHub = https://github.com/ReffoAI
+Website = https://reffo.ai</pre>
+      </div>
+    </section>
+  </div>
+
   <!-- Toast container -->
   <div id="toast-container"></div>
 
@@ -1068,12 +1307,11 @@ export function renderUI(): string {
 
     // ===== Tab switching =====
     function switchTab(tab) {
-      document.getElementById('tab-refs').classList.toggle('hidden', tab !== 'refs');
-      document.getElementById('tab-detail').classList.toggle('hidden', tab !== 'detail');
-      document.getElementById('tab-search').classList.toggle('hidden', tab !== 'search');
-      document.getElementById('tab-negotiations').classList.toggle('hidden', tab !== 'negotiations');
-      document.getElementById('tab-settings').classList.toggle('hidden', tab !== 'settings');
-      document.getElementById('tab-list').classList.toggle('hidden', tab !== 'list');
+      var tabs = ['refs','detail','search','negotiations','settings','list','terms','privacy','acceptable-use','for-bots'];
+      tabs.forEach(function(t) {
+        var el = document.getElementById('tab-' + t);
+        if (el) el.classList.toggle('hidden', tab !== t);
+      });
       // Show/hide search filter bar
       var sfb = document.getElementById('searchFilterBar');
       if (sfb) sfb.parentElement.style.display = (tab === 'refs' || tab === 'search') ? '' : 'none';
