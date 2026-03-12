@@ -562,14 +562,27 @@ export function renderUI(): string {
     .table-row .col-actions button.del:hover { background: #fce8e6; color: #E92222; }
     @media (max-width: 768px) { .table-row .col-qty, .table-row .col-date, .table-header-row .col-qty, .table-header-row .col-date { display: none; } }
 
-    /* Bulk action bar */
-    .bulk-action-bar { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #141416; color: #FCFCFD; padding: 12px 24px; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); display: none; align-items: center; gap: 16px; z-index: 100; font-size: 14px; font-weight: 500; }
-    .bulk-action-bar.show { display: flex; }
-    .bulk-action-bar .bulk-count { font-weight: 700; }
-    .bulk-action-bar button { height: 32px; padding: 0 16px; border-radius: 16px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; border: none; }
-    .bulk-action-bar .bulk-archive { background: #E6E8EC; color: #23262F; }
-    .bulk-action-bar .bulk-delete { background: #E92222; color: #fff; }
-    .bulk-action-bar .bulk-cancel { background: transparent; color: #777E90; border: 1px solid #353945; }
+    /* Bulk action sidebar */
+    .refs-with-sidebar { display: flex; gap: 24px; }
+    .refs-main-col { flex: 1; min-width: 0; }
+    .bulk-action-sidebar { width: 200px; flex-shrink: 0; display: none; }
+    .bulk-action-sidebar.show { display: block; }
+    .bulk-action-sidebar-inner { position: sticky; top: 88px; background: #FCFCFD; border-radius: 16px; padding: 20px; box-shadow: 0 4px 16px rgba(15,15,15,0.06); }
+    .bulk-action-sidebar-inner .bulk-count-label { font-size: 14px; font-weight: 700; color: #23262F; margin-bottom: 16px; }
+    .bulk-action-sidebar-inner .bulk-divider { height: 1px; background: #E6E8EC; margin: 8px 0; }
+    .bulk-action-sidebar-inner button { display: block; width: 100%; height: 36px; padding: 0 14px; border-radius: 10px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: 'Poppins', sans-serif; border: none; margin-bottom: 6px; text-align: left; transition: opacity 0.15s; }
+    .bulk-action-sidebar-inner button:hover { opacity: 0.85; }
+    .bulk-action-sidebar-inner .bulk-cancel { background: transparent; color: #777E90; border: 1px solid #E6E8EC; text-align: center; }
+    @media (max-width: 1024px) {
+      .refs-with-sidebar { flex-direction: column; }
+      .bulk-action-sidebar { width: 100%; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; }
+      .bulk-action-sidebar-inner { position: static; border-radius: 0; border-top: 1px solid #E6E8EC; box-shadow: 0 -4px 24px rgba(15,15,15,0.10); display: flex; align-items: center; gap: 10px; padding: 12px 20px; flex-wrap: wrap; }
+      .bulk-action-sidebar-inner .bulk-count-label { margin-bottom: 0; margin-right: 4px; white-space: nowrap; }
+      .bulk-action-sidebar-inner .bulk-divider { display: none; }
+      .bulk-action-sidebar-inner button { display: inline-block; width: auto; margin-bottom: 0; text-align: center; }
+    }
+    /* Checkbox normalization */
+    input[type="checkbox"] { -webkit-appearance: checkbox; appearance: checkbox; width: 16px; height: 16px; cursor: pointer; accent-color: #EC526F; border-radius: 3px; }
 
     /* Archive card actions */
     .archive-actions { display: flex; gap: 8px; margin-top: 12px; }
@@ -743,8 +756,8 @@ export function renderUI(): string {
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
   <div class="dashboard-main">
   <div class="container">
-    <!-- Search Filter Bar -->
-    <div style="margin-bottom:24px;">
+    <!-- Search Filter Bar (global / network search) -->
+    <div style="margin-bottom:24px;" id="globalSearchBarWrapper">
       <!-- Desktop: full pill bar -->
       <div class="search-filter-bar" id="searchFilterBar">
         <div class="search-filter-segment">
@@ -891,7 +904,37 @@ export function renderUI(): string {
             <button class="btn-primary btn-sm" onclick="openListRefModal()">+ New Ref</button>
           </div>
         </div>
-        <div id="myRefs"><p class="empty">Loading...</p></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <div style="display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;border-radius:24px;background:#fff;border:1px solid #E6E8EC;flex:0 0 240px;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#777E90" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input id="refLocalSearch" type="text" placeholder="Search my items..." oninput="applyRefLocalFilter()" style="border:none;outline:none;background:transparent;font-size:14px;font-family:'Poppins',sans-serif;color:#23262F;flex:1;min-width:0;line-height:44px;padding:0;margin:0;">
+          </div>
+          <select id="refLocalCategory" onchange="applyRefLocalFilter()" style="height:44px;padding:0 14px;border-radius:24px;background:#fff;border:1px solid #E6E8EC;font-size:14px;font-family:'Poppins',sans-serif;color:#23262F;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.04);-webkit-appearance:none;appearance:none;padding-right:32px;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23777E90%22 stroke-width=%222.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><polyline points=%226 9 12 15 18 9%22/></svg>');background-repeat:no-repeat;background-position:right 12px center;">
+            <option value="">All Categories</option>
+          </select>
+          <select id="refLocalSort" onchange="applyRefLocalFilter()" style="height:44px;padding:0 14px;border-radius:24px;background:#fff;border:1px solid #E6E8EC;font-size:14px;font-family:'Poppins',sans-serif;color:#23262F;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.04);-webkit-appearance:none;appearance:none;padding-right:32px;background-image:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%2212%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23777E90%22 stroke-width=%222.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><polyline points=%226 9 12 15 18 9%22/></svg>');background-repeat:no-repeat;background-position:right 12px center;">
+            <option value="newest">Newest First</option>
+            <option value="price_asc">Price: Low → High</option>
+            <option value="price_desc">Price: High → Low</option>
+          </select>
+        </div>
+        <div class="refs-with-sidebar">
+          <div class="refs-main-col">
+            <div id="myRefs"><p class="empty">Loading...</p></div>
+          </div>
+          <div class="bulk-action-sidebar" id="bulkActionSidebar">
+            <div class="bulk-action-sidebar-inner">
+              <div class="bulk-count-label"><span id="bulkCount">0</span> selected</div>
+              <button style="background:#E6E8EC;color:#353945;" onclick="bulkSetStatus('private')">Set Private</button>
+              <button style="background:#e6f9ed;color:#1a8a42;" onclick="bulkSetStatus('for_sale')">Set For Sale</button>
+              <button style="background:#fff8e1;color:#e6a200;" onclick="bulkSetStatus('willing_to_sell')">Set Willing to Sell</button>
+              <div class="bulk-divider"></div>
+              <button style="background:#E92222;color:#fff;" onclick="bulkArchive()">Archive</button>
+              <button style="background:#E92222;color:#fff;" onclick="bulkDelete()">Delete</button>
+              <button class="bulk-cancel" onclick="clearSelection()">Cancel</button>
+            </div>
+          </div>
+        </div>
       </section>
       </div>
 
@@ -1570,19 +1613,6 @@ Website = https://reffo.ai</pre>
     </section>
   </div>
 
-  <!-- Bulk Action Bar -->
-    <div class="bulk-action-bar" id="bulkActionBar">
-      <span class="bulk-count" id="bulkCount">0</span> selected
-      <span style="width:1px;height:20px;background:#353945;"></span>
-      <button style="background:#E6E8EC;color:#353945;" onclick="bulkSetStatus('private')">Private</button>
-      <button style="background:#e6f9ed;color:#1a8a42;" onclick="bulkSetStatus('for_sale')">For Sale</button>
-      <button style="background:#fff8e1;color:#e6a200;" onclick="bulkSetStatus('willing_to_sell')">Willing to Sell</button>
-      <span style="width:1px;height:20px;background:#353945;"></span>
-      <button class="bulk-archive" onclick="bulkArchive()">Archive</button>
-      <button class="bulk-delete" onclick="bulkDelete()">Delete</button>
-      <button class="bulk-cancel" onclick="clearSelection()">Cancel</button>
-    </div>
-
   <!-- Toast container -->
   <div id="toast-container"></div>
 
@@ -1665,9 +1695,9 @@ Website = https://reffo.ai</pre>
         var el = document.getElementById('tab-' + t);
         if (el) el.classList.toggle('hidden', tab !== t);
       });
-      // Show/hide search filter bar (desktop + mobile)
-      var sfbWrap = document.getElementById('searchFilterBar') ? document.getElementById('searchFilterBar').parentElement : null;
-      if (sfbWrap) sfbWrap.style.display = (tab === 'refs' || tab === 'search') ? '' : 'none';
+      // Show/hide global search filter bar (only for network search tab)
+      var sfbWrap = document.getElementById('globalSearchBarWrapper');
+      if (sfbWrap) sfbWrap.style.display = (tab === 'search') ? '' : 'none';
       if (tab === 'negotiations') loadNegotiations();
       if (tab === 'refs') loadMyRefs();
       if (tab === 'settings') loadSettings();
@@ -1818,13 +1848,13 @@ Website = https://reffo.ai</pre>
     };
 
     function updateBulkBar() {
-      var bar = document.getElementById('bulkActionBar');
+      var sidebar = document.getElementById('bulkActionSidebar');
       var count = window._selectedRefIds.size;
       if (count > 0) {
-        bar.classList.add('show');
+        sidebar.classList.add('show');
         document.getElementById('bulkCount').textContent = count;
       } else {
-        bar.classList.remove('show');
+        sidebar.classList.remove('show');
       }
     }
 
@@ -2368,6 +2398,31 @@ Website = https://reffo.ai</pre>
     });
 
     // ===== My Refs =====
+    var _allRefs = [];
+    var _allOfferMap = {};
+    var _allMediaMap = {};
+
+    window.applyRefLocalFilter = function() {
+      var search = (document.getElementById('refLocalSearch').value || '').trim().toLowerCase();
+      var category = document.getElementById('refLocalCategory').value;
+      var sort = document.getElementById('refLocalSort').value;
+      var filtered = _allRefs.filter(function(ref) {
+        if (category && ref.category !== category) return false;
+        if (search && (ref.name || '').toLowerCase().indexOf(search) === -1 && (ref.description || '').toLowerCase().indexOf(search) === -1) return false;
+        return true;
+      });
+      if (sort === 'price_asc' || sort === 'price_desc') {
+        filtered.sort(function(a, b) {
+          var aOffer = (_allOfferMap[a.id] || []).find(function(o) { return o.status === 'active'; });
+          var bOffer = (_allOfferMap[b.id] || []).find(function(o) { return o.status === 'active'; });
+          var aPrice = aOffer ? aOffer.price : 0;
+          var bPrice = bOffer ? bOffer.price : 0;
+          return sort === 'price_asc' ? aPrice - bPrice : bPrice - aPrice;
+        });
+      }
+      renderRefList(filtered, _allOfferMap, _allMediaMap);
+    };
+
     async function loadMyRefs() {
       const container = document.getElementById('myRefs');
       try {
@@ -2389,6 +2444,37 @@ Website = https://reffo.ai</pre>
           const mRes = await fetch('/refs/' + ref.id + '/media');
           mediaMap[ref.id] = await mRes.json();
         }));
+
+        // Store for local filtering
+        _allRefs = refs;
+        _allOfferMap = offerMap;
+        _allMediaMap = mediaMap;
+
+        // Populate category dropdown from actual data
+        var cats = {};
+        refs.forEach(function(r) { if (r.category) cats[r.category] = true; });
+        var catSelect = document.getElementById('refLocalCategory');
+        var currentCat = catSelect.value;
+        catSelect.innerHTML = '<option value="">All Categories</option>' + Object.keys(cats).sort().map(function(c) {
+          return '<option value="' + escapeHtml(c) + '">' + escapeHtml(c) + '</option>';
+        }).join('');
+        catSelect.value = currentCat;
+
+        // Apply any active filters (this calls renderRefList)
+        applyRefLocalFilter();
+
+      } catch {
+        document.getElementById('myRefs').innerHTML = '<p class="empty">Failed to load refs</p>';
+      }
+    }
+
+    function renderRefList(refs, offerMap, mediaMap) {
+      const container = document.getElementById('myRefs');
+      if (refs.length === 0) {
+        container.innerHTML = '<p class="empty">No items match your filters.</p>';
+        updateBulkBar();
+        return;
+      }
 
         if (refLayout === 'table') {
           var selectedIds = window._selectedRefIds || new Set();
@@ -2438,7 +2524,9 @@ Website = https://reffo.ai</pre>
           updateBulkBar();
         } else if (refLayout === 'row') {
           var selectedIds = window._selectedRefIds || new Set();
-          container.innerHTML = '<div class="rows">' + refs.map(ref => {
+          var allRowsSelected = refs.length > 0 && refs.every(r => selectedIds.has(r.id));
+          container.innerHTML = '<div style="display:flex;align-items:center;gap:10px;padding:4px 12px 8px;"><input type="checkbox" ' + (allRowsSelected ? 'checked' : '') + ' onchange="toggleSelectAll(this.checked)" style="width:16px;height:16px;cursor:pointer;accent-color:#EC526F;"><span style="font-size:11px;font-weight:600;color:#777E90;text-transform:uppercase;letter-spacing:0.05em;">' + (selectedIds.size > 0 ? selectedIds.size + ' selected' : 'Select all') + '</span></div>' +
+          '<div class="rows">' + refs.map(ref => {
             const refOffers = offerMap[ref.id] || [];
             const activeOffer = refOffers.find(o => o.status === 'active');
             const priceStr = activeOffer ? activeOffer.priceCurrency + ' ' + activeOffer.price.toFixed(2) : '';
@@ -2500,9 +2588,6 @@ Website = https://reffo.ai</pre>
               '</div></div>';
           }).join('') + '</div>';
         }
-      } catch {
-        container.innerHTML = '<p class="empty">Failed to load refs</p>';
-      }
     }
 
     // ===== Ref Detail / Edit View =====
