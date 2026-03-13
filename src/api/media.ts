@@ -135,6 +135,79 @@ router.post('/', upload.array('files', MAX_FILES), (req: Request, res: Response)
   res.status(201).json({ uploaded: results, errors });
 });
 
+// POST /refs/:refId/media/from-url — download an image from a URL and save as media
+router.post('/from-url', async (req: Request, res: Response) => {
+  const refs = new RefQueries();
+  const media = new MediaQueries();
+  const refId = String(req.params.refId);
+
+  const { url } = req.body;
+  if (!url || typeof url !== 'string') {
+    return res.status(400).json({ error: 'url is required' });
+  }
+
+  const ref = refs.get(refId);
+  if (!ref) return res.status(404).json({ error: 'Ref not found' });
+
+  // Check photo limit
+  const currentPhotos = media.countPhotos(refId);
+  if (currentPhotos >= MAX_PHOTOS) {
+    return res.status(400).json({ error: `Maximum ${MAX_PHOTOS} photos reached` });
+  }
+
+  try {
+    // Download the image
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'ReffoBeacon/1.0' },
+      signal: AbortSignal.timeout(15000),
+    });
+
+    if (!response.ok) {
+      return res.status(400).json({ error: `Failed to download image: HTTP ${response.status}` });
+    }
+
+    const contentType = response.headers.get('content-type') || '';
+    const mime = contentType.split(';')[0].trim().toLowerCase();
+    if (!PHOTO_MIMES.includes(mime)) {
+      return res.status(400).json({ error: `Unsupported image type: ${mime}` });
+    }
+
+    const buffer = Buffer.from(await response.arrayBuffer());
+    if (buffer.length > MAX_PHOTO_SIZE) {
+      return res.status(400).json({ error: 'Image exceeds 10MB limit' });
+    }
+    if (buffer.length === 0) {
+      return res.status(400).json({ error: 'Downloaded image is empty' });
+    }
+
+    // Save to disk
+    const extMap: Record<string, string> = { 'image/jpeg': '.jpg', 'image/png': '.png', 'image/gif': '.gif', 'image/webp': '.webp' };
+    const ext = extMap[mime] || '.jpg';
+    const dir = path.join(UPLOADS_DIR, refId);
+    fs.mkdirSync(dir, { recursive: true });
+    const filename = `${uuid()}${ext}`;
+    const filePath = path.join(dir, filename);
+    fs.writeFileSync(filePath, buffer);
+
+    const relativePath = path.relative(process.cwd(), filePath);
+    const record = media.create({
+      id: uuid(),
+      refId,
+      mediaType: 'photo',
+      filePath: relativePath,
+      mimeType: mime,
+      fileSize: buffer.length,
+      sortOrder: currentPhotos,
+    });
+
+    res.status(201).json(record);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Unknown error';
+    console.error('[Media] from-url failed:', msg);
+    res.status(500).json({ error: 'Failed to download image: ' + msg });
+  }
+});
+
 // GET /refs/:refId/media
 router.get('/', (req: Request, res: Response) => {
   const media = new MediaQueries();

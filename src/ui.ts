@@ -2083,7 +2083,7 @@ Website = https://reffo.ai</pre>
           var price = ref.price ? '$' + Number(ref.price).toFixed(2) : '';
           var statusLabel = statusLabels[ref.listingStatus] || 'Private';
           var statusClass = statusBadgeClass[ref.listingStatus] || 'badge-private';
-          return '<div class="home-recent-card" onclick="showDetail(\\'' + ref.id + '\\')">' + imgHtml + '<div class="card-body"><div class="card-name">' + escapeHtml(ref.name) + '</div><div class="card-meta">' + escapeHtml(ref.category || '') + ' <span class="status-badge ' + statusClass + '">' + statusLabel + '</span></div>' + (price ? '<div class="card-price">' + price + '</div>' : '') + '</div></div>';
+          return '<div class="home-recent-card" onclick="openDetail(\\'' + ref.id + '\\')">' + imgHtml + '<div class="card-body"><div class="card-name">' + escapeHtml(ref.name) + '</div><div class="card-meta">' + escapeHtml(ref.category || '') + ' <span class="status-badge ' + statusClass + '">' + statusLabel + '</span></div>' + (price ? '<div class="card-price">' + price + '</div>' : '') + '</div></div>';
         }).join('') + '</div>';
         homeLoaded = true;
       } catch(e) {
@@ -2256,8 +2256,10 @@ Website = https://reffo.ai</pre>
         showToast(data.archived + ' item(s) archived', 'accepted');
         window._selectedRefIds.clear();
         updateBulkBar();
-        loadMyRefs();
+        homeLoaded = false;
+        await loadMyRefs();
       } catch(e) {
+        console.error('[BulkArchive] Failed:', e);
         showToast('Failed to archive items', 'rejected');
       }
     };
@@ -2277,8 +2279,10 @@ Website = https://reffo.ai</pre>
         showToast(data.archived + ' item(s) deleted', '');
         window._selectedRefIds.clear();
         updateBulkBar();
-        loadMyRefs();
+        homeLoaded = false;
+        await loadMyRefs();
       } catch(e) {
+        console.error('[BulkDelete] Failed:', e);
         showToast('Failed to delete items', 'rejected');
       }
     };
@@ -2312,8 +2316,10 @@ Website = https://reffo.ai</pre>
         var res = await fetch('/refs/' + refId, { method: 'DELETE' });
         if (!res.ok) throw new Error('Failed');
         showToast('Ref archived', 'accepted');
-        loadMyRefs();
+        homeLoaded = false;
+        await loadMyRefs();
       } catch(e) {
+        console.error('[Archive] Failed:', e);
         showToast('Failed to archive ref', 'rejected');
       }
     };
@@ -2324,8 +2330,10 @@ Website = https://reffo.ai</pre>
         var res = await fetch('/refs/' + refId, { method: 'DELETE' });
         if (!res.ok) throw new Error('Failed');
         showToast('Ref archived', 'accepted');
-        loadMyRefs();
+        homeLoaded = false;
+        await loadMyRefs();
       } catch(e) {
+        console.error('[Delete] Failed:', e);
         showToast('Failed to delete ref', 'rejected');
       }
     };
@@ -2783,6 +2791,20 @@ Website = https://reffo.ai</pre>
             uploadErrors.push(errMsg);
           }
         }
+        // Download AI autofill image if no user photos were uploaded
+        if (selectedPhotos.length === 0 && window._autofillImageUrl && window._autofillImageUrl.create) {
+          try {
+            const imgRes = await fetch('/refs/' + ref.id + '/media/from-url', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: window._autofillImageUrl.create })
+            });
+            if (imgRes.ok) {
+              showToast('AI product image saved', 'accepted');
+            }
+          } catch { /* ignore download failures */ }
+          window._autofillImageUrl.create = null;
+        }
         if (uploadErrors.length > 0) console.warn('Media upload issues:', uploadErrors.join('; '));
 
         // Create offer if price > 0 and not private
@@ -2823,6 +2845,7 @@ Website = https://reffo.ai</pre>
         document.getElementById('createPriceEstimate').innerHTML = '';
         selectedPhotos = [];
         selectedVideo = null;
+        window._autofillImageUrl.create = null;
         document.getElementById('photoPreview').innerHTML = '';
         document.getElementById('videoPreview').innerHTML = '';
         closeListRefModal();
@@ -3028,7 +3051,9 @@ Website = https://reffo.ai</pre>
     }
 
     // ===== Ref Detail / Edit View =====
+    var _currentDetailRefId = null;
     async function openDetail(refId) {
+      _currentDetailRefId = refId;
       const container = document.getElementById('detailContent');
       container.innerHTML = '<p class="empty">Loading...</p>';
       switchTab('detail');
@@ -3339,6 +3364,8 @@ Website = https://reffo.ai</pre>
 
     // Global: whether AI autofill is available (set by loadSettings)
     window._aiEnabled = false;
+    // Store AI autofill image URLs per context (create / detail)
+    window._autofillImageUrl = { create: null, detail: null };
 
     // ===== Segmented Status Control (Detail) =====
     let detailEstimateTimer = null;
@@ -3583,9 +3610,11 @@ Website = https://reffo.ai</pre>
         const res = await fetch('/refs/' + refId, { method: 'DELETE' });
         if (!res.ok) throw new Error('Failed to archive');
         showToast('Ref archived', '');
+        homeLoaded = false;
         switchTab('refs');
-        loadMyRefs();
-      } catch {
+        await loadMyRefs();
+      } catch(e) {
+        console.error('[DeleteRef] Failed:', e);
         alert('Failed to archive ref');
       }
     };
@@ -5079,6 +5108,11 @@ Website = https://reffo.ai</pre>
       var cardEl = document.getElementById(context + 'AutofillCard');
       var filledFields = [];
 
+      // Store AI image URL for later use
+      if (data.image_url) {
+        window._autofillImageUrl[context] = data.image_url;
+      }
+
       // Fill empty description
       var descEl = document.getElementById(prefix === 'd' ? 'dDesc' : 'refDesc');
       if (descEl && !descEl.value.trim() && data.description) {
@@ -5117,6 +5151,24 @@ Website = https://reffo.ai</pre>
       if (data.price_estimate && data.price_estimate.typical > 0) {
         var priceContainerId = context === 'detail' ? 'detailPriceEstimate' : 'createPriceEstimate';
         renderPriceEstimate(priceContainerId, data.price_estimate);
+      }
+
+      // For detail view: auto-download AI image immediately (item already exists)
+      if (context === 'detail' && data.image_url) {
+        var detailRefId = _currentDetailRefId || '';
+        if (detailRefId) {
+          fetch('/refs/' + detailRefId + '/media/from-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: data.image_url })
+          }).then(function(r) {
+            if (r.ok) {
+              showToast('AI product image saved', 'accepted');
+              filledFields.push('image');
+              openDetail(detailRefId); // refresh detail view to show new image
+            }
+          }).catch(function() { /* ignore download failures */ });
+        }
       }
 
       // Show autofill summary card
