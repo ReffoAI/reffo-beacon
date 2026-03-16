@@ -1609,15 +1609,15 @@ export function renderUI(): string {
       <p style="font-size:13px;color:#777E90;margin-bottom:24px;">Last updated: March 6, 2026</p>
       <div style="font-size:14px;color:#23262F;line-height:1.7;">
         <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">1. Acceptance of Terms</h3>
-        <p>By accessing or using Reffo.ai (the &ldquo;Service&rdquo;), the Reffo protocol, the Reffo Beacon software, or any associated APIs, you agree to be bound by these Terms of Service (&ldquo;Terms&rdquo;). If you do not agree to these Terms, do not use the Service.</p>
+        <p>By accessing or using Reffo.ai (the &ldquo;Service&rdquo;), the protocol, the Reffo Beacon software, or any associated APIs, you agree to be bound by these Terms of Service (&ldquo;Terms&rdquo;). If you do not agree to these Terms, do not use the Service.</p>
 
         <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">2. Description of Services</h3>
-        <p>Reffo is a decentralized commerce protocol. The Service consists of:</p>
+        <p>Reffo is built on an open protocol for decentralized commerce. The Service consists of:</p>
         <ul style="padding-left:24px;margin:8px 0;">
           <li><strong>Reffo.ai Webapp</strong> &mdash; A web-based discovery layer and search interface for the Reffo network.</li>
           <li><strong>Reffo Beacon</strong> &mdash; Open-source, self-hosted inventory server software that runs on your machine.</li>
           <li><strong>Reffo API</strong> &mdash; Programmatic access to search, listings, and network data.</li>
-          <li><strong>Reffo Protocol</strong> &mdash; The open specification that enables interoperability between beacons.</li>
+          <li><strong>The Protocol</strong> &mdash; The open specification that enables interoperability between beacons.</li>
         </ul>
 
         <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">3. User Accounts and Responsibilities</h3>
@@ -1638,7 +1638,7 @@ export function renderUI(): string {
         <p>Access to the Reffo API is subject to rate limits and usage policies. API keys are personal and non-transferable. You may not use the API to scrape, spam, or otherwise abuse the Service. We reserve the right to revoke API access for violations.</p>
 
         <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">8. Intellectual Property</h3>
-        <p>The Reffo name, logo, and branding are trademarks of Reffo.ai. The Reffo Protocol specification is released under a CC0 public domain dedication. The Reffo Beacon software is released under an open-source license (see the respective repository for details). This webapp and its original content are the property of Reffo.ai.</p>
+        <p>The Reffo name, logo, and branding are trademarks of Reffo.ai. The protocol specification is released under a CC0 public domain dedication. The Reffo Beacon software is released under an open-source license (see the respective repository for details). This webapp and its original content are the property of Reffo.ai.</p>
 
         <h3 style="font-size:16px;font-weight:600;margin:24px 0 8px;">9. Disclaimers</h3>
         <p>THE SERVICE IS PROVIDED &ldquo;AS IS&rdquo; AND &ldquo;AS AVAILABLE&rdquo; WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. REFFO.AI DOES NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, SECURE, OR ERROR-FREE. WE MAKE NO WARRANTIES REGARDING THE RELIABILITY, ACCURACY, OR COMPLETENESS OF ANY LISTINGS, USER CONTENT, OR PEER-TO-PEER TRANSACTIONS ON THE NETWORK.</p>
@@ -1806,7 +1806,7 @@ export function renderUI(): string {
       <p style="font-size:13px;color:#777E90;margin-bottom:24px;">Structured info for AI agents, crawlers, and bots. Humans: you probably want <a href="https://reffo.ai/docs" target="_blank" rel="noopener noreferrer" style="color:#EA526F;">Docs</a> or <a href="https://reffo.ai/agents" target="_blank" rel="noopener noreferrer" style="color:#EA526F;">AI Agents</a>.</p>
       <div style="font-size:14px;color:#23262F;line-height:1.7;">
         <p>For full bot-readable documentation, visit <a href="https://reffo.ai/for-bots" target="_blank" rel="noopener noreferrer" style="color:#EA526F;">reffo.ai/for-bots</a></p>
-        <pre style="background:#1a1a2e;color:#e0e0e0;border-radius:12px;padding:20px;overflow-x:auto;font-size:13px;line-height:1.6;margin-top:16px;">Reffo = open-source decentralized commerce protocol
+        <pre style="background:#1a1a2e;color:#e0e0e0;border-radius:12px;padding:20px;overflow-x:auto;font-size:13px;line-height:1.6;margin-top:16px;">Reffo = open-source protocol for decentralized commerce
 Beacon = self-hosted marketplace node (Express + SQLite + DHT)
 MCP = @reffo/mcp &mdash; connect AI agents to a beacon
 Skills = plugin system for extending beacons
