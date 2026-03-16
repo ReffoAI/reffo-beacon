@@ -1,6 +1,6 @@
 # reffo-beacon
 
-Self-hosted beacon server for the Reffo decentralized commerce protocol.
+Self-hosted beacon server for the protocol.
 
 Beacons store inventory locally in SQLite and announce to a Hyperswarm DHT so other beacons can discover and query your listings without any central server. Data is structured using [Schema.org](https://schema.org) types for universal compatibility with search engines, LLMs, and third-party platforms.
 

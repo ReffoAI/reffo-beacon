@@ -1,7 +1,7 @@
 {
   "name": "reffo-beacon",
   "version": "0.1.5",
-  "description": "Self-hosted beacon server for the Reffo decentralized commerce protocol",
+  "description": "Self-hosted beacon server for the protocol",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
