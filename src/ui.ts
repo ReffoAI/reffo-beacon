@@ -250,6 +250,20 @@ export function renderUI(): string {
     .autofill-link { font-size: 12px; color: #7B61FF; text-decoration: none; }
     .autofill-link:hover { text-decoration: underline; }
 
+    /* AI suggested image card (near photos) */
+    .ai-suggested-img { background: linear-gradient(135deg, #f0f2ff 0%, #e8eeff 100%); border: 1px solid #d4dbf5; border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+    .ai-suggested-img .ai-img-preview { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; border: 1px solid #E6E8EC; cursor: pointer; flex-shrink: 0; transition: transform 0.15s; }
+    .ai-suggested-img .ai-img-preview:hover { transform: scale(1.05); }
+    .ai-suggested-img .ai-img-info { flex: 1; min-width: 0; }
+    .ai-suggested-img .ai-img-label { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #23262F; margin-bottom: 4px; }
+    .ai-suggested-img .ai-img-hint { font-size: 12px; color: #777E90; line-height: 1.4; }
+    .ai-suggested-img .ai-img-actions { display: flex; gap: 8px; margin-top: 8px; }
+    .ai-suggested-img .ai-use-btn { display: flex; align-items: center; gap: 5px; background: #7B61FF; color: #fff; border: none; border-radius: 8px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+    .ai-suggested-img .ai-use-btn:hover { background: #6B51EF; }
+    .ai-suggested-img .ai-dismiss-btn { background: none; border: 1px solid #E6E8EC; border-radius: 8px; padding: 6px 10px; font-size: 12px; color: #777E90; cursor: pointer; transition: background 0.15s; }
+    .ai-suggested-img .ai-dismiss-btn:hover { background: #F4F5F6; }
+    .ai-suggested-img .ai-img-expanded { margin-top: 10px; border-radius: 10px; max-width: 100%; max-height: 220px; object-fit: contain; border: 1px solid #E6E8EC; background: #fff; }
+
     /* Upload area */
     .upload-area { border: 2px dashed #E6E8EC; border-radius: 16px; padding: 24px; text-align: center; color: #B1B5C3; cursor: pointer; transition: border-color 0.2s, background 0.2s; margin-bottom: 14px; }
     .upload-area:hover { border-color: #EC526F; background: rgba(236,82,111,0.03); }
@@ -1698,6 +1712,7 @@ export function renderUI(): string {
           <input type="file" id="refPhotos" accept="image/*" multiple>
         </div>
         <div id="photoPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;"></div>
+        <div id="aiSuggestedImage"></div>
 
         <div style="display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-bottom:10px;margin-top:20px;">
           <span style="font-size:13px;font-weight:600;color:#23262F;">Also push to Reffo</span>
@@ -2977,6 +2992,95 @@ Website = https://reffo.ai</pre>
       renderVideoPreview();
     };
 
+    // ===== AI Suggested Image Card (near photos) =====
+    function renderAiSuggestedImage(context) {
+      var containerId = context === 'detail' ? 'detailAiSuggestedImage' : 'aiSuggestedImage';
+      var container = document.getElementById(containerId);
+      if (!container) return;
+      var imgUrl = window._autofillImageUrl && window._autofillImageUrl[context];
+      if (!imgUrl || (context === 'create' && selectedPhotos.length > 0)) {
+        container.innerHTML = '';
+        return;
+      }
+      var expandId = context === 'detail' ? 'aiImageExpandedDetail' : 'aiImageExpandedCreate';
+      var ctxEsc = escapeHtml(context);
+      container.innerHTML = '<div class="ai-suggested-img">' +
+        '<img src="' + escapeHtml(imgUrl) + '" class="ai-img-preview" onclick="toggleAiImageExpand(\\'' + ctxEsc + '\\')" onerror="this.parentElement.style.display=\\'none\\'" title="Click to preview">' +
+        '<div class="ai-img-info">' +
+          '<div class="ai-img-label"><span class="autofill-badge">AI</span> Suggested product image</div>' +
+          '<div class="ai-img-hint">Use this as your listing photo, or upload your own.</div>' +
+          '<div class="ai-img-actions">' +
+            '<button type="button" class="ai-use-btn" onclick="useAiImage(\\'' + ctxEsc + '\\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Use Image</button>' +
+            '<button type="button" class="ai-dismiss-btn" onclick="dismissAiImage(\\'' + ctxEsc + '\\')">Dismiss</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div id="' + expandId + '" style="display:none;text-align:center;margin-top:6px;margin-bottom:6px;">' +
+        '<img src="' + escapeHtml(imgUrl) + '" class="ai-suggested-img ai-img-expanded" style="margin:0 auto;" onerror="this.style.display=\\'none\\'">' +
+      '</div>';
+    }
+
+    window.toggleAiImageExpand = function(context) {
+      var expandedId = context === 'detail' ? 'aiImageExpandedDetail' : 'aiImageExpandedCreate';
+      var el = document.getElementById(expandedId);
+      if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    };
+
+    window.useAiImage = async function(context) {
+      var imgUrl = window._autofillImageUrl && window._autofillImageUrl[context];
+      if (!imgUrl) return;
+      if (context === 'create') {
+        try {
+          // Fetch the image and stage it as a photo file
+          var resp = await fetch(imgUrl);
+          if (!resp.ok) throw new Error('Failed to fetch image');
+          var blob = await resp.blob();
+          var ext = (blob.type || 'image/jpeg').split('/')[1] || 'jpg';
+          var file = new File([blob], 'ai-suggested.' + ext, { type: blob.type || 'image/jpeg' });
+          selectedPhotos.push(file);
+          renderPhotoPreview();
+          window._autofillImageUrl.create = null;
+          renderAiSuggestedImage('create');
+          showToast('AI image added to photos', 'accepted');
+        } catch (err) {
+          // CORS blocked direct fetch — mark as accepted, image will be downloaded server-side on create
+          var container = document.getElementById('aiSuggestedImage');
+          if (container) {
+            container.innerHTML = '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:12px;">' +
+              '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' +
+              '<span style="font-size:13px;color:#15803d;font-weight:500;">AI image will be added when you create the listing</span></div>';
+          }
+          showToast('AI image queued — will be saved when listing is created', 'accepted');
+        }
+      } else if (context === 'detail') {
+        var refId = _currentDetailRefId || '';
+        if (!refId) return;
+        try {
+          var res = await fetch('/refs/' + refId + '/media/from-url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: imgUrl })
+          });
+          if (res.ok) {
+            showToast('AI product image saved', 'accepted');
+            window._autofillImageUrl.detail = null;
+            var detailContainer = document.getElementById('detailAiSuggestedImage');
+            if (detailContainer) detailContainer.innerHTML = '';
+            openDetail(refId);
+          } else {
+            showToast('Failed to save image', 'rejected');
+          }
+        } catch { showToast('Failed to save image', 'rejected'); }
+      }
+    };
+
+    window.dismissAiImage = function(context) {
+      if (window._autofillImageUrl) window._autofillImageUrl[context] = null;
+      var containerId = context === 'detail' ? 'detailAiSuggestedImage' : 'aiSuggestedImage';
+      var container = document.getElementById(containerId);
+      if (container) container.innerHTML = '';
+    };
+
     document.getElementById('refPhotos').addEventListener('change', function() {
       var files = this.files;
       for (var i = 0; i < files.length; i++) {
@@ -2984,6 +3088,8 @@ Website = https://reffo.ai</pre>
       }
       this.value = '';
       renderPhotoPreview();
+      // Hide AI suggested image when user uploads their own
+      if (selectedPhotos.length > 0) renderAiSuggestedImage('create');
     });
 
     // ===== List Form =====
@@ -3111,6 +3217,7 @@ Website = https://reffo.ai</pre>
         selectedVideo = null;
         window._autofillImageUrl.create = null;
         document.getElementById('photoPreview').innerHTML = '';
+        document.getElementById('aiSuggestedImage').innerHTML = '';
         closeListRefModal();
         loadMyRefs();
       } catch (err) {
@@ -3489,6 +3596,7 @@ Website = https://reffo.ai</pre>
 
         // Media management
         html += '<div class="deal-heading">Media</div>';
+        html += '<div id="detailAiSuggestedImage"></div>';
         html += '<div class="media-thumbs" id="mediaThumbs">';
         media.forEach(m => {
           const isVid = m.mediaType === 'video';
@@ -5534,9 +5642,10 @@ Website = https://reffo.ai</pre>
       var cardEl = document.getElementById(context + 'AutofillCard');
       var filledFields = [];
 
-      // Store AI image URL for later use
+      // Store AI image URL and show suggested image card near photos
       if (data.image_url) {
         window._autofillImageUrl[context] = data.image_url;
+        renderAiSuggestedImage(context);
       }
 
       // Fill empty description
@@ -5579,23 +5688,8 @@ Website = https://reffo.ai</pre>
         renderPriceEstimate(priceContainerId, data.price_estimate);
       }
 
-      // For detail view: auto-download AI image immediately (item already exists)
-      if (context === 'detail' && data.image_url) {
-        var detailRefId = _currentDetailRefId || '';
-        if (detailRefId) {
-          fetch('/refs/' + detailRefId + '/media/from-url', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: data.image_url })
-          }).then(function(r) {
-            if (r.ok) {
-              showToast('AI product image saved', 'accepted');
-              filledFields.push('image');
-              openDetail(detailRefId); // refresh detail view to show new image
-            }
-          }).catch(function() { /* ignore download failures */ });
-        }
-      }
+      // For detail view: show suggested image card (user clicks "Use Image" to save)
+      // Image is no longer auto-downloaded — user chooses via the card near the Media section
 
       // Show autofill summary card
       if (cardEl) {
