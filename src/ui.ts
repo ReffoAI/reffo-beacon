@@ -219,12 +219,12 @@ export function renderUI(): string {
     .card-desc { font-size: 14px; color: #777E90; margin-top: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.71; }
 
     /* Status segmented control */
-    .status-segmented { display: flex; gap: 4px; padding: 4px; background: #F4F5F6; border: 1px solid #E6E8EC; border-radius: 24px; margin-bottom: 14px; }
-    .status-segmented button { flex: 1; padding: 8px 12px; border: none; border-radius: 20px; font-size: 13px; font-weight: 600; font-family: 'Poppins', sans-serif; cursor: pointer; transition: all 0.2s; background: transparent; color: #777E90; text-align: center; white-space: nowrap; }
-    .seg-active-private { background: #E6E8EC !important; color: #353945 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-    .seg-active-for_sale { background: #e6f9ed !important; color: #1a8a42 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-    .seg-active-willing_to_sell { background: #fff8e1 !important; color: #e6a200 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-    .seg-active-for_rent { background: #e6f0ff !important; color: #1a6aba !important; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .status-segmented { display:flex; border-radius:12px; overflow:hidden; border:1px solid #E6E8EC; margin-bottom:14px; }
+    .status-segmented button { flex:1; padding:8px 12px; border:none; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s; background:transparent; color:#777E90; text-align:center; white-space:nowrap; font-family:'Poppins',sans-serif; }
+    .seg-active-private { background:#777E90 !important; color:#fff !important; }
+    .seg-active-for_sale { background:#45B36B !important; color:#fff !important; }
+    .seg-active-willing_to_sell { background:#3B82F6 !important; color:#fff !important; }
+    .seg-active-for_rent { background:#F59E0B !important; color:#fff !important; }
 
     /* Price estimate card */
     .price-estimate-card { background: linear-gradient(135deg, #f0f2ff 0%, #e8eeff 100%); border: 1px solid #d4dbf5; border-left: 3px solid #7B61FF; border-radius: 12px; padding: 14px 14px 14px 16px; margin-bottom: 14px; }
@@ -683,7 +683,8 @@ export function renderUI(): string {
     .home-section-label { text-transform: uppercase; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: #777E90; margin-bottom: 4px; }
     .home-section h3 { font-size: 1.35rem; font-weight: 700; margin: 0 0 24px; }
     .home-quick-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; padding: 0 24px 8px; }
-    .home-recent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+    .home-recent-grid { display: flex; gap: 16px; overflow: hidden; }
+    .home-recent-grid .home-recent-card { min-width: 200px; max-width: 260px; flex: 1 1 0; }
     .home-recent-card { background: var(--surface); border-radius: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
     .home-recent-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.10); }
     .home-recent-card img { width: 100%; height: 140px; object-fit: cover; display: block; }
@@ -3310,7 +3311,7 @@ Website = https://reffo.ai</pre>
             const viewAllOverlay = (i === 2 && showViewAll) ? '<div class="detail-view-all" onclick="event.stopPropagation();openLightbox(window._currentPhotos, 0)"><span>View all</span></div>' : '';
             sideImgsHtml += '<div class="detail-side-img" onclick="openLightbox(window._currentPhotos, ' + (i + 1) + ')"><img src="/' + escapeHtml(sm.filePath) + '" alt="">' + viewAllOverlay + '</div>';
           } else {
-            sideImgsHtml += '<div class="detail-side-img" style="cursor:pointer;" onclick="uploadPhotoForRef(\'' + ref.id + '\')"><span class="placeholder">+</span></div>';
+            sideImgsHtml += '<div class="detail-side-img" style="cursor:pointer;" onclick="uploadPhotoForRef(\\'' + ref.id + '\\')"><span class="placeholder">+</span></div>';
           }
         }
 
@@ -3468,20 +3469,29 @@ Website = https://reffo.ai</pre>
         html += '<div class="detail-right">';
         html += '<div class="payment-card">';
 
-        // Edit button at top (owner view)
-        html += '<div class="payment-card-edit">';
-        html += '<button onclick="document.getElementById(\\'editFormSection\\').style.display=\\'block\\';document.getElementById(\\'editFormSection\\').scrollIntoView({behavior:\\'smooth\\'})">';
-        html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Edit</button>';
-        html += '</div>';
-
-        // Header: price or "My Item" for private
-        html += '<div class="payment-card-header">';
-        if (ref.listingStatus === 'private') {
-          html += '<div class="payment-card-amount">My Item</div>';
+        // Row 1: Price + Edit/Share buttons
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:20px 20px 4px;">';
+        html += '<div style="font-size:24px;font-weight:700;color:#23262F;">' + (ref.listingStatus === 'private' ? 'My Item' : priceDisplay) + '</div>';
+        html += '<div style="display:flex;align-items:center;gap:8px;">';
+        html += '<button style="width:32px;height:32px;border-radius:50%;border:1px solid #E6E8EC;background:#FCFCFD;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#777E90;padding:0;" onclick="document.getElementById(\\'editFormSection\\').style.display=\\'block\\';document.getElementById(\\'editFormSection\\').scrollIntoView({behavior:\\'smooth\\'})">';
+        html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+        html += '</button>';
+        html += '<button style="width:32px;height:32px;border-radius:50%;border:1px solid #E6E8EC;background:#FCFCFD;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#777E90;padding:0;" onclick="';
+        if (ref.reffoSynced && ref.reffoRefId) {
+          const reffoUrl = (typeof window !== 'undefined' && window._reffoUrl) || 'https://reffo.ai';
+          html += 'navigator.clipboard.writeText(\\'' + reffoUrl + '/items/' + ref.reffoRefId + '\\').then(function(){ showToast(\\'Link copied!\\',\\'\\'); })';
         } else {
-          html += '<div class="payment-card-amount">' + priceDisplay + '</div>';
+          html += 'showToast(\\'Sync to Reffo.ai to get a shareable link\\',\\'\\')';
         }
-        html += '<div class="payment-card-thumb initial-avatar">Y</div>';
+        html += '" title="Share">';
+        html += '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
+        html += '</button>';
+        html += '</div></div>';
+
+        // Row 2: Avatar + "Your Beacon"
+        html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 20px 16px;">';
+        html += '<div style="width:32px;height:32px;border-radius:50%;background:#EC526F;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">Y</div>';
+        html += '<span style="font-size:14px;font-weight:600;color:#23262F;">Your Beacon</span>';
         html += '</div>';
 
         // Private item: completeness checklist
@@ -3519,26 +3529,51 @@ Website = https://reffo.ai</pre>
         });
         html += '</div>';
         html += '</div>';
+
+        // Price fields (for_sale and for_rent)
+        const _initStatus = ref.listingStatus || 'private';
+        const _initPrice = activeOffer ? String(activeOffer.price) : (ref.price ? String(ref.price) : '');
+        const _initCurrency = activeOffer ? (activeOffer.priceCurrency || 'USD') : (ref.currency || 'USD');
+        const _initMinPrice = ref.price ? String(ref.price) : '';
+        const _initDuration = ref.rentalDuration ? String(ref.rentalDuration) : '';
+        const _initDurationUnit = ref.rentalDurationUnit || 'days';
+        const _showPrice = (_initStatus === 'for_sale' || _initStatus === 'for_rent') ? 'block' : 'none';
+        const _showMinPrice = _initStatus === 'willing_to_sell' ? 'block' : 'none';
+        const _showRental = _initStatus === 'for_rent' ? 'block' : 'none';
+
+        html += '<div id="cardPriceFields" style="display:' + _showPrice + ';padding:0 20px 10px;">';
+        html += '<div style="display:flex;gap:8px;">';
+        html += '<input type="number" id="cardPrice" placeholder="Price" value="' + _initPrice + '" style="flex:1;height:40px;padding:0 12px;border:2px solid #E6E8EC;border-radius:12px;font-size:14px;font-weight:500;background:#FCFCFD;font-family:inherit;" oninput="checkCardDirty()">';
+        html += '<select id="cardCurrency" style="width:80px;height:40px;padding:0 8px;border:2px solid #E6E8EC;border-radius:12px;font-size:13px;font-weight:600;background:#FCFCFD;font-family:inherit;cursor:pointer;" onchange="checkCardDirty()">';
+        html += '<option value="USD"' + (_initCurrency === 'USD' ? ' selected' : '') + '>USD</option><option value="EUR"' + (_initCurrency === 'EUR' ? ' selected' : '') + '>EUR</option><option value="GBP"' + (_initCurrency === 'GBP' ? ' selected' : '') + '>GBP</option>';
+        html += '</select>';
+        html += '</div></div>';
+
+        // Min price field (willing_to_sell only)
+        html += '<div id="cardMinPriceField" style="display:' + _showMinPrice + ';padding:0 20px 10px;">';
+        html += '<input type="number" id="cardMinPrice" placeholder="Minimum price (optional)" value="' + _initMinPrice + '" style="width:100%;height:40px;padding:0 12px;border:2px solid #E6E8EC;border-radius:12px;font-size:14px;font-weight:500;background:#FCFCFD;font-family:inherit;" oninput="checkCardDirty()">';
+        html += '</div>';
+
+        // Rental fields (for_rent only)
+        html += '<div id="cardRentalFields" style="display:' + _showRental + ';padding:0 20px 10px;">';
+        html += '<div style="display:flex;gap:8px;">';
+        html += '<input type="number" id="cardRentalDuration" placeholder="Duration" value="' + _initDuration + '" style="flex:1;height:40px;padding:0 12px;border:2px solid #E6E8EC;border-radius:12px;font-size:14px;font-weight:500;background:#FCFCFD;font-family:inherit;" oninput="checkCardDirty()">';
+        html += '<select id="cardRentalDurationUnit" style="width:100px;height:40px;padding:0 8px;border:2px solid #E6E8EC;border-radius:12px;font-size:13px;font-weight:600;background:#FCFCFD;font-family:inherit;cursor:pointer;" onchange="checkCardDirty()">';
+        html += '<option value="hours"' + (_initDurationUnit === 'hours' ? ' selected' : '') + '>Hours</option><option value="days"' + (_initDurationUnit === 'days' ? ' selected' : '') + '>Days</option><option value="weeks"' + (_initDurationUnit === 'weeks' ? ' selected' : '') + '>Weeks</option><option value="months"' + (_initDurationUnit === 'months' ? ' selected' : '') + '>Months</option>';
+        html += '</select>';
+        html += '</div></div>';
+
+        // Save Changes button (hidden by default, shown when dirty)
+        html += '<div id="cardSaveBtn" style="display:none;padding:0 20px 10px;">';
+        html += '<button class="button-gradient" onclick="saveDetail(\\'' + ref.id + '\\', \\'' + (activeOffer ? activeOffer.id : '') + '\\')" style="width:100%;">Save Changes</button>';
+        html += '</div>';
+
         // Price estimate (hidden for private items)
         if (ref.listingStatus !== 'private') {
           html += '<div style="padding:0 20px 10px;"><div id="detailPriceEstimate"></div></div>';
         } else {
           html += '<div style="display:none;"><div id="detailPriceEstimate"></div></div>';
         }
-
-        // Share button — smart link
-        html += '<div style="margin:12px 30px 0;"><button class="button-stroke" onclick="';
-        if (ref.reffoSynced && ref.reffoRefId) {
-          const reffoUrl = (typeof window !== 'undefined' && window._reffoUrl) || 'https://reffo.ai';
-          html += 'navigator.clipboard.writeText(\\'' + reffoUrl + '/items/' + ref.reffoRefId + '\\').then(function(){ showToast(\\'Link copied!\\',\\'\\'); })';
-        } else {
-          html += 'showToast(\\'Sync to Reffo.ai to get a shareable link\\',\\'\\')';
-        }
-        html += '" title="Share" style="width:40px;height:40px;padding:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button></div>';
-        // Action buttons row
-        html += '<div class="payment-card-buttons">';
-        html += '<button class="button-gradient" onclick="saveDetail(\\'' + ref.id + '\\', \\'' + (activeOffer ? activeOffer.id : '') + '\\')">Save Changes</button>';
-        html += '</div>';
 
         // Invoice rows — category added as first row
         const catParts = [ref.category, ref.subcategory].filter(Boolean);
@@ -3581,10 +3616,16 @@ Website = https://reffo.ai</pre>
         html += '<div class="invoice-row" style="display:none;"><span class="invoice-label">Referral Fee</span><span class="invoice-value">$0.00</span></div>';
         html += '<div class="invoice-row" style="display:none;"><span class="invoice-label">Tax</span><span class="invoice-value">$0.00</span></div>';
 
-        // Sync toggle + footer
-        html += '<div class="invoice-row"><span class="invoice-label">Share on Reffo</span><span class="invoice-value">';
+        // Sync toggle — stylized card
+        html += '<div style="margin:14px 20px;border:1px solid #E6E8EC;border-radius:12px;overflow:hidden;">';
+        html += '<div style="height:3px;background:linear-gradient(90deg,#8101B4,#EA526F);"></div>';
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">';
+        html += '<div>';
+        html += '<div style="font-size:14px;font-weight:600;color:#23262F;">&#127760; Share on Pelagora</div>';
+        html += '<div style="font-size:12px;color:#777E90;margin-top:2px;">Reach more buyers on the open network.</div>';
+        html += '</div>';
         html += '<label class="sync-toggle"><input type="checkbox" ' + (ref.reffoSynced ? 'checked' : '') + ' onchange="toggleSync(\\'' + ref.id + '\\', this)"><span class="toggle-track"></span></label>';
-        html += '</span></div>';
+        html += '</div></div>';
 
         if (listedDate) {
           let footerText = 'Listed ' + listedDate;
@@ -3593,10 +3634,8 @@ Website = https://reffo.ai</pre>
           html += '<div class="payment-card-footer">' + footerText + '</div>';
         }
 
-        // Archive button
-        html += '<div style="padding:0 30px 20px;">';
-        html += '<button class="btn-danger" style="width:100%;" onclick="deleteRef(\\'' + ref.id + '\\')"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M18 10C18 11.5823 17.5308 13.129 16.6518 14.4446C15.7727 15.7602 14.5233 16.7855 13.0615 17.391C11.5997 17.9965 9.99113 18.155 8.43928 17.8463C6.88743 17.5376 5.46197 16.7757 4.34315 15.6569C3.22433 14.538 2.4624 13.1126 2.15372 11.5607C1.84504 10.0089 2.00347 8.40034 2.60897 6.93853C3.21447 5.47672 4.23985 4.22729 5.55544 3.34824C6.87104 2.46919 8.41775 2 10 2C12.1217 2 14.1566 2.84285 15.6569 4.34315C17.1572 5.84344 18 7.87827 18 10ZM20 10C20 11.9778 19.4135 13.9112 18.3147 15.5557C17.2159 17.2002 15.6541 18.4819 13.8268 19.2388C11.9996 19.9957 9.98891 20.1937 8.0491 19.8079C6.10929 19.422 4.32746 18.4696 2.92894 17.0711C1.53041 15.6725 0.578004 13.8907 0.192152 11.9509C-0.193701 10.0111 0.00433284 8.00043 0.761209 6.17317C1.51809 4.3459 2.79981 2.78412 4.4443 1.6853C6.08879 0.58649 8.02219 0 10 0C12.6522 0 15.1957 1.05357 17.0711 2.92893C18.9464 4.8043 20 7.34784 20 10ZM5 9C4.73479 9 4.48043 9.10536 4.2929 9.29289C4.10536 9.48043 4 9.73478 4 10C4 10.2652 4.10536 10.5196 4.2929 10.7071C4.48043 10.8946 4.73479 11 5 11H15C15.2652 11 15.5196 10.8946 15.7071 10.7071C15.8946 10.5196 16 10.2652 16 10C16 9.73478 15.8946 9.48043 15.7071 9.29289C15.5196 9.10536 15.2652 9 15 9H5Z" fill="currentColor"/></svg> Archive Ref</button>';
-        html += '</div>';
+        // Archive link
+        html += '<a style="display:block;text-align:center;font-size:13px;color:#777E90;cursor:pointer;padding:12px 0;" onclick="deleteRef(\\'' + ref.id + '\\')">Archive this listing</a>';
 
         html += '</div>'; // end payment-card
         html += '</div>'; // end detail-right
@@ -3604,6 +3643,16 @@ Website = https://reffo.ai</pre>
         html += '</div>'; // end detail-columns
 
         container.innerHTML = html;
+
+        // Initialize dirty-state tracking for card fields
+        window._cardInitial = {
+          status: _initStatus,
+          price: _initPrice,
+          currency: _initCurrency,
+          minPrice: _initMinPrice,
+          duration: _initDuration,
+          durationUnit: _initDurationUnit
+        };
 
         // Populate category selects in detail form
         const dCat = document.getElementById('dCat');
@@ -3649,8 +3698,31 @@ Website = https://reffo.ai</pre>
       // Toggle rental fields
       const rentalSection = document.getElementById('rentalFieldsDetail');
       if (rentalSection) rentalSection.style.display = status === 'for_rent' ? 'block' : 'none';
+      // Toggle card price/rental field containers
+      var cpf = document.getElementById('cardPriceFields');
+      var cmpf = document.getElementById('cardMinPriceField');
+      var crf = document.getElementById('cardRentalFields');
+      if (cpf) cpf.style.display = (status === 'for_sale' || status === 'for_rent') ? 'block' : 'none';
+      if (cmpf) cmpf.style.display = status === 'willing_to_sell' ? 'block' : 'none';
+      if (crf) crf.style.display = status === 'for_rent' ? 'block' : 'none';
+      // Check dirty state
+      if (typeof checkCardDirty === 'function') checkCardDirty();
       // Trigger AI price estimate for all statuses
       triggerDetailPriceEstimate();
+    };
+
+    window.checkCardDirty = function() {
+      var ini = window._cardInitial;
+      if (!ini) return;
+      var status = document.getElementById('dStatus').value;
+      var price = document.getElementById('cardPrice') ? document.getElementById('cardPrice').value : '';
+      var currency = document.getElementById('cardCurrency') ? document.getElementById('cardCurrency').value : 'USD';
+      var minPrice = document.getElementById('cardMinPrice') ? document.getElementById('cardMinPrice').value : '';
+      var duration = document.getElementById('cardRentalDuration') ? document.getElementById('cardRentalDuration').value : '';
+      var durationUnit = document.getElementById('cardRentalDurationUnit') ? document.getElementById('cardRentalDurationUnit').value : 'days';
+      var dirty = status !== ini.status || price !== ini.price || currency !== ini.currency || minPrice !== ini.minPrice || duration !== ini.duration || durationUnit !== ini.durationUnit;
+      var btn = document.getElementById('cardSaveBtn');
+      if (btn) btn.style.display = dirty ? 'block' : 'none';
     };
 
     window.triggerDetailPriceEstimate = function() {
@@ -3783,9 +3855,11 @@ Website = https://reffo.ai</pre>
         if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
 
         // Create or update offer if price is set and not private
-        const priceVal = document.getElementById('dPrice').value;
+        const cardPriceEl = document.getElementById('cardPrice');
+        const priceVal = cardPriceEl ? cardPriceEl.value : document.getElementById('dPrice').value;
         const price = priceVal ? parseFloat(priceVal) : 0;
-        const currency = document.getElementById('dCurrency').value;
+        const cardCurrencyEl = document.getElementById('cardCurrency');
+        const currency = cardCurrencyEl ? cardCurrencyEl.value : document.getElementById('dCurrency').value;
         if (price > 0 && listingStatus !== 'private') {
           if (existingOfferId) {
             await fetch('/offers/' + existingOfferId, {
