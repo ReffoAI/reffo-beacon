@@ -5,8 +5,8 @@
 
 import fs from 'fs';
 import path from 'path';
-import type { Ref, Offer, RefMedia } from '@reffo/protocol';
-import { blurLocation } from '@reffo/protocol';
+import type { Ref, Offer, RefMedia } from '@pelagora/pim-protocol';
+import { blurLocation } from '@pelagora/pim-protocol';
 
 const DEFAULT_BASE_URL = 'https://reffo.ai';
 

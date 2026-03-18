@@ -8,7 +8,7 @@
  */
 
 import { Router } from 'express';
-import type { Skill } from '@reffo/protocol';
+import type { Skill } from '@pelagora/pim-protocol';
 
 export function createSkillExportRouter(skills: Map<string, Skill>): Router {
   const router = Router();

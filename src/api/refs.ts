@@ -3,8 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { RefQueries, MediaQueries, NegotiationQueries } from '../db';
 import { isValidCategory, isValidSubcategory, TAXONOMY } from '../taxonomy';
-import type { ListingStatus } from '@reffo/protocol';
-import { sanitizeObject } from '@reffo/protocol';
+import type { ListingStatus } from '@pelagora/pim-protocol';
+import { sanitizeObject } from '@pelagora/pim-protocol';
 
 const VALID_LISTING_STATUSES: ListingStatus[] = ['private', 'for_sale', 'willing_to_sell', 'for_rent'];
 

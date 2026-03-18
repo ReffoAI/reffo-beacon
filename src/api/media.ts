@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { v4 as uuid } from 'uuid';
 import { RefQueries, MediaQueries } from '../db';
-import type { MediaType } from '@reffo/protocol';
+import type { MediaType } from '@pelagora/pim-protocol';
 
 const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
 

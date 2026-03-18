@@ -2,8 +2,8 @@ import Hyperswarm from 'hyperswarm';
 import b4a from 'b4a';
 import crypto from 'crypto';
 import { RefQueries, OfferQueries, MediaQueries, NegotiationQueries } from '../db';
-import type { PeerMessage, QueryPayload, AnnouncePayload, ProposalPayload, ProposalResponsePayload } from '@reffo/protocol';
-import { blurLocation, haversineDistanceMiles, parseDhtMessage, sanitizeObject, sanitizeField } from '@reffo/protocol';
+import type { PeerMessage, QueryPayload, AnnouncePayload, ProposalPayload, ProposalResponsePayload } from '@pelagora/pim-protocol';
+import { blurLocation, haversineDistanceMiles, parseDhtMessage, sanitizeObject, sanitizeField } from '@pelagora/pim-protocol';
 
 // All Reffo beacons join this topic to find each other
 const REFFO_TOPIC = crypto.createHash('sha256').update('reffo-beacon-v1').digest();

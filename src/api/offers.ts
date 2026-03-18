@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { OfferQueries, RefQueries } from '../db';
-import { sanitizeObject } from '@reffo/protocol';
+import { sanitizeObject } from '@pelagora/pim-protocol';
 
 const router = Router();
 

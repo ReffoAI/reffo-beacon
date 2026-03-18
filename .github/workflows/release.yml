@@ -27,43 +27,43 @@ jobs:
     name: Build (${{ matrix.platform }}-${{ matrix.arch }})
 
     steps:
-      - name: Checkout reffo-beacon
+      - name: Checkout pelagora
         uses: actions/checkout@v4
         with:
-          path: reffo-beacon
+          path: pelagora
 
-      - name: Checkout reffo-protocol
+      - name: Checkout pim-protocol
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository_owner }}/reffo-protocol
-          path: reffo-protocol
+          repository: ${{ github.repository_owner }}/pim-protocol
+          path: pim-protocol
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      - name: Install beacon dependencies
-        working-directory: reffo-beacon
+      - name: Install dependencies
+        working-directory: pelagora
         run: npm ci
 
       - name: Build release (macOS/Linux)
         if: runner.os != 'Windows'
-        working-directory: reffo-beacon
+        working-directory: pelagora
         run: bash scripts/build-release.sh
 
       - name: Build release (Windows)
         if: runner.os == 'Windows'
-        working-directory: reffo-beacon
+        working-directory: pelagora
         shell: bash
         run: bash scripts/build-release.sh
 
       - name: Find release artifact
         id: artifact
         shell: bash
-        working-directory: reffo-beacon
+        working-directory: pelagora
         run: |
-          ZIP_FILE=$(ls release/reffo-beacon-*.zip 2>/dev/null || ls release/reffo-beacon-*.tar.gz 2>/dev/null)
+          ZIP_FILE=$(ls release/pelagora-*.zip 2>/dev/null || ls release/pelagora-*.tar.gz 2>/dev/null)
           echo "path=$ZIP_FILE" >> "$GITHUB_OUTPUT"
           echo "name=$(basename "$ZIP_FILE")" >> "$GITHUB_OUTPUT"
           echo "Found artifact: $ZIP_FILE"
@@ -72,7 +72,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.platform }}-${{ matrix.arch }}
-          path: reffo-beacon/${{ steps.artifact.outputs.path }}
+          path: pelagora/${{ steps.artifact.outputs.path }}
 
   release:
     needs: build

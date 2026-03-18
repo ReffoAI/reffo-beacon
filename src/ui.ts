@@ -1,5 +1,5 @@
 import { TAXONOMY } from './taxonomy';
-import { CATEGORY_SCHEMAS } from '@reffo/protocol';
+import { CATEGORY_SCHEMAS } from '@pelagora/pim-protocol';
 
 export function renderUI(): string {
   const taxonomyJSON = JSON.stringify(TAXONOMY);
@@ -1435,7 +1435,7 @@ export function renderUI(): string {
       <h1 style="font-size:24px;font-weight:600;color:#23262F;margin-bottom:32px;">Settings</h1>
       <div id="updateBanner" class="update-banner">
         <div class="update-title">&#x2B06; Update available: <span id="updateVersionLabel"></span></div>
-        <div class="update-cmd">Run: npx create-reffo-beacon@latest</div>
+        <div class="update-cmd">Run: npx pelagora-cli-installer@latest</div>
       </div>
       <section class="settings-card">
         <h2>Profile Picture</h2>
@@ -2014,7 +2014,7 @@ export function renderUI(): string {
         <p>For full bot-readable documentation, visit <a href="https://reffo.ai/for-bots" target="_blank" rel="noopener noreferrer" style="color:#EA526F;">reffo.ai/for-bots</a></p>
         <pre style="background:#1a1a2e;color:#e0e0e0;border-radius:12px;padding:20px;overflow-x:auto;font-size:13px;line-height:1.6;margin-top:16px;">Pelagora = open peer-to-peer commerce network (pelagora.net)
 Beacon = self-hosted marketplace node (Express + SQLite + DHT)
-MCP = @reffo/mcp &mdash; connect AI agents to a beacon
+MCP = @pelagora/mcp &mdash; connect AI agents to a beacon
 Skills = plugin system for extending beacons
 API = REST on port 3737
 Quickstart = npm create reffo-beacon

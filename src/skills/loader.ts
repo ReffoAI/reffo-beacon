@@ -12,7 +12,7 @@ import fs from 'fs';
 import path from 'path';
 import type { Express } from 'express';
 import type Database from 'better-sqlite3';
-import type { Skill, SkillContext } from '@reffo/protocol';
+import type { Skill, SkillContext } from '@pelagora/pim-protocol';
 import { DhtDiscovery } from '../dht';
 import { SkillRegistry } from './registry';
 

@@ -1,22 +1,22 @@
 #!/bin/bash
 # ─────────────────────────────────────────────────────────
-#  Reffo Beacon — Build Release Bundle
+#  Pelagora — Build Release Bundle
 #  Builds a platform-specific zip for the current OS/arch.
 #
 #  Usage:  ./scripts/build-release.sh
-#  Output: release/reffo-beacon-<version>-<platform>-<arch>.zip
+#  Output: release/pelagora-<version>-<platform>-<arch>.zip
 # ─────────────────────────────────────────────────────────
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-PROTOCOL_ROOT="$(cd "$PROJECT_ROOT/../reffo-protocol" && pwd)"
+PROTOCOL_ROOT="$(cd "$PROJECT_ROOT/../pim-protocol" && pwd)"
 
 cd "$PROJECT_ROOT"
 
 # ── Read version from package.json ──────────────────────
 VERSION=$(node -e "console.log(require('./package.json').version)")
-echo "Building reffo-beacon v$VERSION"
+echo "Building pelagora v$VERSION"
 
 # ── Detect platform & architecture ──────────────────────
 OS="$(uname -s)"
@@ -39,7 +39,7 @@ echo "Platform: $PLATFORM-$NODE_ARCH (Node: $NODE_OS-$NODE_ARCH)"
 
 # ── Configuration ───────────────────────────────────────
 NODE_VERSION="v20.18.1"
-BUNDLE_NAME="reffo-beacon-v${VERSION}-${PLATFORM}-${NODE_ARCH}"
+BUNDLE_NAME="pelagora-v${VERSION}-${PLATFORM}-${NODE_ARCH}"
 STAGING="$PROJECT_ROOT/release/staging/$BUNDLE_NAME"
 RELEASE_DIR="$PROJECT_ROOT/release"
 
@@ -90,9 +90,9 @@ fi
 
 echo "  Node.js binary: $(ls -lh "$STAGING/node/node"* | awk '{print $5}')"
 
-# ── Step 2: Build reffo-protocol ────────────────────────
+# ── Step 2: Build pim-protocol ──────────────────────────
 echo ""
-echo "Step 2/6: Building @reffo/protocol..."
+echo "Step 2/6: Building @pelagora/pim-protocol..."
 
 cd "$PROTOCOL_ROOT"
 npm ci --ignore-scripts 2>/dev/null || npm install --ignore-scripts 2>/dev/null
@@ -124,7 +124,7 @@ cd "$APP_DIR"
 node -e "
   const pkg = require('./package.json');
   // Remove the file: dependency — we copy it manually
-  delete pkg.dependencies['@reffo/protocol'];
+  delete pkg.dependencies['@pelagora/pim-protocol'];
   require('fs').writeFileSync('./package.json', JSON.stringify(pkg, null, 2));
 "
 
@@ -143,12 +143,12 @@ echo "Step 5/6: Assembling bundle..."
 # Copy compiled JS
 cp -r dist "$APP_DIR/dist"
 
-# Copy @reffo/protocol into node_modules
-mkdir -p "$APP_DIR/node_modules/@reffo/protocol"
-cp "$PROTOCOL_ROOT/package.json" "$APP_DIR/node_modules/@reffo/protocol/"
-cp -r "$PROTOCOL_ROOT/dist" "$APP_DIR/node_modules/@reffo/protocol/dist"
+# Copy @pelagora/pim-protocol into node_modules
+mkdir -p "$APP_DIR/node_modules/@pelagora/pim-protocol"
+cp "$PROTOCOL_ROOT/package.json" "$APP_DIR/node_modules/@pelagora/pim-protocol/"
+cp -r "$PROTOCOL_ROOT/dist" "$APP_DIR/node_modules/@pelagora/pim-protocol/dist"
 if [ -f "$PROTOCOL_ROOT/LICENSE" ]; then
-  cp "$PROTOCOL_ROOT/LICENSE" "$APP_DIR/node_modules/@reffo/protocol/"
+  cp "$PROTOCOL_ROOT/LICENSE" "$APP_DIR/node_modules/@pelagora/pim-protocol/"
 fi
 
 # ── Step 6: Add launcher scripts + README ───────────────

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { RefQueries, OfferQueries, NegotiationQueries, FavoriteQueries } from '../db';
-import type { BeaconInfo } from '@reffo/protocol';
+import type { BeaconInfo } from '@pelagora/pim-protocol';
 import { getVersion } from '../version';
 
 const router = Router();

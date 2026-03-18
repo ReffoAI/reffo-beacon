@@ -1,5 +1,5 @@
 {
-  "name": "reffo-beacon",
+  "name": "pelagora",
   "version": "0.1.5",
   "description": "Self-hosted beacon server for the protocol",
   "main": "dist/index.js",
@@ -14,7 +14,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ReffoAI/reffo-beacon.git"
+    "url": "https://github.com/ReffoAI/pelagora.git"
   },
   "scripts": {
     "build": "tsc",
@@ -35,7 +35,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@reffo/protocol": "^0.2.0",
+    "@pelagora/pim-protocol": "^0.2.0",
     "@reffo/skill-reverse-auction": "^1.0.0",
     "b4a": "^1.6.7",
     "better-sqlite3": "^11.7.0",

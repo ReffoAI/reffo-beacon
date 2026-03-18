@@ -4,7 +4,7 @@
 
 import { Router } from 'express';
 import type Database from 'better-sqlite3';
-import type { SkillManifest } from '@reffo/protocol';
+import type { SkillManifest } from '@pelagora/pim-protocol';
 
 export interface InstalledSkill {
   id: string;

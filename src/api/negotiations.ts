@@ -3,8 +3,8 @@ import { v4 as uuid } from 'uuid';
 import { NegotiationQueries, RefQueries } from '../db';
 import type { DhtDiscovery } from '../dht/discovery';
 import type { SyncManager } from '../sync';
-import type { NegotiationStatus } from '@reffo/protocol';
-import { sanitizeObject } from '@reffo/protocol';
+import type { NegotiationStatus } from '@pelagora/pim-protocol';
+import { sanitizeObject } from '@pelagora/pim-protocol';
 
 const router = Router();
 
