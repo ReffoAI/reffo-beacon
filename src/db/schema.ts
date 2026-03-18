@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 
-const DB_PATH = process.env.REFFO_DB_PATH || path.join(process.cwd(), 'reffo-beacon.db');
+const DB_PATH = process.env.REFFO_DB_PATH || path.join(process.cwd(), 'pelagora.db');
 
 let db: Database.Database;
 

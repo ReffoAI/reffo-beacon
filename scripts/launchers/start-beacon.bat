@@ -1,7 +1,7 @@
 @echo off
 REM ─────────────────────────────────────────────────────────
-REM  Reffo Beacon — Windows Launcher
-REM  Double-click this file in Explorer to start your beacon.
+REM  Pelagora — Windows Launcher
+REM  Double-click this file in Explorer to start your node.
 REM ─────────────────────────────────────────────────────────
 setlocal enabledelayedexpansion
 
@@ -14,14 +14,14 @@ set "APP_ENTRY=%SCRIPT_DIR%app\dist\index.js"
 REM ── Preflight checks ────────────────────────────────────
 if not exist "%NODE%" (
     echo ERROR: Embedded Node.js not found at %NODE%
-    echo This bundle may be incomplete. Re-download from https://github.com/reffo/reffo-beacon/releases
+    echo This bundle may be incomplete. Re-download from https://github.com/ReffoAI/pelagora/releases
     pause
     exit /b 1
 )
 
 if not exist "%APP_ENTRY%" (
     echo ERROR: App entry point not found at %APP_ENTRY%
-    echo This bundle may be incomplete. Re-download from https://github.com/reffo/reffo-beacon/releases
+    echo This bundle may be incomplete. Re-download from https://github.com/ReffoAI/pelagora/releases
     pause
     exit /b 1
 )
@@ -33,19 +33,19 @@ if not exist "%SCRIPT_DIR%uploads" mkdir "%SCRIPT_DIR%uploads"
 if not exist "%SCRIPT_DIR%.env" (
     for /f %%i in ('"%NODE%" -e "console.log(require('crypto').randomUUID())"') do set "BEACON_ID=%%i"
     (
-        echo # Reffo Beacon configuration — generated on first run
+        echo # Pelagora configuration — generated on first run
         echo BEACON_ID=!BEACON_ID!
         echo PORT=3000
     ) > "%SCRIPT_DIR%.env"
     echo Created .env with BEACON_ID=!BEACON_ID!
 )
 
-REM ── Start the beacon ────────────────────────────────────
+REM ── Start the node ──────────────────────────────────────
 set "PATH=%SCRIPT_DIR%node;%PATH%"
 if not defined PORT set "PORT=3000"
 
 echo.
-echo   Reffo Beacon
+echo   Pelagora
 echo   ────────────────────────────────
 echo   Starting on http://localhost:%PORT%
 echo   Press Ctrl+C to stop.
@@ -54,7 +54,7 @@ echo.
 REM Open browser after a short delay
 start "" /min cmd /c "timeout /t 2 /nobreak >nul & start http://localhost:%PORT%"
 
-REM Run the beacon
+REM Run the node
 "%NODE%" "%APP_ENTRY%"
 
 pause

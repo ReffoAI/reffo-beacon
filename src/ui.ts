@@ -2017,7 +2017,7 @@ Beacon = self-hosted marketplace node (Express + SQLite + DHT)
 MCP = @pelagora/mcp &mdash; connect AI agents to a beacon
 Skills = plugin system for extending beacons
 API = REST on port 3737
-Quickstart = npm create reffo-beacon
+Quickstart = npx pelagora-cli-installer
 GitHub = https://github.com/ReffoAI
 Website = https://reffo.ai</pre>
       </div>

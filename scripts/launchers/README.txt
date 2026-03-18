@@ -1,8 +1,8 @@
 ═══════════════════════════════════════════════════════════
-  Reffo Beacon — Quick Start
+  Pelagora — Quick Start
 ═══════════════════════════════════════════════════════════
 
-  Your own personal inventory node on the Reffo network.
+  Your own personal inventory node on the Pelagora network.
   No fees, no middlemen — just you and the open network.
 
 ───────────────────────────────────────────────────────────
@@ -11,20 +11,20 @@
 
   1. EXTRACT this zip to any folder on your computer.
 
-  2. LAUNCH the beacon:
+  2. LAUNCH the node:
      • macOS:   Double-click  start-beacon.command
      • Windows: Double-click  start-beacon.bat
 
   3. OPEN your browser to http://localhost:3000
      (The launcher will open it automatically.)
 
-  That's it! Your beacon is running.
+  That's it! Your node is running.
 
 ───────────────────────────────────────────────────────────
   What Gets Created
 ───────────────────────────────────────────────────────────
 
-  On first launch, the beacon creates:
+  On first launch, the node creates:
 
     data/        Your database and beacon ID
     uploads/     Photos you upload for your listings
@@ -44,7 +44,7 @@
     REFFO_API_KEY=...    Optional: sync with Reffo.ai
 
 ───────────────────────────────────────────────────────────
-  Stopping the Beacon
+  Stopping the Node
 ───────────────────────────────────────────────────────────
 
   Press Ctrl+C in the terminal window, or simply close it.
@@ -61,6 +61,6 @@
     Edit .env and change PORT to another number (e.g. 3001)
 
   Need help?
-    https://github.com/reffo/reffo-beacon/issues
+    https://github.com/ReffoAI/pelagora/issues
 
 ═══════════════════════════════════════════════════════════

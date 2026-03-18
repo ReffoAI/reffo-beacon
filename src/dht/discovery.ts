@@ -5,8 +5,8 @@ import { RefQueries, OfferQueries, MediaQueries, NegotiationQueries } from '../d
 import type { PeerMessage, QueryPayload, AnnouncePayload, ProposalPayload, ProposalResponsePayload } from '@pelagora/pim-protocol';
 import { blurLocation, haversineDistanceMiles, parseDhtMessage, sanitizeObject, sanitizeField } from '@pelagora/pim-protocol';
 
-// All Reffo beacons join this topic to find each other
-const REFFO_TOPIC = crypto.createHash('sha256').update('reffo-beacon-v1').digest();
+// All Pelagora nodes join this topic to find each other
+const PELAGORA_TOPIC = crypto.createHash('sha256').update('pelagora-v1').digest();
 
 export class DhtDiscovery {
   private swarm: Hyperswarm;
@@ -53,9 +53,9 @@ export class DhtDiscovery {
     });
 
     // Join the Reffo topic so all beacons can discover each other
-    const discovery = this.swarm.join(REFFO_TOPIC, { server: true, client: true });
+    const discovery = this.swarm.join(PELAGORA_TOPIC, { server: true, client: true });
     await discovery.flushed();
-    console.log(`[DHT] Joined Pelagora network. Topic: ${b4a.toString(REFFO_TOPIC, 'hex').slice(0, 16)}...`);
+    console.log(`[DHT] Joined Pelagora network. Topic: ${b4a.toString(PELAGORA_TOPIC, 'hex').slice(0, 16)}...`);
   }
 
   private sendAnnouncement(stream: any): void {

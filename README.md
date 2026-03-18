@@ -1,8 +1,8 @@
-# reffo-beacon
+# Pelagora
 
-Self-hosted beacon server for the protocol.
+Self-hosted node for the Pelagora peer-to-peer commerce network.
 
-Beacons store inventory locally in SQLite and announce to a Hyperswarm DHT so other beacons can discover and query your listings without any central server. Data is structured using [Schema.org](https://schema.org) types for universal compatibility with search engines, LLMs, and third-party platforms.
+Nodes store inventory locally in SQLite and announce to a Hyperswarm DHT so other nodes can discover and query your listings without any central server. Data is structured using [Schema.org](https://schema.org) types for universal compatibility with search engines, LLMs, and third-party platforms.
 
 ## Quick Start
 
@@ -12,7 +12,7 @@ npm run build
 npm start
 ```
 
-The beacon runs on `http://localhost:3000` by default. Open it in a browser to use the web UI.
+The node runs on `http://localhost:3000` by default. Open it in a browser to use the web UI.
 
 For development with auto-reload:
 ```bash
@@ -25,11 +25,11 @@ Navigate to `http://localhost:3000` in your browser. The built-in UI lets you:
 
 - **List a Ref** — fill in name, category/subcategory, category-specific attributes, price and click submit
 - **My Refs** — see all your inventory with prices, condition badges, and attribute summaries
-- **Search Network** — search across connected peer beacons by keyword, category, or max price
+- **Search Network** — search across connected peer nodes by keyword, category, or max price
 
 ## Data Model
 
-Every listing is a **Ref** — the universal base unit in Reffo. Refs support category-specific attributes (car fields for cars, house fields for houses, etc.) with Schema.org compatibility.
+Every listing is a **Ref** — the universal base unit in Pelagora. Refs support category-specific attributes (car fields for cars, house fields for houses, etc.) with Schema.org compatibility.
 
 Key concepts:
 - **Category Schemas**: Each category defines typed fields, condition options, and Schema.org mappings
@@ -76,7 +76,7 @@ PATCH  /negotiations/:id       # Respond (accept/reject/counter)
 
 ### Peer Search
 ```
-GET /search?q=guitar           # Search across all connected beacons
+GET /search?q=guitar           # Search across all connected nodes
 GET /search?c=Electronics&sc=Gaming&maxPrice=100
 GET /search?lat=28.5&lng=-81.3&radiusMiles=50
 ```
@@ -97,29 +97,29 @@ GET /search?lat=28.5&lng=-81.3&radiusMiles=50
 |---|---|---|
 | `PORT` | `3000` | HTTP server port |
 | `BEACON_ID` | random | 64-char hex beacon identity |
-| `REFFO_DB_PATH` | `./reffo-beacon.db` | SQLite database path |
+| `REFFO_DB_PATH` | `./pelagora.db` | SQLite database path |
 
 ## Docker
 
 ```bash
-docker build -t reffo-beacon .
-docker run -p 3000:3000 -v reffo-data:/app reffo-beacon
+docker build -t pelagora .
+docker run -p 3000:3000 -v pelagora-data:/app pelagora
 ```
 
 ## How It Works
 
 1. You list refs and create offers via the web UI or REST API
-2. Your beacon joins the Reffo DHT topic via Hyperswarm
-3. Other beacons connect as peers and exchange announcements
-4. When someone searches (`GET /search`), your beacon queries all connected peers
+2. Your node joins the Pelagora DHT topic via Hyperswarm
+3. Other nodes connect as peers and exchange announcements
+4. When someone searches (`GET /search`), your node queries all connected peers
 5. Peers respond with matching refs and offers from their local databases
 6. When synced to reffo.ai, attributes are transformed to Schema.org JSON-LD
 
-No central server required. Each beacon is a fully independent node.
+No central server required. Each node is fully independent.
 
 ## Contributing
 
-Reffo's category system is designed to be community-extensible. To add a new category schema:
+The category system is designed to be community-extensible. To add a new category schema:
 
 1. Define the Schema.org type mapping and form fields in `src/ref-schemas.ts`
 2. Register it in the `CATEGORY_SCHEMAS` map

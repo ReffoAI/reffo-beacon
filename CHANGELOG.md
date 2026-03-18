@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to **reffo-beacon** will be documented in this file.
+All notable changes to **pelagora** will be documented in this file.
 
 This project follows [Keep a Changelog](https://keepachangelog.com/) and [Semantic Versioning](https://semver.org/).
 
