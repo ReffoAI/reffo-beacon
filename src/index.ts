@@ -188,25 +188,25 @@ async function main(): Promise<void> {
 
   // Start HTTP server
   const server = app.listen(PORT, () => {
-    console.log(`[Beacon] Reffo Beacon running on http://localhost:${PORT}`);
-    console.log(`[Beacon] ID: ${BEACON_ID.slice(0, 16)}...`);
-    console.log(`[Beacon] Endpoints:`);
-    console.log(`         GET  /              - Web UI`);
-    console.log(`         GET  /health        - Beacon status`);
-    console.log(`         GET  /taxonomy      - Category taxonomy`);
-    console.log(`         GET  /refs          - List refs`);
-    console.log(`         POST /refs          - Create ref`);
-    console.log(`         POST /refs/:id/media - Upload media`);
-    console.log(`         GET  /offers        - List offers`);
-    console.log(`         POST /offers        - Create offer`);
-    console.log(`         GET  /negotiations  - List negotiations`);
-    console.log(`         POST /negotiations  - Create proposal`);
-    console.log(`         GET  /search?q=...  - Search peer network`);
+    console.log(`[Pelagora] Running on http://localhost:${PORT}`);
+    console.log(`[Pelagora] Node ID: ${BEACON_ID.slice(0, 16)}...`);
+    console.log(`[Pelagora] Endpoints:`);
+    console.log(`            GET  /              - Web UI`);
+    console.log(`            GET  /health        - Node status`);
+    console.log(`            GET  /taxonomy      - Category taxonomy`);
+    console.log(`            GET  /refs          - List refs`);
+    console.log(`            POST /refs          - Create ref`);
+    console.log(`            POST /refs/:id/media - Upload media`);
+    console.log(`            GET  /offers        - List offers`);
+    console.log(`            POST /offers        - Create offer`);
+    console.log(`            GET  /negotiations  - List negotiations`);
+    console.log(`            POST /negotiations  - Create proposal`);
+    console.log(`            GET  /search?q=...  - Search peer network`);
   });
 
   // Graceful shutdown
   const shutdown = async () => {
-    console.log('\n[Beacon] Shutting down...');
+    console.log('\n[Pelagora] Shutting down...');
     server.close();
     // Force exit after 2s if DHT hangs
     const forceExit = setTimeout(() => process.exit(0), 2000);
@@ -220,6 +220,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((err) => {
-  console.error('[Beacon] Fatal error:', err);
+  console.error('[Pelagora] Fatal error:', err);
   process.exit(1);
 });
