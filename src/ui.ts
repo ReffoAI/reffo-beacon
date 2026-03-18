@@ -5333,7 +5333,7 @@ Website = https://reffo.ai</pre>
         if (footerCtaTitle && footerCtaDesc && footerCtaBtn) {
           if (data.hasApiKey) {
             footerCtaTitle.textContent = 'Explore Skills';
-            footerCtaDesc.textContent = 'Browse and install skills to add new capabilities to your beacon \u2014 from reverse auctions to analytics and more.';
+            footerCtaDesc.textContent = 'Browse and install skills to add capabilities to your node \u2014 from reverse auctions to analytics and more.';
             footerCtaBtn.href = 'https://reffo.ai/skills';
             footerCtaBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> Browse Skills';
           } else {
@@ -5924,7 +5924,7 @@ Website = https://reffo.ai</pre>
         if (footerCtaTitle && footerCtaDesc && footerCtaBtn) {
           if (data.hasApiKey) {
             footerCtaTitle.textContent = 'Explore Skills';
-            footerCtaDesc.textContent = 'Browse and install skills to add new capabilities to your beacon \u2014 from reverse auctions to analytics and more.';
+            footerCtaDesc.textContent = 'Browse and install skills to add capabilities to your node \u2014 from reverse auctions to analytics and more.';
             footerCtaBtn.href = 'https://reffo.ai/skills';
             footerCtaBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg> Browse Skills';
           } else {
