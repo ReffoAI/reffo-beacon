@@ -1,7 +1,7 @@
 {
   "name": "pelagora",
   "version": "0.1.6",
-  "description": "Self-hosted beacon server for the protocol",
+  "description": "Self-hosted Pelagora node",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -24,6 +24,7 @@
     "lint": "tsc --noEmit"
   },
   "keywords": [
+    "pelagora",
     "reffo",
     "decentralized",
     "commerce",
