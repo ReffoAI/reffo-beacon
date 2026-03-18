@@ -3799,13 +3799,24 @@ Website = https://reffo.ai</pre>
         html += '<div class="invoice-row" style="display:none;"><span class="invoice-label">Referral Fee</span><span class="invoice-value">$0.00</span></div>';
         html += '<div class="invoice-row" style="display:none;"><span class="invoice-label">Tax</span><span class="invoice-value">$0.00</span></div>';
 
-        // Sync toggle — stylized card
+        // Network publish status
+        if (ref.networkPublished) {
+          html += '<div style="margin:14px 20px;padding:10px 16px;background:#F3F0FF;border:1px solid #D8CCF1;border-radius:12px;display:flex;align-items:center;gap:10px;">';
+          html += '<span style="font-size:16px;">&#127760;</span>';
+          html += '<div>';
+          html += '<div style="font-size:13px;font-weight:600;color:#5B21B6;">Published to Reffo.ai</div>';
+          html += '<div style="font-size:11px;color:#7C3AED;margin-top:1px;">Public items are automatically mirrored for broader discovery.</div>';
+          html += '</div>';
+          html += '</div>';
+        }
+
+        // Account sync toggle — stylized card
         html += '<div style="margin:14px 20px;border:1px solid #E6E8EC;border-radius:12px;overflow:hidden;">';
         html += '<div style="height:3px;background:linear-gradient(90deg,#8101B4,#EA526F);"></div>';
         html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">';
         html += '<div>';
-        html += '<div style="font-size:14px;font-weight:600;color:#23262F;">&#127760; Share on Reffo.ai</div>';
-        html += '<div style="font-size:12px;color:#777E90;margin-top:2px;">Also list on Reffo.ai for more visibility.</div>';
+        html += '<div style="font-size:14px;font-weight:600;color:#23262F;">&#128279; Sync to Reffo.ai Account</div>';
+        html += '<div style="font-size:12px;color:#777E90;margin-top:2px;">Manage this item from your Reffo.ai dashboard.</div>';
         html += '</div>';
         html += '<label class="sync-toggle"><input type="checkbox" ' + (ref.reffoSynced ? 'checked' : '') + ' onchange="toggleSync(\\'' + ref.id + '\\', this)"><span class="toggle-track"></span></label>';
         html += '</div></div>';
