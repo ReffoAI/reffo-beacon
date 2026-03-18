@@ -325,6 +325,35 @@ export function renderUI(): string {
     .neg-card.countered { border-left-color: #A4CDE3; }
     .neg-card.withdrawn { border-left-color: #777E90; }
     .neg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+
+    /* Inbox email-style rows */
+    .inbox-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid #F4F5F6; cursor: pointer; transition: background 0.15s; }
+    .inbox-row:hover { background: #F4F5F6; }
+    .inbox-row.unread { font-weight: 600; background: #FAFAFA; }
+    .inbox-row .inbox-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 13px; }
+    .inbox-row .inbox-icon.offer { background: #fff8e1; color: #e6a200; }
+    .inbox-row .inbox-icon.message { background: #F4F0FF; color: #7C3AED; }
+    .inbox-row .inbox-icon.accepted { background: #e6f9ed; color: #1a8a42; }
+    .inbox-row .inbox-icon.sold { background: #e6f9ed; color: #1a8a42; }
+    .inbox-row .inbox-body { flex: 1; min-width: 0; }
+    .inbox-row .inbox-sender { font-size: 13px; color: #23262F; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .inbox-row .inbox-preview { font-size: 12px; color: #777E90; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 400; }
+    .inbox-row .inbox-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+    .inbox-row .inbox-date { font-size: 11px; color: #777E90; white-space: nowrap; font-weight: 400; }
+    .inbox-row .inbox-badge { font-size: 10px; font-weight: 700; padding: 1px 8px; border-radius: 10px; text-transform: uppercase; white-space: nowrap; }
+    .inbox-badge.pending { background: #fff8e1; color: #e6a200; }
+    .inbox-badge.accepted { background: #e6f9ed; color: #1a8a42; }
+    .inbox-badge.rejected { background: #fce8e6; color: #E92222; }
+    .inbox-badge.countered { background: #e1f5fe; color: #0277bd; }
+    .inbox-badge.withdrawn { background: #F4F5F6; color: #777E90; }
+    .inbox-badge.sold { background: #e6f9ed; color: #1a8a42; }
+    .inbox-badge.new-msg { background: #F4F0FF; color: #7C3AED; }
+    .inbox-badge.replied { background: #F4F5F6; color: #777E90; }
+    .inbox-list { background: #fff; border: 1px solid #E6E8EC; border-radius: 12px; overflow: hidden; }
+    .inbox-list .inbox-row:last-child { border-bottom: none; }
+    .inbox-thread { background: #fff; border: 1px solid #E6E8EC; border-radius: 12px; padding: 20px; }
+    .inbox-thread-back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #EC526F; cursor: pointer; margin-bottom: 16px; font-weight: 600; }
+    .inbox-thread-back:hover { color: #DD436C; }
     .neg-item-name { font-weight: 700; font-size: 16px; color: #141416; }
     /* Status badge — status.sass */
     .neg-status { font-size: 12px; font-weight: 700; padding: 0 12px; border-radius: 13px; line-height: 26px; text-transform: uppercase; }
@@ -737,7 +766,7 @@ export function renderUI(): string {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
           Link to Reffo.ai
         </button>
-        <button class="header-settings-btn" onclick="switchTab('negotiations')" title="Negotiations">
+        <button class="header-settings-btn" onclick="switchTab('inbox')" title="Inbox">
           <svg width="18" height="18" viewBox="0 0 18 19" fill="none"><path d="M17.97 15.02c0 .24-.09.46-.26.63-.16.17-.39.26-.62.26H.85c-.23-.01-.45-.1-.61-.27a.87.87 0 010-1.23c.16-.16.38-.26.61-.27h.02V7.98c.02-2.13.88-4.17 2.4-5.67C4.79.82 6.84-.02 8.97 0c2.13-.02 4.18.82 5.7 2.31 1.52 1.5 2.38 3.5 2.4 5.67v6.16h.02c.23 0 .46.09.62.26.17.17.26.39.26.62zM2.67 14.14h12.6V7.98c0-1.67-.66-3.27-1.85-4.45-1.18-1.18-2.78-1.85-4.45-1.85s-3.27.67-4.45 1.85C3.33 4.71 2.67 6.31 2.67 7.98v6.16zm4.28 3.62c-.25-.5.22-.97.77-.97h2.5c.55 0 1.02.47.77.97-.11.22-.26.42-.43.6-.43.41-1 .65-1.6.65-.59 0-1.16-.24-1.59-.65-.18-.17-.32-.38-.43-.6z" fill="currentColor"/></svg>
           <span class="notif-dot" id="headerNotifDot"></span>
         </button>
@@ -751,7 +780,7 @@ export function renderUI(): string {
               <div class="dd-header-sub" id="ddBeaconSub">Local Node</div>
             </div>
             <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('refs');">My Refs</button>
-            <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('negotiations');">Negotiations</button>
+            <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('inbox');">Inbox</button>
             <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('settings');">Settings</button>
             <div class="dd-divider"></div>
             <a class="dd-item" href="https://reffo.ai/about" target="_blank" rel="noopener noreferrer">About</a>
@@ -813,15 +842,10 @@ export function renderUI(): string {
     </button>
     <div class="sidebar-divider"></div>
     <div class="sidebar-section-title">Activity</div>
-    <button class="sidebar-nav-item" data-sidebar="negotiations" onclick="sidebarNav('negotiations')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-      Offers & Negotiations
-      <span id="sidebarNotifDot" class="sidebar-notif-dot"></span>
-    </button>
-    <button class="sidebar-nav-item" data-sidebar="messages" onclick="sidebarNav('messages')">
+    <button class="sidebar-nav-item" data-sidebar="inbox" onclick="sidebarNav('inbox')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-      Messages
-      <span id="sidebarMsgDot" class="sidebar-notif-dot"></span>
+      Inbox
+      <span id="sidebarInboxDot" class="sidebar-notif-dot"></span>
     </button>
     <div class="sidebar-divider"></div>
     <div class="sidebar-section-title">Actions</div>
@@ -1094,7 +1118,7 @@ export function renderUI(): string {
         <div class="recent-list" id="dashboardRecentOffers">
           <div class="recent-list-header">
             <h3>Recent Offers</h3>
-            <a onclick="sidebarNav('negotiations')">View all</a>
+            <a onclick="sidebarNav('inbox')">View all</a>
           </div>
           <div id="recentOffersList"><div style="padding:20px;color:#777E90;font-size:13px;">Loading...</div></div>
         </div>
@@ -1417,31 +1441,27 @@ export function renderUI(): string {
       </section>
     </div>
 
-    <!-- Negotiations Tab -->
-    <div id="tab-negotiations" class="hidden">
+    <!-- Unified Inbox Tab -->
+    <div id="tab-inbox" class="hidden">
       <section>
-        <h2>Negotiations</h2>
-        <div class="tabs">
-          <div class="tab active" data-negtab="incoming" onclick="switchNegTab('incoming')">Incoming</div>
-          <div class="tab" data-negtab="outgoing" onclick="switchNegTab('outgoing')">Sent</div>
-          <div class="tab" data-negtab="resolved" onclick="switchNegTab('resolved')">Resolved</div>
-          <div class="tab" data-negtab="archived" onclick="switchNegTab('archived')">Archived</div>
+        <h2 style="margin-bottom:16px;">Inbox</h2>
+        <div class="tabs" style="margin-bottom:16px;">
+          <div class="tab active" data-inboxtab="all" onclick="switchInboxTab('all')">All</div>
+          <div class="tab" data-inboxtab="offers" onclick="switchInboxTab('offers')">Offers</div>
+          <div class="tab" data-inboxtab="sent" onclick="switchInboxTab('sent')">Sent</div>
+          <div class="tab" data-inboxtab="messages" onclick="switchInboxTab('messages')">Messages</div>
+          <div class="tab" data-inboxtab="resolved" onclick="switchInboxTab('resolved')">Resolved</div>
+          <div class="tab" data-inboxtab="archived" onclick="switchInboxTab('archived')">Archived</div>
         </div>
-        <div id="negIncoming"></div>
-        <div id="negOutgoing" class="hidden"></div>
-        <div id="negResolved" class="hidden"></div>
-        <div id="negArchived" class="hidden"></div>
+        <div id="inboxContainer"><p class="empty">Loading...</p></div>
       </section>
     </div>
 
-    <!-- Settings Tab -->
-    <div id="tab-messages" class="hidden">
-      <section>
-        <h2>Messages</h2>
-        <p class="text-sm" style="color:#777E90;margin-bottom:20px;">Messages from buyers who found your items on Reffo.ai.</p>
-        <div id="messagesContainer"><p class="empty">Loading messages...</p></div>
-      </section>
-    </div>
+    <!-- Legacy hidden containers for negotiation detail views -->
+    <div id="negIncoming" class="hidden"></div>
+    <div id="negOutgoing" class="hidden"></div>
+    <div id="negResolved" class="hidden"></div>
+    <div id="negArchived" class="hidden"></div>
 
     <div id="tab-settings" class="hidden">
       <h1 style="font-size:24px;font-weight:600;color:#23262F;margin-bottom:32px;">Settings</h1>
@@ -2222,7 +2242,7 @@ Website = https://reffo.ai</pre>
 
     // ===== Tab switching =====
     function switchTab(tab) {
-      var tabs = ['home','dashboard','refs','detail','search','negotiations','messages','settings','list','scan','collections','terms','privacy','acceptable-use','for-bots'];
+      var tabs = ['home','dashboard','refs','detail','search','inbox','settings','list','scan','collections','terms','privacy','acceptable-use','for-bots'];
       tabs.forEach(function(t) {
         var el = document.getElementById('tab-' + t);
         if (el) el.classList.toggle('hidden', tab !== t);
@@ -2231,8 +2251,7 @@ Website = https://reffo.ai</pre>
       var sfbWrap = document.getElementById('globalSearchBarWrapper');
       if (sfbWrap) sfbWrap.style.display = (tab === 'search') ? '' : 'none';
       if (tab === 'home') { homeLoaded = false; loadHome(); }
-      if (tab === 'negotiations') loadNegotiations();
-      if (tab === 'messages') loadMessages();
+      if (tab === 'inbox') loadInbox();
       if (tab === 'refs') loadMyRefs();
       if (tab === 'settings') loadSettings();
       if (tab === 'scan') loadScanHistory();
@@ -2241,7 +2260,7 @@ Website = https://reffo.ai</pre>
       document.querySelectorAll('.sidebar-nav-item[data-sidebar]').forEach(function(item) {
         item.classList.remove('active');
       });
-      var sidebarMap = { home: 'home', dashboard: 'dashboard', refs: 'refs', detail: 'refs', search: 'search', negotiations: 'negotiations', messages: 'messages', settings: 'settings', list: 'list', scan: 'scan', collections: 'collections' };
+      var sidebarMap = { home: 'home', dashboard: 'dashboard', refs: 'refs', detail: 'refs', search: 'search', inbox: 'inbox', settings: 'settings', list: 'list', scan: 'scan', collections: 'collections' };
       var mappedSidebar = sidebarMap[tab];
       if (mappedSidebar) {
         var activeItem = document.querySelector('.sidebar-nav-item[data-sidebar="' + mappedSidebar + '"]');
@@ -2251,14 +2270,11 @@ Website = https://reffo.ai</pre>
       window.scrollTo(0, 0);
     }
 
-    function switchNegTab(tab) {
-      document.querySelectorAll('.tab[data-negtab]').forEach(t => t.classList.toggle('active', t.dataset.negtab === tab));
-      ['negIncoming','negOutgoing','negResolved','negArchived'].forEach(id => {
-        var map = { negIncoming: 'incoming', negOutgoing: 'outgoing', negResolved: 'resolved', negArchived: 'archived' };
-        document.getElementById(id).classList.toggle('hidden', map[id] !== tab);
-      });
-      if (tab === 'resolved') loadResolved();
-      if (tab === 'archived') loadArchived();
+    var currentInboxTab = 'all';
+    function switchInboxTab(tab) {
+      currentInboxTab = tab;
+      document.querySelectorAll('.tab[data-inboxtab]').forEach(t => t.classList.toggle('active', t.dataset.inboxtab === tab));
+      renderInboxView();
     }
 
     function switchRefSubTab(tab) {
@@ -2279,8 +2295,7 @@ Website = https://reffo.ai</pre>
       if (target === 'refs') { switchTab('refs'); switchRefSubTab('active'); return; }
       if (target === 'archive') { switchTab('refs'); switchRefSubTab('archive'); return; }
       if (target === 'favorites') { switchTab('refs'); switchRefSubTab('favorites'); return; }
-      if (target === 'negotiations') { switchTab('negotiations'); return; }
-      if (target === 'messages') { switchTab('messages'); return; }
+      if (target === 'inbox') { switchTab('inbox'); return; }
       if (target === 'scan') { switchTab('scan'); return; }
       if (target === 'collections') { switchTab('collections'); return; }
       if (target === 'list') { switchTab('list'); return; }
@@ -4924,9 +4939,9 @@ Website = https://reffo.ai</pre>
           throw new Error(err.error || 'Failed to send proposal');
         }
         closeProposalModal();
-        switchTab('negotiations');
-        switchNegTab('outgoing');
-        loadNegotiations();
+        switchTab('inbox');
+        currentInboxTab = 'sent';
+        loadInbox();
       } catch (err) {
         document.getElementById('modalMsg').innerHTML = '<div class="msg err">' + escapeHtml(err.message) + '</div>';
       } finally {
@@ -4938,12 +4953,16 @@ Website = https://reffo.ai</pre>
     let cachedIncoming = [];
     let cachedOutgoing = [];
 
+    // ===== Unified Inbox =====
+    var cachedMessages = [];
+    var cachedResolved = [];
+    var cachedArchivedNegs = [];
+
     function renderNegotiationCards(negs, isSeller) {
       if (negs.length === 0) return '<p class="empty">No negotiations yet</p>';
       return negs.map(n => {
         let actions = '';
         if (isSeller && n.role === 'seller' && n.status === 'pending') {
-          // Single "Respond" button opens the respond modal
           actions = '<div class="neg-actions">' +
             '<button class="btn-primary btn-sm" onclick="openRespondModal(\\'' + n.id + '\\', \\'' + escapeHtml(n.refName || n.refId.slice(0,8)) + '\\', ' + n.price + ', \\'' + escapeHtml(n.priceCurrency) + '\\', \\'' + escapeHtml(n.message || '') + '\\')">Respond</button>' +
             '</div>';
@@ -4974,131 +4993,280 @@ Website = https://reffo.ai</pre>
       }).join('');
     }
 
-    function renderGroupedNegotiations(negs, isSeller) {
-      if (negs.length === 0) return '<p class="empty">No negotiations yet</p>';
-      const groups = {};
-      negs.forEach(n => {
-        if (!groups[n.refId]) groups[n.refId] = { refName: n.refName || n.refId.slice(0, 8), negs: [] };
-        groups[n.refId].negs.push(n);
-      });
-      const tab = isSeller ? 'incoming' : 'outgoing';
-      return Object.keys(groups).map(refId => {
-        const g = groups[refId];
-        const total = g.negs.length;
-        const pendingCount = g.negs.filter(n => n.status === 'pending' || n.status === 'countered').length;
-        const latestStatus = g.negs[0].status;
-        const latestDate = new Date(g.negs[0].updatedAt || g.negs[0].createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        const countClass = pendingCount > 0 ? 'neg-group-count has-pending' : 'neg-group-count';
-        const countLabel = pendingCount > 0 ? total + ' (' + pendingCount + ' active)' : String(total);
-        const displayStatus = negStatusLabels[latestStatus] || latestStatus;
-        return '<div class="neg-group-row" onclick="showRefNegotiations(\\'' + escapeHtml(refId) + '\\', ' + (isSeller ? 'true' : 'false') + ', \\'' + tab + '\\')">' +
-          '<div class="neg-group-left">' +
-            '<span class="neg-group-name">' + escapeHtml(g.refName) + '</span>' +
-            '<span class="' + countClass + '">' + countLabel + '</span>' +
-          '</div>' +
-          '<div class="neg-group-right">' +
-            '<span class="neg-status ' + latestStatus + '">' + displayStatus + '</span>' +
-            '<span class="neg-group-date">' + latestDate + '</span>' +
-          '</div>' +
-        '</div>';
-      }).join('');
+    function renderInboxRow(item) {
+      var unreadClass = item.unread ? ' unread' : '';
+      var iconClass = item.type === 'message' ? 'message' : (item.iconType || 'offer');
+      var iconLetter = item.type === 'message' ? '&#9993;' : '&#36;';
+      var badgeClass = item.badgeClass || '';
+      var badgeLabel = item.badgeLabel || '';
+      return '<div class="inbox-row' + unreadClass + '" onclick="' + item.onclick + '">' +
+        '<div class="inbox-icon ' + iconClass + '">' + iconLetter + '</div>' +
+        '<div class="inbox-body">' +
+          '<div class="inbox-sender">' + escapeHtml(item.sender) + ' &middot; <span style="color:#777E90;font-weight:400;">' + escapeHtml(item.refName) + '</span></div>' +
+          '<div class="inbox-preview">' + escapeHtml(item.preview) + '</div>' +
+        '</div>' +
+        '<div class="inbox-meta">' +
+          '<span class="inbox-date">' + item.date + '</span>' +
+          (badgeLabel ? '<span class="inbox-badge ' + badgeClass + '">' + badgeLabel + '</span>' : '') +
+        '</div>' +
+      '</div>';
     }
 
-    window.showRefNegotiations = function(refId, isSeller, tab) {
-      const source = isSeller ? cachedIncoming : cachedOutgoing;
-      const filtered = source.filter(n => n.refId === refId);
-      const containerId = tab === 'incoming' ? 'negIncoming' : 'negOutgoing';
-      const container = document.getElementById(containerId);
-      const refName = filtered.length > 0 ? escapeHtml(filtered[0].refName || refId.slice(0, 8)) : escapeHtml(refId.slice(0, 8));
-      let html = '<span class="neg-group-back" onclick="renderNegGroupedView(\\'' + tab + '\\')">';
+    function buildInboxItems() {
+      var items = [];
+      // Add incoming negotiations (offers received)
+      cachedIncoming.forEach(function(n) {
+        var displayStatus = negStatusLabels[n.status] || n.status;
+        var preview = escapeHtml(n.priceCurrency) + ' ' + n.price.toFixed(2);
+        if (n.message) preview += ' — ' + n.message;
+        items.push({
+          type: 'offer',
+          subtype: 'incoming',
+          id: n.id,
+          sender: (n.buyerBeaconId || '').slice(0, 12) + '...',
+          refName: n.refName || n.refId.slice(0, 8),
+          refId: n.refId,
+          preview: preview,
+          date: new Date(n.updatedAt || n.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          sortDate: new Date(n.updatedAt || n.createdAt).getTime(),
+          unread: n.status === 'pending',
+          badgeClass: n.status,
+          badgeLabel: displayStatus,
+          iconType: n.status === 'accepted' ? 'accepted' : (n.status === 'sold' ? 'sold' : 'offer'),
+          status: n.status,
+          onclick: 'openInboxNegThread(\\'' + n.refId + '\\', true)',
+          raw: n
+        });
+      });
+      // Add outgoing negotiations (offers sent)
+      cachedOutgoing.forEach(function(n) {
+        var displayStatus = negStatusLabels[n.status] || n.status;
+        var preview = escapeHtml(n.priceCurrency) + ' ' + n.price.toFixed(2);
+        if (n.message) preview += ' — ' + n.message;
+        items.push({
+          type: 'offer',
+          subtype: 'sent',
+          id: n.id,
+          sender: 'You',
+          refName: n.refName || n.refId.slice(0, 8),
+          refId: n.refId,
+          preview: preview,
+          date: new Date(n.updatedAt || n.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          sortDate: new Date(n.updatedAt || n.createdAt).getTime(),
+          unread: false,
+          badgeClass: n.status,
+          badgeLabel: displayStatus,
+          iconType: 'offer',
+          status: n.status,
+          onclick: 'openInboxNegThread(\\'' + n.refId + '\\', false)',
+          raw: n
+        });
+      });
+      // Add network messages
+      cachedMessages.forEach(function(m) {
+        items.push({
+          type: 'message',
+          subtype: 'message',
+          id: m.id,
+          sender: m.senderName || 'Anonymous',
+          refName: m.refName || m.refId.slice(0, 8),
+          refId: m.refId,
+          preview: m.message,
+          date: new Date(m.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+          sortDate: new Date(m.createdAt).getTime(),
+          unread: !m.read,
+          badgeClass: m.reply ? 'replied' : (!m.read ? 'new-msg' : ''),
+          badgeLabel: m.reply ? 'Replied' : (!m.read ? 'New' : ''),
+          iconType: 'message',
+          status: m.reply ? 'replied' : (m.read ? 'read' : 'new'),
+          onclick: 'openInboxMessage(\\'' + m.id + '\\')',
+          raw: m
+        });
+      });
+      // Sort by date descending
+      items.sort(function(a, b) { return b.sortDate - a.sortDate; });
+      return items;
+    }
+
+    function renderInboxView() {
+      var container = document.getElementById('inboxContainer');
+      if (!container) return;
+      var tab = currentInboxTab;
+      var items = buildInboxItems();
+
+      if (tab === 'offers') items = items.filter(function(i) { return i.type === 'offer' && i.subtype === 'incoming'; });
+      else if (tab === 'sent') items = items.filter(function(i) { return i.type === 'offer' && i.subtype === 'sent'; });
+      else if (tab === 'messages') items = items.filter(function(i) { return i.type === 'message'; });
+      else if (tab === 'resolved') {
+        // Show resolved negotiations
+        if (cachedResolved.length === 0) {
+          container.innerHTML = '<p class="empty">No resolved negotiations</p>';
+          return;
+        }
+        container.innerHTML = '<div class="inbox-list">' + cachedResolved.map(function(n) {
+          var displayStatus = negStatusLabels[n.status] || n.status;
+          var preview = escapeHtml(n.priceCurrency) + ' ' + n.price.toFixed(2);
+          if (n.message) preview += ' — ' + n.message;
+          var roleLabel = n.role === 'seller' ? 'From buyer' : 'To seller';
+          return renderInboxRow({
+            type: 'offer',
+            sender: roleLabel,
+            refName: n.refName || n.refId.slice(0, 8),
+            preview: preview,
+            date: new Date(n.updatedAt || n.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            unread: false,
+            badgeClass: n.status,
+            badgeLabel: displayStatus,
+            iconType: n.status === 'sold' ? 'sold' : (n.status === 'accepted' ? 'accepted' : 'offer'),
+            onclick: 'openInboxResolvedDetail(\\'' + n.id + '\\')'
+          });
+        }).join('') + '</div>';
+        return;
+      }
+      else if (tab === 'archived') {
+        if (cachedArchivedNegs.length === 0) {
+          container.innerHTML = '<p class="empty">No archived items</p>';
+          return;
+        }
+        container.innerHTML = '<div class="inbox-list">' + cachedArchivedNegs.map(function(n) {
+          var displayStatus = negStatusLabels[n.status] || n.status;
+          var preview = escapeHtml(n.priceCurrency) + ' ' + n.price.toFixed(2);
+          return renderInboxRow({
+            type: 'offer',
+            sender: n.role === 'seller' ? 'From buyer' : 'To seller',
+            refName: n.refName || n.refId.slice(0, 8),
+            preview: preview,
+            date: new Date(n.updatedAt || n.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            unread: false,
+            badgeClass: 'withdrawn',
+            badgeLabel: displayStatus,
+            iconType: 'offer',
+            onclick: 'openInboxArchivedDetail(\\'' + n.id + '\\')'
+          });
+        }).join('') + '</div>';
+        return;
+      }
+      // 'all' tab — everything
+      if (items.length === 0) {
+        container.innerHTML = '<p class="empty">No messages or offers yet</p>';
+        return;
+      }
+      // Deduplicate negotiations by refId (show latest per thread)
+      var seenNegThreads = {};
+      var deduped = [];
+      items.forEach(function(item) {
+        if (item.type === 'offer') {
+          var key = item.subtype + ':' + item.refId;
+          if (!seenNegThreads[key]) {
+            seenNegThreads[key] = true;
+            deduped.push(item);
+          }
+        } else {
+          deduped.push(item);
+        }
+      });
+      container.innerHTML = '<div class="inbox-list">' + deduped.map(renderInboxRow).join('') + '</div>';
+    }
+
+    // Open negotiation thread detail inline
+    window.openInboxNegThread = function(refId, isSeller) {
+      var source = isSeller ? cachedIncoming : cachedOutgoing;
+      var filtered = source.filter(function(n) { return n.refId === refId; });
+      var container = document.getElementById('inboxContainer');
+      var refName = filtered.length > 0 ? escapeHtml(filtered[0].refName || refId.slice(0, 8)) : escapeHtml(refId.slice(0, 8));
+      var html = '<span class="inbox-thread-back" onclick="renderInboxView()">';
       html += '<svg width="6" height="10" viewBox="0 0 4 6" fill="none"><path d="M3.4711 0.2C3.5961 0.325075 3.66632 0.494669 3.66632 0.6715C3.66632 0.848331 3.5961 1.01792 3.4711 1.143L1.6091 3L3.4711 4.862C3.59116 4.98806 3.65718 5.15606 3.65505 5.33013C3.65293 5.5042 3.58284 5.67055 3.45974 5.79364C3.33665 5.91674 3.17031 5.98683 2.99623 5.98895C2.82216 5.99107 2.65416 5.92506 2.5281 5.805L0.200102 3.471C0.0751014 3.34592 0.00488281 3.17633 0.00488281 2.9995C0.00488281 2.82267 0.0751014 2.65308 0.200102 2.528L2.5291 0.2C2.65414 0.0753044 2.82352 0.00527954 3.0001 0.00527954C3.17669 0.00527954 3.34607 0.0753044 3.4711 0.2Z" fill="#EC526F"/></svg>';
-      html += ' Back to all refs</span>';
+      html += ' Back to Inbox</span>';
       html += '<h3 style="font-size:18px;font-weight:700;color:#141416;margin-bottom:16px;">' + refName + '</h3>';
       html += renderNegotiationCards(filtered, isSeller);
       container.innerHTML = html;
     };
 
-    window.renderNegGroupedView = function(tab) {
-      if (tab === 'incoming') {
-        document.getElementById('negIncoming').innerHTML = renderGroupedNegotiations(cachedIncoming, true);
-      } else if (tab === 'outgoing') {
-        document.getElementById('negOutgoing').innerHTML = renderGroupedNegotiations(cachedOutgoing, false);
+    // Open message detail inline
+    window.openInboxMessage = function(msgId) {
+      var msg = cachedMessages.find(function(m) { return m.id === msgId; });
+      if (!msg) return;
+      var container = document.getElementById('inboxContainer');
+      var refName = msg.refName || msg.refId.slice(0, 8);
+      var date = new Date(msg.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+      // Mark as read
+      if (!msg.read) {
+        fetch('/settings/network-messages/' + msg.id + '/read', { method: 'PATCH' });
+        msg.read = true;
+        updateInboxDots();
       }
+
+      var replyHtml = '';
+      if (msg.reply) {
+        var replyDate = msg.repliedAt ? new Date(msg.repliedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
+        replyHtml = '<div style="margin-top:16px;padding:12px 16px;background:#F4F0FF;border-radius:8px;border-left:3px solid #7C3AED;">' +
+          '<div style="font-size:12px;color:#7C3AED;font-weight:600;margin-bottom:4px;">Your reply' + (replyDate ? ' &middot; ' + replyDate : '') + '</div>' +
+          '<div style="font-size:14px;color:#353945;line-height:1.6;white-space:pre-wrap;">' + escapeHtml(msg.reply) + '</div>' +
+        '</div>';
+      } else {
+        replyHtml = '<div style="margin-top:16px;" id="replySection_' + msg.id + '">' +
+          '<button onclick="toggleReplyForm(\\'' + msg.id + '\\')" style="font-size:13px;padding:8px 18px;border-radius:20px;border:1px solid #7C3AED;background:none;cursor:pointer;color:#7C3AED;font-weight:500;font-family:Poppins,sans-serif;">Reply</button>' +
+          '<div id="replyForm_' + msg.id + '" style="display:none;margin-top:10px;">' +
+            '<textarea id="replyText_' + msg.id + '" placeholder="Write your reply..." rows="3" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #E6E8EC;font-size:14px;resize:vertical;font-family:Poppins,sans-serif;margin-bottom:8px;" maxlength="2000"></textarea>' +
+            '<div style="display:flex;gap:8px;">' +
+              '<button onclick="sendReply(\\'' + msg.id + '\\')" style="font-size:13px;padding:8px 20px;border-radius:20px;border:none;background:#7C3AED;color:#fff;cursor:pointer;font-weight:500;font-family:Poppins,sans-serif;">Send Reply</button>' +
+              '<button onclick="toggleReplyForm(\\'' + msg.id + '\\')" style="font-size:13px;padding:8px 16px;border-radius:20px;border:1px solid #E6E8EC;background:none;cursor:pointer;color:#777E90;font-family:Poppins,sans-serif;">Cancel</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }
+
+      var html = '<span class="inbox-thread-back" onclick="renderInboxView()">';
+      html += '<svg width="6" height="10" viewBox="0 0 4 6" fill="none"><path d="M3.4711 0.2C3.5961 0.325075 3.66632 0.494669 3.66632 0.6715C3.66632 0.848331 3.5961 1.01792 3.4711 1.143L1.6091 3L3.4711 4.862C3.59116 4.98806 3.65718 5.15606 3.65505 5.33013C3.65293 5.5042 3.58284 5.67055 3.45974 5.79364C3.33665 5.91674 3.17031 5.98683 2.99623 5.98895C2.82216 5.99107 2.65416 5.92506 2.5281 5.805L0.200102 3.471C0.0751014 3.34592 0.00488281 3.17633 0.00488281 2.9995C0.00488281 2.82267 0.0751014 2.65308 0.200102 2.528L2.5291 0.2C2.65414 0.0753044 2.82352 0.00527954 3.0001 0.00527954C3.17669 0.00527954 3.34607 0.0753044 3.4711 0.2Z" fill="#EC526F"/></svg>';
+      html += ' Back to Inbox</span>';
+      html += '<div class="inbox-thread">';
+      html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">';
+      html += '<div style="width:36px;height:36px;border-radius:50%;background:#EC526F;color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;">' +
+        (msg.senderName ? escapeHtml(msg.senderName.charAt(0).toUpperCase()) : '?') + '</div>';
+      html += '<div><div style="font-size:15px;font-weight:600;color:#23262F;">' + escapeHtml(msg.senderName || 'Anonymous') + '</div>';
+      html += '<div style="font-size:12px;color:#777E90;">' + date + ' &middot; Re: <span style="cursor:pointer;color:#7C3AED;" onclick="openDetail(\\'' + msg.refId + '\\')">' + escapeHtml(refName) + '</span></div>';
+      html += '</div></div>';
+      html += '<div style="font-size:14px;color:#353945;line-height:1.7;white-space:pre-wrap;padding:12px 0;border-top:1px solid #F4F5F6;">' + escapeHtml(msg.message) + '</div>';
+      html += replyHtml;
+      html += '</div>';
+      container.innerHTML = html;
     };
 
-    function renderResolvedCards(negs) {
-      if (negs.length === 0) return '<p class="empty">No resolved negotiations</p>';
-      return negs.map(n => {
-        const displayStatus = negStatusLabels[n.status] || n.status;
-        let details = '<strong>' + escapeHtml(n.priceCurrency) + ' ' + n.price.toFixed(2) + '</strong>';
-        if (n.message) details += ' &mdash; ' + escapeHtml(n.message);
-        if (n.counterPrice) details += '<br>Counter: <strong>' + escapeHtml(n.priceCurrency) + ' ' + n.counterPrice.toFixed(2) + '</strong>';
-        if (n.responseMessage) details += ' &mdash; ' + escapeHtml(n.responseMessage);
-        const roleLabel = n.role === 'seller' ? 'Incoming' : 'Sent';
-        return '<div class="neg-card ' + n.status + '">' +
-          '<div class="neg-header">' +
-            '<span class="neg-item-name">' + escapeHtml(n.refName || n.refId.slice(0, 8)) + '</span>' +
-            '<span class="neg-status ' + n.status + '">' + displayStatus + '</span>' +
-          '</div>' +
-          '<div class="neg-details">' + details + '</div>' +
-          '<div class="beacon-id">' + roleLabel + ' &middot; ' + (n.role === 'seller' ? 'Buyer' : 'Seller') + ': ' + escapeHtml((n.role === 'seller' ? n.buyerBeaconId : n.sellerBeaconId).slice(0, 16)) + '...</div>' +
-          '<div class="neg-archive-actions">' +
-            '<button class="btn-secondary btn-sm" onclick="archiveNeg(\\'' + n.id + '\\')">Archive</button>' +
-          '</div>' +
-        '</div>';
-      }).join('');
-    }
+    // Open resolved negotiation detail
+    window.openInboxResolvedDetail = function(negId) {
+      var n = cachedResolved.find(function(x) { return x.id === negId; });
+      if (!n) return;
+      var container = document.getElementById('inboxContainer');
+      var html = '<span class="inbox-thread-back" onclick="switchInboxTab(\\'resolved\\')">';
+      html += '<svg width="6" height="10" viewBox="0 0 4 6" fill="none"><path d="M3.4711 0.2C3.5961 0.325075 3.66632 0.494669 3.66632 0.6715C3.66632 0.848331 3.5961 1.01792 3.4711 1.143L1.6091 3L3.4711 4.862C3.59116 4.98806 3.65718 5.15606 3.65505 5.33013C3.65293 5.5042 3.58284 5.67055 3.45974 5.79364C3.33665 5.91674 3.17031 5.98683 2.99623 5.98895C2.82216 5.99107 2.65416 5.92506 2.5281 5.805L0.200102 3.471C0.0751014 3.34592 0.00488281 3.17633 0.00488281 2.9995C0.00488281 2.82267 0.0751014 2.65308 0.200102 2.528L2.5291 0.2C2.65414 0.0753044 2.82352 0.00527954 3.0001 0.00527954C3.17669 0.00527954 3.34607 0.0753044 3.4711 0.2Z" fill="#EC526F"/></svg>';
+      html += ' Back to Resolved</span>';
+      html += renderNegotiationCards([n], n.role === 'seller');
+      html += '<div style="margin-top:8px;"><button class="btn-secondary btn-sm" onclick="archiveNeg(\\'' + n.id + '\\')">Archive</button></div>';
+      container.innerHTML = html;
+    };
 
-    function renderArchivedCards(negs) {
-      if (negs.length === 0) return '<p class="empty">No archived negotiations</p>';
-      return negs.map(n => {
-        const displayStatus = negStatusLabels[n.status] || n.status;
-        let details = '<strong>' + escapeHtml(n.priceCurrency) + ' ' + n.price.toFixed(2) + '</strong>';
-        if (n.message) details += ' &mdash; ' + escapeHtml(n.message);
-        if (n.counterPrice) details += '<br>Counter: <strong>' + escapeHtml(n.priceCurrency) + ' ' + n.counterPrice.toFixed(2) + '</strong>';
-        if (n.responseMessage) details += ' &mdash; ' + escapeHtml(n.responseMessage);
-        const roleLabel = n.role === 'seller' ? 'Incoming' : 'Sent';
-        return '<div class="neg-card archived">' +
-          '<div class="neg-header">' +
-            '<span class="neg-item-name">' + escapeHtml(n.refName || n.refId.slice(0, 8)) + '</span>' +
-            '<span class="neg-status ' + n.status + '">' + displayStatus + '</span>' +
-          '</div>' +
-          '<div class="neg-details">' + details + '</div>' +
-          '<div class="beacon-id">' + roleLabel + ' &middot; ' + (n.role === 'seller' ? 'Buyer' : 'Seller') + ': ' + escapeHtml((n.role === 'seller' ? n.buyerBeaconId : n.sellerBeaconId).slice(0, 16)) + '...</div>' +
-          '<div class="neg-archive-actions">' +
-            '<button class="btn-secondary btn-sm" onclick="unarchiveNeg(\\'' + n.id + '\\')">Restore</button>' +
-            '<button class="btn-danger btn-sm" onclick="deleteNeg(\\'' + n.id + '\\')">Delete</button>' +
-          '</div>' +
-        '</div>';
-      }).join('');
-    }
-
-    async function loadResolved() {
-      try {
-        const res = await fetch('/negotiations?role=resolved');
-        const negs = await res.json();
-        document.getElementById('negResolved').innerHTML = renderResolvedCards(negs);
-      } catch {
-        document.getElementById('negResolved').innerHTML = '<p class="empty">Failed to load</p>';
-      }
-    }
-
-    async function loadArchived() {
-      try {
-        const res = await fetch('/negotiations?role=archived');
-        const negs = await res.json();
-        document.getElementById('negArchived').innerHTML = renderArchivedCards(negs);
-      } catch {
-        document.getElementById('negArchived').innerHTML = '<p class="empty">Failed to load</p>';
-      }
-    }
+    // Open archived negotiation detail
+    window.openInboxArchivedDetail = function(negId) {
+      var n = cachedArchivedNegs.find(function(x) { return x.id === negId; });
+      if (!n) return;
+      var container = document.getElementById('inboxContainer');
+      var html = '<span class="inbox-thread-back" onclick="switchInboxTab(\\'archived\\')">';
+      html += '<svg width="6" height="10" viewBox="0 0 4 6" fill="none"><path d="M3.4711 0.2C3.5961 0.325075 3.66632 0.494669 3.66632 0.6715C3.66632 0.848331 3.5961 1.01792 3.4711 1.143L1.6091 3L3.4711 4.862C3.59116 4.98806 3.65718 5.15606 3.65505 5.33013C3.65293 5.5042 3.58284 5.67055 3.45974 5.79364C3.33665 5.91674 3.17031 5.98683 2.99623 5.98895C2.82216 5.99107 2.65416 5.92506 2.5281 5.805L0.200102 3.471C0.0751014 3.34592 0.00488281 3.17633 0.00488281 2.9995C0.00488281 2.82267 0.0751014 2.65308 0.200102 2.528L2.5291 0.2C2.65414 0.0753044 2.82352 0.00527954 3.0001 0.00527954C3.17669 0.00527954 3.34607 0.0753044 3.4711 0.2Z" fill="#EC526F"/></svg>';
+      html += ' Back to Archived</span>';
+      html += renderNegotiationCards([n], n.role === 'seller');
+      html += '<div style="margin-top:8px;display:flex;gap:8px;">';
+      html += '<button class="btn-secondary btn-sm" onclick="unarchiveNeg(\\'' + n.id + '\\')">Restore</button>';
+      html += '<button class="btn-danger btn-sm" onclick="deleteNeg(\\'' + n.id + '\\')">Delete</button>';
+      html += '</div>';
+      container.innerHTML = html;
+    };
 
     window.archiveNeg = async function(id) {
       try {
         const res = await fetch('/negotiations/' + id + '/archive', { method: 'PATCH' });
         if (!res.ok) throw new Error('Failed to archive');
-        loadResolved();
-        loadNegotiations();
+        loadInbox();
       } catch (err) {
         showToast(err.message, '');
       }
@@ -5108,8 +5276,7 @@ Website = https://reffo.ai</pre>
       try {
         const res = await fetch('/negotiations/' + id + '/unarchive', { method: 'PATCH' });
         if (!res.ok) throw new Error('Failed to restore');
-        loadArchived();
-        loadNegotiations();
+        loadInbox();
       } catch (err) {
         showToast(err.message, '');
       }
@@ -5120,39 +5287,61 @@ Website = https://reffo.ai</pre>
       try {
         const res = await fetch('/negotiations/' + id, { method: 'DELETE' });
         if (!res.ok) throw new Error('Failed to delete');
-        loadArchived();
+        loadInbox();
       } catch (err) {
         showToast(err.message, '');
       }
     };
 
-    async function loadNegotiations() {
+    function updateInboxDots() {
+      var pendingNegs = cachedIncoming.filter(function(n) { return n.status === 'pending'; }).length;
+      var unreadMsgs = cachedMessages.filter(function(m) { return !m.read; }).length;
+      var totalUnread = pendingNegs + unreadMsgs;
+      var headerDot = document.getElementById('headerNotifDot');
+      var sidebarDot = document.getElementById('sidebarInboxDot');
+      if (headerDot) headerDot.style.display = totalUnread > 0 ? 'block' : 'none';
+      if (sidebarDot) sidebarDot.style.display = totalUnread > 0 ? 'block' : 'none';
+    }
+
+    async function loadInbox() {
       try {
-        const [incRes, outRes] = await Promise.all([
+        // Fetch refs for message refName enrichment
+        var refsRes = await fetch('/refs');
+        var refsData = await refsRes.json();
+        var refMap = {};
+        (refsData.refs || []).forEach(function(r) { refMap[r.id] = r; });
+
+        // Fetch negotiations, messages, resolved, archived in parallel
+        var results = await Promise.all([
           fetch('/negotiations?role=seller'),
-          fetch('/negotiations?role=buyer')
+          fetch('/negotiations?role=buyer'),
+          fetch('/settings/network-messages'),
+          fetch('/negotiations?role=resolved'),
+          fetch('/negotiations?role=archived')
         ]);
-        cachedIncoming = await incRes.json();
-        cachedOutgoing = await outRes.json();
+        cachedIncoming = await results[0].json();
+        cachedOutgoing = await results[1].json();
+        var rawMessages = await results[2].json();
+        cachedResolved = await results[3].json();
+        cachedArchivedNegs = await results[4].json();
 
-        document.getElementById('negIncoming').innerHTML = renderGroupedNegotiations(cachedIncoming, true);
-        document.getElementById('negOutgoing').innerHTML = renderGroupedNegotiations(cachedOutgoing, false);
+        // Enrich messages with ref names
+        cachedMessages = rawMessages.map(function(m) {
+          var ref = refMap[m.refId];
+          m.refName = ref ? ref.name : (m.refId || '').slice(0, 8);
+          return m;
+        });
 
-        const pendingCount = cachedIncoming.filter(n => n.status === 'pending').length;
-        const notifDot = document.getElementById('headerNotifDot');
-        const sidebarDot1 = document.getElementById('sidebarNotifDot');
-        if (pendingCount > 0) {
-          notifDot.style.display = 'block';
-          if (sidebarDot1) sidebarDot1.style.display = 'block';
-        } else {
-          notifDot.style.display = 'none';
-          if (sidebarDot1) sidebarDot1.style.display = 'none';
-        }
-      } catch {
-        document.getElementById('negIncoming').innerHTML = '<p class="empty">Failed to load</p>';
-        document.getElementById('negOutgoing').innerHTML = '<p class="empty">Failed to load</p>';
+        updateInboxDots();
+        renderInboxView();
+      } catch (err) {
+        var container = document.getElementById('inboxContainer');
+        if (container) container.innerHTML = '<p class="empty">Failed to load inbox</p>';
       }
     }
+
+    // Keep loadNegotiations as alias for inbox (called from home page, etc.)
+    async function loadNegotiations() { return loadInbox(); }
 
     // ===== Respond Modal (seller) =====
     window.openRespondModal = function(negId, refName, price, currency, message) {
@@ -5273,89 +5462,16 @@ Website = https://reffo.ai</pre>
     const userSvgPlaceholder = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
     const previewSvgPlaceholder = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#B1B5C3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
 
-    async function loadMessages() {
-      var container = document.getElementById('messagesContainer');
-      try {
-        var res = await fetch('/settings/network-messages');
-        var messages = await res.json();
-
-        // Update unread dot
-        var unreadCount = messages.filter(function(m) { return !m.read; }).length;
-        var msgDot = document.getElementById('sidebarMsgDot');
-        if (msgDot) msgDot.style.display = unreadCount > 0 ? 'block' : 'none';
-
-        if (messages.length === 0) {
-          container.innerHTML = '<p class="empty">No messages yet. When buyers contact you through Reffo.ai, their messages will appear here.</p>';
-          return;
-        }
-
-        // Fetch refs for linking
-        var refsRes = await fetch('/refs');
-        var refsData = await refsRes.json();
-        var refMap = {};
-        (refsData.refs || []).forEach(function(r) { refMap[r.id] = r; });
-
-        container.innerHTML = messages.map(function(msg) {
-          var ref = refMap[msg.refId];
-          var refName = ref ? escapeHtml(ref.name) : 'Unknown item';
-          var date = new Date(msg.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-          var unreadStyle = msg.read ? '' : 'border-left:3px solid #7C3AED;';
-
-          var replySection = '';
-          if (msg.reply) {
-            var replyDate = msg.repliedAt ? new Date(msg.repliedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
-            replySection = '<div style="margin-top:10px;padding:10px 12px;background:#F4F0FF;border-radius:8px;border-left:3px solid #7C3AED;">' +
-              '<div style="font-size:11px;color:#7C3AED;font-weight:600;margin-bottom:4px;">Your reply' + (replyDate ? ' · ' + replyDate : '') + '</div>' +
-              '<div style="font-size:13px;color:#353945;line-height:1.5;white-space:pre-wrap;">' + escapeHtml(msg.reply) + '</div>' +
-            '</div>';
-          } else {
-            replySection = '<div style="margin-top:10px;" id="replySection_' + msg.id + '">' +
-              '<button onclick="toggleReplyForm(\\'' + msg.id + '\\')" style="font-size:12px;padding:6px 14px;border-radius:16px;border:1px solid #7C3AED;background:none;cursor:pointer;color:#7C3AED;font-weight:500;font-family:Poppins,sans-serif;">Reply</button>' +
-              '<div id="replyForm_' + msg.id + '" style="display:none;margin-top:8px;">' +
-                '<textarea id="replyText_' + msg.id + '" placeholder="Write your reply..." rows="2" style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid #E6E8EC;font-size:13px;resize:vertical;font-family:Poppins,sans-serif;margin-bottom:6px;" maxlength="2000"></textarea>' +
-                '<div style="display:flex;gap:8px;">' +
-                  '<button onclick="sendReply(\\'' + msg.id + '\\')" style="font-size:12px;padding:6px 16px;border-radius:16px;border:none;background:#7C3AED;color:#fff;cursor:pointer;font-weight:500;font-family:Poppins,sans-serif;">Send Reply</button>' +
-                  '<button onclick="toggleReplyForm(\\'' + msg.id + '\\')" style="font-size:12px;padding:6px 12px;border-radius:16px;border:1px solid #E6E8EC;background:none;cursor:pointer;color:#777E90;font-family:Poppins,sans-serif;">Cancel</button>' +
-                '</div>' +
-              '</div>' +
-            '</div>';
-          }
-
-          return '<div style="background:#fff;border:1px solid #E6E8EC;border-radius:12px;padding:16px;margin-bottom:12px;' + unreadStyle + '">' +
-            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">' +
-              '<div style="display:flex;align-items:center;gap:8px;">' +
-                '<div style="width:32px;height:32px;border-radius:50%;background:#EC526F;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;">' +
-                  (msg.senderName ? escapeHtml(msg.senderName.charAt(0).toUpperCase()) : '?') +
-                '</div>' +
-                '<div>' +
-                  '<div style="font-size:14px;font-weight:600;color:#23262F;">' + (msg.senderName ? escapeHtml(msg.senderName) : 'Anonymous') + '</div>' +
-                  '<div style="font-size:11px;color:#777E90;">' + date + '</div>' +
-                '</div>' +
-              '</div>' +
-              (!msg.read ? '<button onclick="markMessageRead(\\'' + msg.id + '\\', this)" style="font-size:11px;padding:4px 10px;border-radius:12px;border:1px solid #E6E8EC;background:#FCFCFD;cursor:pointer;color:#777E90;font-family:Poppins,sans-serif;">Mark read</button>' : '') +
-            '</div>' +
-            '<div style="font-size:13px;color:#353945;line-height:1.6;white-space:pre-wrap;margin-bottom:10px;">' + escapeHtml(msg.message) + '</div>' +
-            replySection +
-            '<div style="font-size:12px;color:#777E90;margin-top:8px;">' +
-              'Re: <span style="cursor:pointer;color:#7C3AED;font-weight:500;" onclick="openDetail(\\'' + msg.refId + '\\')">' + refName + '</span>' +
-            '</div>' +
-          '</div>';
-        }).join('');
-      } catch (err) {
-        container.innerHTML = '<p class="empty">Failed to load messages.</p>';
-      }
-    }
+    // Legacy loadMessages — now handled by loadInbox
+    async function loadMessages() { return loadInbox(); }
 
     window.markMessageRead = async function(id, btn) {
       try {
         await fetch('/settings/network-messages/' + id + '/read', { method: 'PATCH' });
-        var card = btn.closest('div[style*="border-radius:12px"]');
-        if (card) card.style.borderLeft = '';
-        btn.remove();
-        // Update dot
-        var msgDot = document.getElementById('sidebarMsgDot');
-        var remaining = document.querySelectorAll('#messagesContainer button[onclick*="markMessageRead"]').length;
-        if (msgDot) msgDot.style.display = remaining > 0 ? 'block' : 'none';
+        if (btn) btn.remove();
+        var msg = cachedMessages.find(function(m) { return m.id === id; });
+        if (msg) msg.read = true;
+        updateInboxDots();
       } catch {}
     };
 
@@ -6059,11 +6175,19 @@ Website = https://reffo.ai</pre>
     initOutgoingSnapshot();
     // Pre-load settings so _aiEnabled is set before any detail view opens
     loadSettings();
-    // Check for unread messages to show notification dot
-    fetch('/settings/network-messages').then(function(r) { return r.json(); }).then(function(msgs) {
-      var unread = msgs.filter(function(m) { return !m.read; }).length;
-      var dot = document.getElementById('sidebarMsgDot');
-      if (dot) dot.style.display = unread > 0 ? 'block' : 'none';
+    // Check for unread messages + pending negotiations to show notification dots
+    Promise.all([
+      fetch('/settings/network-messages').then(function(r) { return r.json(); }),
+      fetch('/negotiations?role=seller').then(function(r) { return r.json(); })
+    ]).then(function(results) {
+      var msgs = results[0]; var negs = results[1];
+      var unreadMsgs = msgs.filter(function(m) { return !m.read; }).length;
+      var pendingNegs = negs.filter(function(n) { return n.status === 'pending'; }).length;
+      var total = unreadMsgs + pendingNegs;
+      var headerDot = document.getElementById('headerNotifDot');
+      var sidebarDot = document.getElementById('sidebarInboxDot');
+      if (headerDot) headerDot.style.display = total > 0 ? 'block' : 'none';
+      if (sidebarDot) sidebarDot.style.display = total > 0 ? 'block' : 'none';
     }).catch(function() {});
 
     // Show "Link to Reffo.ai" header button if no API key is configured
@@ -6112,22 +6236,22 @@ Website = https://reffo.ai</pre>
       } catch {}
     })();
 
-    // Check for pending negotiations periodically
+    // Check for pending negotiations + unread messages periodically
     setInterval(async () => {
-      // Seller: update incoming badge
+      // Update unified inbox notification dots
       try {
-        const res = await fetch('/negotiations?role=seller');
-        const incoming = await res.json();
-        const pendingCount = incoming.filter(n => n.status === 'pending').length;
-        const notifDot = document.getElementById('headerNotifDot');
-        const sidebarDot2 = document.getElementById('sidebarNotifDot');
-        if (pendingCount > 0) {
-          notifDot.style.display = 'block';
-          if (sidebarDot2) sidebarDot2.style.display = 'block';
-        } else {
-          notifDot.style.display = 'none';
-          if (sidebarDot2) sidebarDot2.style.display = 'none';
-        }
+        var results = await Promise.all([
+          fetch('/negotiations?role=seller').then(r => r.json()),
+          fetch('/settings/network-messages').then(r => r.json())
+        ]);
+        var incoming = results[0]; var msgs = results[1];
+        var pendingCount = incoming.filter(n => n.status === 'pending').length;
+        var unreadMsgs = msgs.filter(m => !m.read).length;
+        var total = pendingCount + unreadMsgs;
+        var notifDot = document.getElementById('headerNotifDot');
+        var sidebarDot = document.getElementById('sidebarInboxDot');
+        if (notifDot) notifDot.style.display = total > 0 ? 'block' : 'none';
+        if (sidebarDot) sidebarDot.style.display = total > 0 ? 'block' : 'none';
       } catch {}
 
       // Buyer: detect status changes and show toasts
