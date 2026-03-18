@@ -84,7 +84,7 @@ export class NetworkPublisher {
             subcategory: ref.subcategory,
             listingStatus: ref.listingStatus,
             quantity: ref.quantity,
-            price: activeOffer?.price,
+            price: activeOffer?.price ?? 0,
             priceCurrency: activeOffer?.priceCurrency || 'USD',
             locationLat: blurred?.lat,
             locationLng: blurred?.lng,
