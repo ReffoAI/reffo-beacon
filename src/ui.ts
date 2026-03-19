@@ -807,13 +807,25 @@ export function renderUI(): string {
   <div class="app-content">
   <div class="dashboard-layout">
   <aside class="sidebar" id="sidebar">
-    <div class="ai-quickstart-sidebar-card" onclick="openAiQuickStartModal()">
-      <div class="qs-title">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A5E8A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        AI Quick Start
+    <!-- Search Network banner -->
+    <div style="padding:0 12px 8px;">
+      <div onclick="sidebarNav('search'); executeHeaderSearch();" style="cursor:pointer;background:linear-gradient(135deg,#0A5E8A 0%,#1A8A7D 100%);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:10px;transition:transform 0.15s,box-shadow 0.15s;" onmouseover="this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 12px rgba(10,94,138,0.3)';" onmouseout="this.style.transform='';this.style.boxShadow='';">
+        <div style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#fff;">Search Network</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.7);">Find items on the mesh</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto;flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
-      <div class="qs-sub">Get help from any AI assistant</div>
     </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section-title">Actions</div>
+    <button class="sidebar-nav-item" data-sidebar="list" onclick="sidebarNav('list')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Create New Listing
+    </button>
     <div class="sidebar-divider"></div>
     <div class="sidebar-section-title">Manage</div>
     <button class="sidebar-nav-item active" data-sidebar="home" onclick="sidebarNav('home')">
@@ -852,15 +864,14 @@ export function renderUI(): string {
       <span id="sidebarInboxDot" class="sidebar-notif-dot"></span>
     </button>
     <div class="sidebar-divider"></div>
-    <div class="sidebar-section-title">Actions</div>
-    <button class="sidebar-nav-item" data-sidebar="list" onclick="sidebarNav('list')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Create New Listing
-    </button>
-    <button class="sidebar-nav-item" data-sidebar="search" onclick="sidebarNav('search'); executeHeaderSearch();">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      Search Network
-    </button>
+    <!-- AI Quick Start card -->
+    <div class="ai-quickstart-sidebar-card" onclick="openAiQuickStartModal()">
+      <div class="qs-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0A5E8A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        AI Quick Start
+      </div>
+      <div class="qs-sub">Get help from any AI assistant</div>
+    </div>
     <div class="sidebar-divider"></div>
     <div class="sidebar-section-title">Settings</div>
     <button class="sidebar-nav-item" data-sidebar="settings" onclick="sidebarNav('settings')">
