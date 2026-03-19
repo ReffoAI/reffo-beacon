@@ -26,6 +26,7 @@ export function createApp(): express.Express {
   // Serve brand assets
   app.get('/favicon.ico', (_req, res) => { res.type('image/x-icon').sendFile(path.join(__dirname, '../../favicon.ico')); });
   app.get('/footer-brand.png', (_req, res) => { res.sendFile(path.join(__dirname, '../../footer-brand.png')); });
+  app.get('/header-logo.png', (_req, res) => { res.sendFile(path.join(__dirname, '../../header-logo.png')); });
 
   app.get('/', (_req, res) => {
     res.type('html').send(renderUI());
