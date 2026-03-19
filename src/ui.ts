@@ -538,7 +538,8 @@ export function renderUI(): string {
 
     /* Dashboard layout */
     .dashboard-layout { display: flex; min-height: calc(100dvh - 64px); }
-    .sidebar { width: 240px; background: #FFFFFF; border-right: 1px solid #CBD5E0; position: sticky; top: 64px; min-height: calc(100dvh - 64px); overflow: visible; flex-shrink: 0; transition: transform 0.3s; z-index: 90; padding: 16px 0; }
+    .sidebar { width: 240px; background: #FFFFFF; border-right: 1px solid #CBD5E0; position: fixed; top: 64px; left: 0; height: calc(100dvh - 64px); overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none; flex-shrink: 0; transition: transform 0.3s; z-index: 90; padding: 16px 0; }
+    .sidebar::-webkit-scrollbar { display: none; }
     .sidebar-section-title { padding: 16px 20px 6px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #4A5568; }
     .sidebar-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 14px; font-weight: 500; color: #1A1A2E; cursor: pointer; transition: all 0.15s; border-left: 3px solid transparent; text-decoration: none; font-family: 'DM Sans', sans-serif; border-top: none; border-right: none; border-bottom: none; background: none; width: 100%; text-align: left; }
     .sidebar-nav-item:hover { background: rgba(10,94,138,0.03); color: #0A5E8A; }
@@ -546,14 +547,15 @@ export function renderUI(): string {
     .sidebar-nav-item svg { flex-shrink: 0; width: 18px; height: 18px; }
     .sidebar-divider { height: 1px; background: #CBD5E0; margin: 8px 20px; }
     .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(20,20,22,0.3); z-index: 89; }
-    .dashboard-main { flex: 1; min-width: 0; }
+    .dashboard-main { flex: 1; min-width: 0; margin-left: 240px; }
     .sidebar-toggle { display: none; width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); background: transparent; cursor: pointer; align-items: center; justify-content: center; color: rgba(255,255,255,0.6); transition: all 0.2s; }
     .sidebar-toggle:hover { border-color: rgba(255,255,255,0.6); color: #FFFFFF; }
     @media (max-width: 768px) {
-      .sidebar { position: fixed; top: 64px; left: 0; transform: translateX(-100%); z-index: 91; height: calc(100dvh - 64px); box-shadow: 4px 0 16px rgba(0,0,0,0.1); }
+      .sidebar { transform: translateX(-100%); z-index: 91; box-shadow: 4px 0 16px rgba(0,0,0,0.1); }
       .sidebar.open { transform: translateX(0); }
       .sidebar-overlay.open { display: block; }
       .sidebar-toggle { display: flex; }
+      .dashboard-main { margin-left: 0; }
     }
 
     /* Dashboard stat cards */
