@@ -1447,7 +1447,12 @@ export function renderUI(): string {
     <!-- Unified Inbox Tab -->
     <div id="tab-inbox" class="hidden">
       <section>
-        <h2 style="margin-bottom:16px;">Inbox</h2>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <h2 style="margin:0;">Inbox</h2>
+          <button id="inboxRefreshBtn" onclick="refreshInbox()" title="Refresh inbox" style="width:30px;height:30px;border-radius:50%;border:1px solid #CBD5E0;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s;" onmouseover="this.style.background='#EDE8E3'" onmouseout="this.style.background='#fff'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          </button>
+        </div>
         <div class="tabs" style="margin-bottom:16px;">
           <div class="tab active" data-inboxtab="all" onclick="switchInboxTab('all')">All</div>
           <div class="tab" data-inboxtab="offers" onclick="switchInboxTab('offers')">Offers</div>
@@ -5395,6 +5400,20 @@ Website = https://reffo.ai</pre>
       var sidebarDot = document.getElementById('sidebarInboxDot');
       if (headerDot) headerDot.style.display = totalUnread > 0 ? 'block' : 'none';
       if (sidebarDot) sidebarDot.style.display = totalUnread > 0 ? 'block' : 'none';
+    }
+
+    async function refreshInbox() {
+      var btn = document.getElementById('inboxRefreshBtn');
+      var svg = btn ? btn.querySelector('svg') : null;
+      if (btn) btn.disabled = true;
+      if (svg) svg.style.animation = 'spin 0.6s linear infinite';
+      try {
+        var minSpin = new Promise(function(r) { setTimeout(r, 600); });
+        await Promise.all([loadInbox(), minSpin]);
+      } finally {
+        if (btn) btn.disabled = false;
+        if (svg) svg.style.animation = '';
+      }
     }
 
     async function loadInbox() {
