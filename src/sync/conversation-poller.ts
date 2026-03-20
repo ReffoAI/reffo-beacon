@@ -44,12 +44,10 @@ export class ConversationPoller {
     // Initial poll
     this.pollAll().catch(() => {});
 
-    console.log(`[ConversationPoller] Starting with ${POLL_INTERVAL / 1000}s interval`);
-    const self = this;
-    this.timer = setInterval(function pollTick() {
-      console.log('[ConversationPoller] Polling...');
-      self.pollAll().catch((err) => {
-        console.error('[ConversationPoller] Interval error:', err instanceof Error ? err.message : err);
+    console.log(`[ConversationPoller] Started (${POLL_INTERVAL / 1000}s interval)`);
+    this.timer = setInterval(() => {
+      this.pollAll().catch((err) => {
+        console.error('[ConversationPoller] Poll error:', err instanceof Error ? err.message : err);
       });
     }, POLL_INTERVAL);
   }
@@ -78,14 +76,18 @@ export class ConversationPoller {
       const data = await res.json() as { messages?: ConversationMessageResponse[] };
       const messages = data.messages || [];
 
-      console.log(`[ConversationPoller] Got ${messages.length} message(s) from webapp`);
+      // Track the latest message timestamp to use as the next `since` cursor
+      let latestTimestamp = this.lastPollTime;
+
       for (const msg of messages) {
         try {
-          // Skip messages we sent ourselves
-          if (msg.senderBeaconId === this.beaconId) {
-            console.log(`[ConversationPoller] Skipping self-sent message ${msg.messageId}`);
-            continue;
+          // Track the newest message timestamp we've seen
+          if (!latestTimestamp || msg.createdAt > latestTimestamp) {
+            latestTimestamp = msg.createdAt;
           }
+
+          // Skip messages we sent ourselves
+          if (msg.senderBeaconId === this.beaconId) continue;
 
           // Determine our role: if we're the buyer, our counterpart is the seller
           const isBuyer = msg.buyerBeaconId === this.beaconId;
@@ -103,10 +105,7 @@ export class ConversationPoller {
           // Check if we already have this message
           const existingMessages = this.conversations.getMessages(conversation.id);
           const alreadyExists = existingMessages.some(m => m.id === msg.messageId);
-          if (alreadyExists) {
-            console.log(`[ConversationPoller] Skipping existing message ${msg.messageId}`);
-            continue;
-          }
+          if (alreadyExists) continue;
 
           // Add the message to the local conversation
           this.conversations.addMessage({
@@ -128,8 +127,10 @@ export class ConversationPoller {
         }
       }
 
-      // Update last poll timestamp
-      this.lastPollTime = new Date().toISOString();
+      // Advance cursor to the latest message we've seen (not current time)
+      if (latestTimestamp) {
+        this.lastPollTime = latestTimestamp;
+      }
     } catch (err) {
       console.error('[ConversationPoller] Poll error:', err instanceof Error ? err.message : err);
     }
