@@ -4,6 +4,7 @@
 
 import { ReffoClient, type WebappRef } from './reffo-client';
 import { RefQueries, OfferQueries, MediaQueries, NegotiationQueries } from '../db/queries';
+import { ConversationQueries } from '../db/conversation-queries';
 import { getVersion } from '../version';
 import { setUpdateInfo } from '../api/health';
 
@@ -20,11 +21,13 @@ function semverNewer(remote: string, local: string): boolean {
 export class SyncManager {
   private client: ReffoClient;
   private beaconId: string;
+  private baseUrl: string;
   private heartbeatInterval: ReturnType<typeof setInterval> | null = null;
   private refs: RefQueries;
   private offers: OfferQueries;
   private media: MediaQueries;
   private negotiations: NegotiationQueries;
+  private conversations: ConversationQueries;
   private lastOfferPoll: string | null = null;
   private lastRefPull: string | null = null;
   public registered: boolean = false;
@@ -35,10 +38,12 @@ export class SyncManager {
   constructor(apiKey: string, beaconId: string, baseUrl?: string) {
     this.client = new ReffoClient(apiKey, baseUrl);
     this.beaconId = beaconId;
+    this.baseUrl = (baseUrl || 'https://reffo.ai').replace(/\/$/, '');
     this.refs = new RefQueries();
     this.offers = new OfferQueries();
     this.media = new MediaQueries();
     this.negotiations = new NegotiationQueries();
+    this.conversations = new ConversationQueries();
   }
 
   async testConnection(): Promise<{ ok: boolean; error?: string }> {
@@ -292,6 +297,30 @@ export class SyncManager {
     return { received, errors };
   }
 
+  async pushIncomingProposal(proposal: {
+    negotiationId: string;
+    refId: string;
+    refName: string;
+    buyerBeaconId: string;
+    price: number;
+    priceCurrency: string;
+    message: string;
+  }): Promise<{ ok: boolean; error?: string }> {
+    try {
+      const result = await this.client.pushProposal(proposal);
+      if (!result.ok) {
+        console.warn(`[Sync] Failed to push incoming proposal ${proposal.negotiationId}: ${result.error}`);
+      } else {
+        console.log(`[Sync] Pushed incoming proposal ${proposal.negotiationId} to webapp`);
+      }
+      return result;
+    } catch (err) {
+      const msg = (err as Error).message;
+      console.warn(`[Sync] Failed to push incoming proposal ${proposal.negotiationId}: ${msg}`);
+      return { ok: false, error: msg };
+    }
+  }
+
   async pushOfferResponse(
     offerId: string,
     status: string,
@@ -309,6 +338,55 @@ export class SyncManager {
     } catch (err) {
       const msg = (err as Error).message;
       console.warn(`[Sync] Failed to push offer response for ${offerId}: ${msg}`);
+      return { ok: false, error: msg };
+    }
+  }
+
+  async pushConversationMessage(data: {
+    conversationId: string;
+    messageId: string;
+    refId: string;
+    refName: string;
+    buyerBeaconId: string;
+    sellerBeaconId?: string;
+    messageType: string;
+    content?: string;
+    amount?: number;
+    currency?: string;
+  }): Promise<{ ok: boolean; error?: string }> {
+    try {
+      const url = `${this.baseUrl}/api/network/conversations`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          conversationId: data.conversationId,
+          messageId: data.messageId,
+          refId: data.refId,
+          refName: data.refName,
+          buyerBeaconId: data.buyerBeaconId,
+          sellerBeaconId: data.sellerBeaconId,
+          messageType: data.messageType,
+          content: data.content,
+          amount: data.amount,
+          currency: data.currency,
+        }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json() as Record<string, unknown>;
+        const error = (body.error as string) || `HTTP ${res.status}`;
+        console.warn(`[Sync] Failed to push conversation message ${data.messageId}: ${error}`);
+        return { ok: false, error };
+      }
+
+      console.log(`[Sync] Pushed conversation message ${data.messageId} to webapp`);
+      return { ok: true };
+    } catch (err) {
+      const msg = (err as Error).message;
+      console.warn(`[Sync] Failed to push conversation message ${data.messageId}: ${msg}`);
       return { ok: false, error: msg };
     }
   }

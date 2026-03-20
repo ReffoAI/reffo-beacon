@@ -6,6 +6,8 @@ import type { SyncManager } from '../sync';
 import type { NegotiationStatus } from '@pelagora/pim-protocol';
 import { sanitizeObject } from '@pelagora/pim-protocol';
 
+type DeliveryChannel = 'dht' | 'webapp' | 'none';
+
 const router = Router();
 
 // GET /negotiations?role=buyer|seller|resolved|archived
@@ -62,6 +64,9 @@ router.post('/', async (req: Request, res: Response) => {
   }
 
   const negotiationId = uuid();
+  const syncManager: SyncManager | undefined = req.app.get('syncManager');
+
+  let deliveredVia: DeliveryChannel = 'none';
 
   // Try to send via DHT first
   if (dht) {
@@ -78,9 +83,57 @@ router.post('/', async (req: Request, res: Response) => {
       },
     });
 
-    if (!sent) {
-      return res.status(503).json({ error: 'Seller is not online. Try again later.' });
+    if (sent) {
+      deliveredVia = 'dht';
     }
+  }
+
+  // If DHT delivery failed, try to route through the webapp as a fallback
+  if (deliveredVia === 'none' && syncManager) {
+    const result = await syncManager.pushIncomingProposal({
+      negotiationId,
+      refId,
+      refName: refName || '',
+      buyerBeaconId: beaconId,
+      price,
+      priceCurrency: priceCurrency || 'USD',
+      message: message || '',
+    });
+
+    if (result.ok) {
+      deliveredVia = 'webapp';
+    }
+  }
+
+  // If SyncManager fallback didn't work, try direct HTTP to webapp (no API key needed)
+  if (deliveredVia === 'none') {
+    const reffoUrl = (process.env.REFFO_API_URL || process.env.REFFO_WEBAPP_URL || 'https://reffo.ai').replace(/\/$/, '');
+    try {
+      const resp = await fetch(`${reffoUrl}/api/network/offers`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          negotiationId,
+          refId,
+          refName: refName || '',
+          buyerBeaconId: beaconId,
+          sellerBeaconId,
+          price,
+          priceCurrency: priceCurrency || 'USD',
+          message: message || '',
+        }),
+      });
+      if (resp.ok) {
+        deliveredVia = 'webapp';
+      }
+    } catch {
+      // Direct HTTP failed too
+    }
+  }
+
+  // If no channel worked, reject
+  if (deliveredVia === 'none') {
+    return res.status(503).json({ error: 'Seller is not reachable. They may be offline.' });
   }
 
   // Create buyer-side record
@@ -96,7 +149,7 @@ router.post('/', async (req: Request, res: Response) => {
     role: 'buyer',
   });
 
-  res.status(201).json(negotiation);
+  res.status(201).json({ ...negotiation, deliveredVia });
 });
 
 // PATCH /negotiations/:id/respond — seller accepts/rejects/counters

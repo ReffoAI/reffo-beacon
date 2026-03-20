@@ -495,6 +495,34 @@ function initSchema(database: Database.Database): void {
 
     CREATE INDEX IF NOT EXISTS idx_scan_items_scan ON scan_items(scan_id);
     CREATE INDEX IF NOT EXISTS idx_scans_status ON scans(status);
+
+    CREATE TABLE IF NOT EXISTS conversations (
+      id TEXT PRIMARY KEY,
+      ref_id TEXT NOT NULL,
+      ref_name TEXT NOT NULL DEFAULT '',
+      counterpart_beacon_id TEXT NOT NULL,
+      role TEXT NOT NULL CHECK (role IN ('buyer', 'seller')),
+      status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'closed')),
+      closed_by TEXT,
+      last_message_at TEXT NOT NULL DEFAULT (datetime('now')),
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_conversations_ref_counterpart ON conversations(ref_id, counterpart_beacon_id);
+    CREATE INDEX IF NOT EXISTS idx_conversations_role ON conversations(role);
+    CREATE INDEX IF NOT EXISTS idx_conversations_status ON conversations(status);
+
+    CREATE TABLE IF NOT EXISTS conversation_messages (
+      id TEXT PRIMARY KEY,
+      conversation_id TEXT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+      sender_beacon_id TEXT NOT NULL,
+      message_type TEXT NOT NULL CHECK (message_type IN ('text', 'offer', 'counter', 'accept', 'reject', 'withdraw', 'sold', 'system')),
+      content TEXT,
+      amount REAL,
+      currency TEXT DEFAULT 'USD',
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+    CREATE INDEX IF NOT EXISTS idx_conv_msgs_conv ON conversation_messages(conversation_id, created_at);
   `);
 
   // Migration: rename categories to match updated taxonomy
@@ -579,6 +607,22 @@ function initSchema(database: Database.Database): void {
     }
     if (!nmCols.some(c => c.name === 'replied_at')) {
       database.exec(`ALTER TABLE network_messages ADD COLUMN replied_at TEXT`);
+    }
+  } catch {}
+
+  // Migration: add accepted_payment_methods to beacon_settings
+  try {
+    const settingsColsPay = database.pragma('table_info(beacon_settings)') as { name: string }[];
+    if (!settingsColsPay.some(c => c.name === 'accepted_payment_methods')) {
+      database.exec(`ALTER TABLE beacon_settings ADD COLUMN accepted_payment_methods TEXT DEFAULT '[]'`);
+    }
+  } catch {}
+
+  // Migration: add accepted_payment_methods to refs
+  try {
+    const refsColsPay = database.pragma('table_info(refs)') as { name: string }[];
+    if (!refsColsPay.some(c => c.name === 'accepted_payment_methods')) {
+      database.exec(`ALTER TABLE refs ADD COLUMN accepted_payment_methods TEXT`);
     }
   } catch {}
 }

@@ -269,6 +269,31 @@ export class ReffoClient {
     }
   }
 
+  async pushProposal(proposal: {
+    negotiationId: string;
+    refId: string;
+    refName: string;
+    buyerBeaconId: string;
+    price: number;
+    priceCurrency: string;
+    message: string;
+  }): Promise<{ ok: boolean; error?: string }> {
+    try {
+      const res = await this.request('/offers', {
+        method: 'POST',
+        body: JSON.stringify(proposal),
+      });
+
+      if (!res.ok) {
+        const data = await res.json() as Record<string, unknown>;
+        return { ok: false, error: (data.error as string) || `HTTP ${res.status}` };
+      }
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: (err as Error).message };
+    }
+  }
+
   async pushOfferResponse(
     offerId: string,
     status: string,

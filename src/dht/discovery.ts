@@ -2,7 +2,8 @@ import Hyperswarm from 'hyperswarm';
 import b4a from 'b4a';
 import crypto from 'crypto';
 import { RefQueries, OfferQueries, MediaQueries, NegotiationQueries } from '../db';
-import type { PeerMessage, QueryPayload, AnnouncePayload, ProposalPayload, ProposalResponsePayload } from '@pelagora/pim-protocol';
+import { ConversationQueries } from '../db/conversation-queries';
+import type { PeerMessage, QueryPayload, AnnouncePayload, ProposalPayload, ProposalResponsePayload, ChatMessageType } from '@pelagora/pim-protocol';
 import { blurLocation, haversineDistanceMiles, parseDhtMessage, sanitizeObject, sanitizeField } from '@pelagora/pim-protocol';
 
 // All Pelagora nodes join this topic to find each other
@@ -15,6 +16,8 @@ export class DhtDiscovery {
   private beaconIdMap: Map<string, string> = new Map(); // reffoBeaconId -> hyperswarm peerId
   private messageHandlers = new Map<string, (fromBeaconId: string, payload: unknown) => void>();
   private onPeerConnect?: (count: number) => void;
+  private onProposalReceived?: (proposal: { negotiationId: string; refId: string; refName: string; buyerBeaconId: string; price: number; priceCurrency: string; message: string }) => void;
+  private onChatMessageReceived?: (data: { conversationId: string; messageId: string; refId: string; refName: string; messageType: ChatMessageType; content?: string; amount?: number; currency?: string; senderBeaconId: string }) => void;
   httpPort = 0;
 
   constructor(beaconId: string) {
@@ -56,6 +59,16 @@ export class DhtDiscovery {
     const discovery = this.swarm.join(PELAGORA_TOPIC, { server: true, client: true });
     await discovery.flushed();
     console.log(`[DHT] Joined Pelagora network. Topic: ${b4a.toString(PELAGORA_TOPIC, 'hex').slice(0, 16)}...`);
+  }
+
+  /** Register a callback to be called when a DHT proposal is received (for syncing to webapp) */
+  setOnProposalReceived(callback: (proposal: { negotiationId: string; refId: string; refName: string; buyerBeaconId: string; price: number; priceCurrency: string; message: string }) => void): void {
+    this.onProposalReceived = callback;
+  }
+
+  /** Register a callback to be called when a DHT chat message is received (for syncing to webapp) */
+  setOnChatMessageReceived(callback: (data: { conversationId: string; messageId: string; refId: string; refName: string; messageType: ChatMessageType; content?: string; amount?: number; currency?: string; senderBeaconId: string }) => void): void {
+    this.onChatMessageReceived = callback;
   }
 
   private sendAnnouncement(stream: any): void {
@@ -127,6 +140,12 @@ export class DhtDiscovery {
       case 'proposal_response':
         this.handleProposalResponse(msg.beaconId, msg.payload as ProposalResponsePayload);
         break;
+      case 'chat_message':
+        this.handleChatMessage(msg.beaconId, msg.payload as Record<string, unknown>);
+        break;
+      case 'conversation_close':
+        this.handleConversationClose(msg.beaconId, msg.payload as Record<string, unknown>);
+        break;
       default: {
         // Check for skill-registered message handlers
         const handler = this.messageHandlers.get(msg.type);
@@ -157,6 +176,9 @@ export class DhtDiscovery {
       }
       return refOffers;
     });
+
+    // Cap results to keep DHT response within stream buffer limits
+    results = results.slice(0, 50);
 
     // Geo-filter if query has lat/lng/radiusMiles
     if (query.lat != null && query.lng != null && query.radiusMiles != null) {
@@ -251,6 +273,19 @@ export class DhtDiscovery {
       message: clean.message || '',
       role: 'seller',
     });
+
+    // Also push to webapp if linked (fire-and-forget)
+    if (this.onProposalReceived) {
+      this.onProposalReceived({
+        negotiationId: clean.negotiationId,
+        refId: clean.refId,
+        refName: clean.refName || '',
+        buyerBeaconId: fromBeaconId,
+        price: clean.price,
+        priceCurrency: clean.priceCurrency || 'USD',
+        message: clean.message || '',
+      });
+    }
   }
 
   /** Handle incoming proposal response from a seller */
@@ -270,6 +305,78 @@ export class DhtDiscovery {
       payload.counterPrice,
       payload.responseMessage,
     );
+  }
+
+  /** Handle incoming chat message from a peer */
+  private handleChatMessage(fromBeaconId: string, payload: Record<string, unknown>): void {
+    const conversationId = payload.conversationId as string;
+    const messageId = payload.messageId as string;
+    const refId = payload.refId as string;
+    const refName = (payload.refName as string) || '';
+    const messageType = payload.messageType as ChatMessageType;
+    const content = payload.content as string | undefined;
+    const amount = payload.amount as number | undefined;
+    const currency = (payload.currency as string) || 'USD';
+
+    console.log(`[DHT] Chat message received: ${messageType} for ${refId}`);
+
+    const conversations = new ConversationQueries();
+
+    // Create or get existing conversation (we're the seller since we're receiving)
+    const conversation = conversations.getOrCreate(refId, refName, fromBeaconId, 'seller');
+
+    // Add the message
+    conversations.addMessage({
+      id: messageId,
+      conversationId: conversation.id,
+      senderBeaconId: fromBeaconId,
+      messageType,
+      content,
+      amount,
+      currency,
+    });
+
+    // If messageType is 'accept', auto-reject sibling conversations for the same ref
+    if (messageType === 'accept') {
+      const siblings = conversations.listForRef(refId);
+      for (const sibling of siblings) {
+        if (sibling.id !== conversation.id && sibling.status === 'open') {
+          conversations.close(sibling.id, 'auto-reject');
+          conversations.addMessage({
+            conversationId: sibling.id,
+            senderBeaconId: this.beaconId,
+            messageType: 'system',
+            content: 'This conversation was automatically closed because an offer on this item was accepted in another conversation.',
+          });
+        }
+      }
+    }
+
+    // Fire webapp sync callback if set
+    if (this.onChatMessageReceived) {
+      this.onChatMessageReceived({
+        conversationId: conversation.id,
+        messageId,
+        refId,
+        refName,
+        messageType,
+        content,
+        amount,
+        currency,
+        senderBeaconId: fromBeaconId,
+      });
+    }
+  }
+
+  /** Handle incoming conversation close from a peer */
+  private handleConversationClose(fromBeaconId: string, payload: Record<string, unknown>): void {
+    const conversationId = payload.conversationId as string;
+    const refId = payload.refId as string;
+
+    console.log(`[DHT] Conversation closed: ${conversationId}`);
+
+    const conversations = new ConversationQueries();
+    conversations.close(conversationId, fromBeaconId);
   }
 
   /** Query all connected peers and collect responses */

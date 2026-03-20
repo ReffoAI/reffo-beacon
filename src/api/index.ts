@@ -9,6 +9,7 @@ import settingsRouter from './settings';
 import favoritesRouter from './favorites';
 import collectionsRouter from './collections';
 import scansRouter from './scans';
+import conversationsRouter from './conversations';
 import { renderUI } from '../ui';
 import { TAXONOMY } from '../taxonomy';
 
@@ -45,6 +46,7 @@ export function createApp(): express.Express {
   app.use('/favorites', favoritesRouter);
   app.use('/collections', collectionsRouter);
   app.use('/scans', scansRouter);
+  app.use('/conversations', conversationsRouter);
 
   // Global error handler — catches multer errors, etc., and returns JSON instead of HTML
   app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

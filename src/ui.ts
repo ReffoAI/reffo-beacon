@@ -401,6 +401,37 @@ export function renderUI(): string {
     .toast-countered { border-left: 4px solid #0A5E8A; }
     .toast-sold { border-left: 4px solid #2D8A6E; }
 
+    /* Chat conversation styles */
+    .chat-messages { max-height: 400px; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .chat-bubble { max-width: 75%; padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+    .chat-bubble.self { align-self: flex-end; background: #0A5E8A; color: #fff; border-bottom-right-radius: 4px; }
+    .chat-bubble.other { align-self: flex-start; background: #F5F0EB; color: #1A1A2E; border-bottom-left-radius: 4px; }
+    .chat-event { align-self: center; font-size: 12px; color: #4A5568; padding: 4px 12px; background: #EDE8E3; border-radius: 12px; }
+    .chat-offer-card { padding: 12px 16px; border-radius: 12px; border: 1px solid #CBD5E0; background: #FFF9F0; max-width: 75%; }
+    .chat-offer-card.self { align-self: flex-end; }
+    .chat-offer-card.other { align-self: flex-start; }
+    .chat-input-bar { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid #EDE8E3; align-items: flex-end; }
+    .chat-input-bar input[type="text"], .chat-input-bar textarea { flex: 1; padding: 10px 14px; border: 1px solid #CBD5E0; border-radius: 20px; font-size: 14px; resize: none; font-family: 'DM Sans', sans-serif; height: auto; margin-bottom: 0; }
+    .chat-input-bar .chat-send-btn { width: 40px; height: 40px; border-radius: 50%; background: #D4602A; border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s; }
+    .chat-input-bar .chat-send-btn:hover { background: #B8521F; }
+    .chat-input-bar .chat-send-btn:disabled { opacity: 0.5; pointer-events: none; }
+    .chat-offer-toggle { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #CBD5E0; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px; font-weight: 700; color: #D4922A; transition: all 0.2s; }
+    .chat-offer-toggle.active { background: #FFF3E0; border-color: #D4922A; }
+    .chat-offer-row { display: flex; gap: 8px; padding: 0 16px 8px; align-items: center; }
+    .chat-offer-row input { flex: 1; height: 40px; margin-bottom: 0; }
+    .chat-offer-row select { width: 80px; height: 40px; margin-bottom: 0; }
+    .chat-quick-actions { display: flex; gap: 6px; padding: 8px 16px; border-top: 1px solid #EDE8E3; }
+    .chat-thread-header { display: flex; align-items: center; gap: 12px; padding: 16px; border-bottom: 1px solid #EDE8E3; }
+    .chat-thread-header .thread-info { flex: 1; min-width: 0; }
+    .chat-thread-header .thread-item-name { font-size: 16px; font-weight: 700; color: #1A1A2E; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .chat-thread-header .thread-meta { font-size: 12px; color: #4A5568; display: flex; align-items: center; gap: 6px; }
+    .chat-role-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; }
+    .chat-role-badge.buying { background: #E8F0FA; color: #4A90D9; }
+    .chat-role-badge.selling { background: #FFF3E0; color: #D4922A; }
+    .chat-msg-time { font-size: 10px; color: #4A5568; margin-top: 2px; }
+    .chat-msg-time.self { text-align: right; }
+    .chat-msg-time.other { text-align: left; }
+
     /* Archive badges */
     .badge-archived-sold { background: #e8eaed; color: #2D8A6E; }
     .badge-archived-deleted { background: #FDE8E8; color: #C94444; }
@@ -1075,7 +1106,7 @@ export function renderUI(): string {
           <div class="stat-value" id="statTotalListed">--</div>
           <div class="stat-label">Total Listed</div>
         </div>
-        <div class="stat-card" onclick="sidebarNav('inbox');switchInboxTab('offers');" style="cursor:pointer;">
+        <div class="stat-card" onclick="sidebarNav('inbox');switchInboxTab('buying');" style="cursor:pointer;">
           <div class="stat-icon green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M16 8l-8 8"/><path d="M8 8h8v8"/></svg></div>
           <div class="stat-value" id="statActiveOffers">--</div>
           <div class="stat-label">Active Offers</div>
@@ -1083,7 +1114,7 @@ export function renderUI(): string {
         <div class="stat-card" onclick="sidebarNav('inbox');" style="cursor:pointer;">
           <div class="stat-icon amber"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
           <div class="stat-value" id="statPendingNegs">--</div>
-          <div class="stat-label">Pending Negotiations</div>
+          <div class="stat-label">Conversations</div>
         </div>
         <div class="stat-card" onclick="sidebarNav('favorites');" style="cursor:pointer;">
           <div class="stat-icon blue"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div>
@@ -1467,21 +1498,13 @@ export function renderUI(): string {
         </div>
         <div class="tabs" style="margin-bottom:16px;">
           <div class="tab active" data-inboxtab="all" onclick="switchInboxTab('all')">All</div>
-          <div class="tab" data-inboxtab="offers" onclick="switchInboxTab('offers')">Offers</div>
-          <div class="tab" data-inboxtab="sent" onclick="switchInboxTab('sent')">Sent</div>
-          <div class="tab" data-inboxtab="messages" onclick="switchInboxTab('messages')">Messages</div>
-          <div class="tab" data-inboxtab="resolved" onclick="switchInboxTab('resolved')">Resolved</div>
-          <div class="tab" data-inboxtab="archived" onclick="switchInboxTab('archived')">Archived</div>
+          <div class="tab" data-inboxtab="buying" onclick="switchInboxTab('buying')">Buying</div>
+          <div class="tab" data-inboxtab="selling" onclick="switchInboxTab('selling')">Selling</div>
+          <div class="tab" data-inboxtab="closed" onclick="switchInboxTab('closed')">Closed</div>
         </div>
         <div id="inboxContainer"><p class="empty">Loading...</p></div>
       </section>
     </div>
-
-    <!-- Legacy hidden containers for negotiation detail views -->
-    <div id="negIncoming" class="hidden"></div>
-    <div id="negOutgoing" class="hidden"></div>
-    <div id="negResolved" class="hidden"></div>
-    <div id="negArchived" class="hidden"></div>
 
     <div id="tab-settings" class="hidden">
       <h1 style="font-size:24px;font-weight:600;color:#1A1A2E;margin-bottom:32px;">Settings</h1>
@@ -1780,13 +1803,7 @@ export function renderUI(): string {
         <div id="photoPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;"></div>
         <div id="aiSuggestedImage"></div>
 
-        <div style="display:flex;align-items:center;gap:8px;justify-content:flex-end;margin-bottom:10px;margin-top:20px;">
-          <span style="font-size:13px;font-weight:600;color:#1A1A2E;">Also push to Reffo</span>
-          <label class="sync-toggle" style="margin:0;">
-            <input type="checkbox" id="refAlsoPushReffo">
-            <span class="toggle-track"></span>
-          </label>
-        </div>
+        <div style="margin-top:20px;"></div>
         <div id="createPriceEstimate"></div>
 
         <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center;">
@@ -1798,60 +1815,42 @@ export function renderUI(): string {
     </section>
   </div>
 
-  <!-- Proposal Modal (buyer sending offer) -->
-  <div id="proposalModal" class="modal-overlay hidden">
+  <!-- Start Conversation Modal (buyer messaging seller) -->
+  <div id="conversationModal" class="modal-overlay hidden">
     <div class="modal">
-      <h3 id="modalTitle">Make a Proposal</h3>
-      <input type="hidden" id="modalRefId">
-      <input type="hidden" id="modalRefName">
-      <input type="hidden" id="modalSellerBeaconId">
-      <div class="row">
-        <div>
-          <label for="modalPrice">Your Offer Price</label>
-          <input id="modalPrice" type="number" min="0.01" step="0.01" placeholder="0.00">
-        </div>
-        <div>
-          <label for="modalCurrency">Currency</label>
-          <select id="modalCurrency">
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="GBP">GBP</option>
-            <option value="CAD">CAD</option>
-          </select>
+      <h3 id="convModalTitle">Message Seller</h3>
+      <input type="hidden" id="convModalRefId">
+      <input type="hidden" id="convModalRefName">
+      <input type="hidden" id="convModalSellerBeaconId">
+      <label for="convModalMessage">Message</label>
+      <textarea id="convModalMessage" placeholder="What would you like to ask about this item?"></textarea>
+      <div id="convModalOfferToggle" style="margin-bottom:14px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;font-size:14px;font-weight:500;color:#1A1A2E;">
+          <input type="checkbox" id="convModalIncludeOffer" onchange="toggleConvModalOffer()" style="width:18px;height:18px;margin:0;">
+          Include an offer
+        </label>
+      </div>
+      <div id="convModalOfferFields" class="hidden">
+        <div class="row">
+          <div>
+            <label for="convModalPrice">Offer Price</label>
+            <input id="convModalPrice" type="number" min="0.01" step="0.01" placeholder="0.00">
+          </div>
+          <div>
+            <label for="convModalCurrency">Currency</label>
+            <select id="convModalCurrency">
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="CAD">CAD</option>
+            </select>
+          </div>
         </div>
       </div>
-      <label for="modalMessage">Message</label>
-      <textarea id="modalMessage" placeholder="Why are you interested?"></textarea>
-      <div id="modalMsg"></div>
+      <div id="convModalMsg"></div>
       <div class="modal-actions">
-        <button class="btn-secondary" onclick="closeProposalModal()">Cancel</button>
-        <button class="btn-primary" id="modalSendBtn" onclick="sendProposal()">Send Proposal</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Respond Modal (seller responding to incoming offer) -->
-  <div id="respondModal" class="modal-overlay hidden">
-    <div class="modal">
-      <h3 id="respondModalTitle">Respond to Offer</h3>
-      <input type="hidden" id="respondNegId">
-      <div id="respondOfferInfo" style="background:#EDE8E3;border-radius:16px;padding:20px;margin-bottom:20px;">
-        <div style="font-size:12px;font-weight:600;color:#4A5568;text-transform:uppercase;margin-bottom:4px;">Offered Price</div>
-        <div id="respondOfferPrice" style="font-size:24px;font-weight:700;color:#1A1A2E;"></div>
-        <div id="respondOfferMessage" style="font-size:14px;color:#4A5568;margin-top:6px;"></div>
-      </div>
-      <div id="respondCounterFields" class="hidden">
-        <label for="respondCounterPrice">Your Counter Price</label>
-        <input id="respondCounterPrice" type="number" min="0.01" step="0.01" placeholder="0.00">
-        <label for="respondMessage">Message (optional)</label>
-        <textarea id="respondMessage" placeholder="Explain your counter offer..."></textarea>
-      </div>
-      <div id="respondMsg"></div>
-      <div class="modal-actions" style="flex-wrap:wrap;gap:10px;">
-        <button class="btn-secondary" onclick="closeRespondModal()">Cancel</button>
-        <button class="btn-danger btn-sm" id="respondRejectBtn" onclick="submitRespond('rejected')">Reject</button>
-        <button class="btn-secondary btn-sm" id="respondCounterBtn" onclick="toggleCounterFields()">Counter</button>
-        <button class="btn-primary btn-sm" id="respondAcceptBtn" onclick="submitRespond('accepted')">Accept</button>
+        <button class="btn-secondary" onclick="closeConversationModal()">Cancel</button>
+        <button class="btn-primary" id="convModalSendBtn" onclick="startConversation()">Send Message</button>
       </div>
     </div>
   </div>
@@ -2271,7 +2270,7 @@ Website = https://reffo.ai</pre>
       var sfbWrap = document.getElementById('globalSearchBarWrapper');
       if (sfbWrap) sfbWrap.style.display = (tab === 'search') ? '' : 'none';
       if (tab === 'home') { homeLoaded = false; loadHome(); }
-      if (tab === 'inbox') loadInbox();
+      if (tab === 'inbox') loadConversations();
       if (tab === 'refs') loadMyRefs();
       if (tab === 'settings') loadSettings();
       if (tab === 'scan') loadScanHistory();
@@ -2292,9 +2291,13 @@ Website = https://reffo.ai</pre>
 
     var currentInboxTab = 'all';
     function switchInboxTab(tab) {
+      // Map legacy tab names to new names
+      var tabMap = { offers: 'selling', sent: 'buying', messages: 'all', resolved: 'closed', archived: 'closed' };
+      if (tabMap[tab]) tab = tabMap[tab];
       currentInboxTab = tab;
+      currentOpenConversationId = null;
       document.querySelectorAll('.tab[data-inboxtab]').forEach(t => t.classList.toggle('active', t.dataset.inboxtab === tab));
-      renderInboxView();
+      renderConversationsView();
     }
 
     function switchRefSubTab(tab) {
@@ -2419,8 +2422,16 @@ Website = https://reffo.ai</pre>
         const res = await fetch('/health/dashboard');
         const data = await res.json();
         document.getElementById('statTotalListed').textContent = data.totalListed;
-        document.getElementById('statActiveOffers').textContent = data.activeOffers;
-        document.getElementById('statPendingNegs').textContent = data.pendingNegotiations;
+        document.getElementById('statActiveOffers').textContent = data.activeOffers || 0;
+        // Load conversation count for the Conversations stat
+        try {
+          var convRes = await fetch('/conversations');
+          var convData = await convRes.json();
+          var openConvs = (convData || []).filter(function(c) { return c.status === 'open'; });
+          document.getElementById('statPendingNegs').textContent = openConvs.length;
+        } catch(e) {
+          document.getElementById('statPendingNegs').textContent = data.pendingNegotiations || 0;
+        }
         document.getElementById('statFavorites').textContent = data.favoritesCount;
 
         // Recent items
@@ -3276,25 +3287,6 @@ Website = https://reffo.ai</pre>
           });
         }
 
-        // Push to Reffo if toggle is checked
-        if (document.getElementById('refAlsoPushReffo').checked) {
-          try {
-            const syncRes = await fetch('/settings/sync-item/' + ref.id, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ sync: true })
-            });
-            const syncData = await syncRes.json();
-            if (syncRes.ok) {
-              showToast(syncData.warning ? 'Ref marked for sync (remote pending)' : 'Ref synced to Reffo.ai', 'accepted');
-            } else {
-              showToast('Sync failed: ' + (syncData.error || 'Unknown error'), 'rejected');
-            }
-          } catch (syncErr) {
-            showToast('Sync failed: ' + syncErr.message, 'rejected');
-          }
-        }
-
         showMsg('listMsg', 'Ref added successfully!', true);
         e.target.reset();
         document.getElementById('refQuantity').value = '1';
@@ -3521,17 +3513,16 @@ Website = https://reffo.ai</pre>
       switchTab('detail');
 
       try {
-        const [refRes, mediaRes, offersRes, negRes] = await Promise.all([
+        const [refRes, mediaRes, offersRes, convRes] = await Promise.all([
           fetch('/refs/' + refId),
           fetch('/refs/' + refId + '/media'),
           fetch('/offers'),
-          fetch('/negotiations')
+          fetch('/conversations?refId=' + refId)
         ]);
         const ref = await refRes.json();
         const media = await mediaRes.json();
         const offers = await offersRes.json();
-        const allNegs = await negRes.json();
-        const refNegs = allNegs.filter(n => n.refId === refId);
+        const refConversations = await convRes.json();
         const refOffers = offers.filter(o => o.refId === refId);
         const activeOffer = refOffers.find(o => o.status === 'active');
 
@@ -3710,10 +3701,14 @@ Website = https://reffo.ai</pre>
         html += '<input type="file" id="detailFileInput" accept="image/*" multiple onchange="uploadDetailMedia(\\'' + ref.id + '\\')">';
         html += '</div>';
 
-        // Negotiations for this ref
-        if (refNegs.length > 0) {
-          html += '<div class="deal-heading">Negotiations</div>';
-          html += renderNegotiationCards(refNegs, true);
+        // Conversations for this ref
+        if (refConversations && refConversations.length > 0) {
+          html += '<div class="deal-heading">Conversations</div>';
+          html += '<div class="inbox-list" style="margin-bottom:16px;">';
+          refConversations.forEach(function(conv) {
+            html += renderConversationRow(conv);
+          });
+          html += '</div>';
         }
 
         html += '</div>'; // end detail-left deal-body
@@ -3886,16 +3881,12 @@ Website = https://reffo.ai</pre>
           html += '</div>';
         }
 
-        // Account sync toggle — stylized card
-        html += '<div style="margin:14px 20px;border:1px solid #CBD5E0;border-radius:12px;overflow:hidden;">';
-        html += '<div style="height:3px;background:#1A8A7D;"></div>';
-        html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">';
-        html += '<div>';
-        html += '<div style="font-size:14px;font-weight:600;color:#1A1A2E;">&#2D8A6E; Sync to Reffo.ai Account</div>';
-        html += '<div style="font-size:12px;color:#4A5568;margin-top:2px;">Manage this item from your Reffo.ai dashboard.</div>';
-        html += '</div>';
-        html += '<label class="sync-toggle"><input type="checkbox" ' + (ref.reffoSynced ? 'checked' : '') + ' onchange="toggleSync(\\'' + ref.id + '\\', this)"><span class="toggle-track"></span></label>';
-        html += '</div></div>';
+        // Network publish info
+        if (ref.networkPublished) {
+          html += '<div style="margin:14px 20px;padding:10px 16px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:10px;font-size:12px;color:#166534;display:flex;align-items:center;gap:6px;">';
+          html += '<span style="font-size:14px;">&#x2713;</span> Published to Reffo network';
+          html += '</div>';
+        }
 
         if (listedDate) {
           let footerText = 'Listed ' + listedDate;
@@ -4809,9 +4800,9 @@ Website = https://reffo.ai</pre>
       const isOwnItem = peer.beaconId === window._myBeaconId;
       if (!isOwnItem && item.listingStatus === 'for_sale' && offer) {
         purchaseBtn = '<button class="button-gradient" onclick="openBuyModal(\\'' + escapeJs(item.id) + '\\', \\'' + escapeJs(item.name) + '\\', \\'' + escapeJs(peer.beaconId) + '\\', ' + offer.price + ', \\'' + escapeJs(offer.priceCurrency) + '\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Purchase</button>';
-        negotiateBtn = '<button class="button-stroke" onclick="openOfferModal(\\'' + escapeJs(item.id) + '\\', \\'' + escapeJs(item.name) + '\\', \\'' + escapeJs(peer.beaconId) + '\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Negotiate</button>';
+        negotiateBtn = '<button class="button-stroke" onclick="openConversationModal(\\'' + escapeJs(item.id) + '\\', \\'' + escapeJs(item.name) + '\\', \\'' + escapeJs(peer.beaconId) + '\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Message Seller</button>';
       } else if (!isOwnItem && item.listingStatus === 'willing_to_sell') {
-        purchaseBtn = '<button class="button-gradient" onclick="openOfferModal(\\'' + escapeJs(item.id) + '\\', \\'' + escapeJs(item.name) + '\\', \\'' + escapeJs(peer.beaconId) + '\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Make an Offer</button>';
+        purchaseBtn = '<button class="button-gradient" onclick="openConversationModal(\\'' + escapeJs(item.id) + '\\', \\'' + escapeJs(item.name) + '\\', \\'' + escapeJs(peer.beaconId) + '\\')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Message Seller</button>';
       }
 
       let html = '';
@@ -4952,37 +4943,59 @@ Website = https://reffo.ai</pre>
       container.innerHTML = html;
     };
 
-    // ===== Proposal Modal =====
+    // ===== Buy / Conversation Modal =====
     window.openBuyModal = function(refId, refName, sellerBeaconId, price, currency) {
       if (sellerBeaconId === window._myBeaconId) return;
-      document.getElementById('modalRefId').value = refId;
-      document.getElementById('modalRefName').value = refName;
-      document.getElementById('modalSellerBeaconId').value = sellerBeaconId;
-      document.getElementById('modalPrice').value = price;
-      document.getElementById('modalCurrency').value = currency;
-      document.getElementById('modalMessage').value = 'Accepting listed price';
-      document.getElementById('modalTitle').textContent = 'Buy: ' + refName;
-      document.getElementById('modalSendBtn').textContent = 'Send Proposal';
-      document.getElementById('modalMsg').innerHTML = '';
-      document.getElementById('proposalModal').classList.remove('hidden');
+      // Use the conversation modal with pre-filled offer
+      openConversationModal(refId, refName, sellerBeaconId);
+      // Pre-fill the offer fields
+      document.getElementById('convModalIncludeOffer').checked = true;
+      document.getElementById('convModalOfferFields').classList.remove('hidden');
+      document.getElementById('convModalPrice').value = price;
+      document.getElementById('convModalCurrency').value = currency || 'USD';
+      document.getElementById('convModalMessage').value = 'Interested in purchasing at listed price';
+      document.getElementById('convModalSendBtn').textContent = 'Send Message & Offer';
     };
 
     window.openOfferModal = function(refId, refName, sellerBeaconId) {
+      // Redirect to conversation modal
+      openConversationModal(refId, refName, sellerBeaconId);
+    };
+
+    window.openConversationModal = function(refId, refName, sellerBeaconId) {
       if (sellerBeaconId === window._myBeaconId) return;
-      document.getElementById('modalRefId').value = refId;
-      document.getElementById('modalRefName').value = refName;
-      document.getElementById('modalSellerBeaconId').value = sellerBeaconId;
-      document.getElementById('modalPrice').value = '';
-      document.getElementById('modalCurrency').value = 'USD';
-      document.getElementById('modalMessage').value = '';
-      document.getElementById('modalTitle').textContent = 'Make Offer: ' + refName;
-      document.getElementById('modalSendBtn').textContent = 'Send Offer';
-      document.getElementById('modalMsg').innerHTML = '';
-      document.getElementById('proposalModal').classList.remove('hidden');
+      document.getElementById('convModalRefId').value = refId;
+      document.getElementById('convModalRefName').value = refName;
+      document.getElementById('convModalSellerBeaconId').value = sellerBeaconId;
+      document.getElementById('convModalMessage').value = '';
+      document.getElementById('convModalPrice') && (document.getElementById('convModalPrice').value = '');
+      document.getElementById('convModalCurrency') && (document.getElementById('convModalCurrency').value = 'USD');
+      document.getElementById('convModalIncludeOffer').checked = false;
+      document.getElementById('convModalOfferFields').classList.add('hidden');
+      document.getElementById('convModalTitle').textContent = 'Message Seller: ' + refName;
+      document.getElementById('convModalMsg').innerHTML = '';
+      document.getElementById('conversationModal').classList.remove('hidden');
+    };
+
+    window.toggleConvModalOffer = function() {
+      var checked = document.getElementById('convModalIncludeOffer').checked;
+      var fields = document.getElementById('convModalOfferFields');
+      if (checked) {
+        fields.classList.remove('hidden');
+        document.getElementById('convModalSendBtn').textContent = 'Send Message & Offer';
+      } else {
+        fields.classList.add('hidden');
+        document.getElementById('convModalSendBtn').textContent = 'Send Message';
+      }
+    };
+
+    window.closeConversationModal = function() {
+      document.getElementById('conversationModal').classList.add('hidden');
     };
 
     window.closeProposalModal = function() {
-      document.getElementById('proposalModal').classList.add('hidden');
+      // Legacy alias
+      closeConversationModal();
     };
 
     // Toggle the collapsible contact section on item detail
@@ -4995,7 +5008,7 @@ Website = https://reffo.ai</pre>
       if (chev) chev.style.transform = show ? 'rotate(180deg)' : '';
     };
 
-    // Send a message from the item detail page (creates a proposal with message-only type)
+    // Send a message from the item detail page (creates a conversation)
     window.sendDetailMessage = async function(refId, refName, sellerBeaconId) {
       var textarea = document.getElementById('detailMsgText');
       var statusEl = document.getElementById('detailMsgStatus');
@@ -5004,16 +5017,15 @@ Website = https://reffo.ai</pre>
       statusEl.textContent = 'Sending...';
       statusEl.style.color = '#4A5568';
       try {
-        var res = await fetch('/negotiations', {
+        var res = await fetch('/conversations', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             refId: refId,
             refName: refName,
             sellerBeaconId: sellerBeaconId,
-            price: 0,
-            priceCurrency: 'USD',
-            message: msg,
+            messageType: 'text',
+            content: msg,
           })
         });
         if (!res.ok) {
@@ -5029,385 +5041,429 @@ Website = https://reffo.ai</pre>
       }
     };
 
-    window.sendProposal = async function() {
-      const btn = document.getElementById('modalSendBtn');
+    window.startConversation = async function() {
+      var btn = document.getElementById('convModalSendBtn');
       btn.disabled = true;
       try {
-        const res = await fetch('/negotiations', {
+        var message = document.getElementById('convModalMessage').value.trim();
+        if (!message) throw new Error('Please enter a message');
+        var includeOffer = document.getElementById('convModalIncludeOffer').checked;
+        var body = {
+          refId: document.getElementById('convModalRefId').value,
+          refName: document.getElementById('convModalRefName').value,
+          sellerBeaconId: document.getElementById('convModalSellerBeaconId').value,
+          messageType: includeOffer ? 'offer' : 'text',
+          content: message,
+        };
+        if (includeOffer) {
+          var price = parseFloat(document.getElementById('convModalPrice').value);
+          if (isNaN(price) || price <= 0) throw new Error('Please enter a valid offer price');
+          body.amount = price;
+          body.currency = document.getElementById('convModalCurrency').value;
+        }
+        var res = await fetch('/conversations', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            refId: document.getElementById('modalRefId').value,
-            refName: document.getElementById('modalRefName').value,
-            sellerBeaconId: document.getElementById('modalSellerBeaconId').value,
-            price: parseFloat(document.getElementById('modalPrice').value),
-            priceCurrency: document.getElementById('modalCurrency').value,
-            message: document.getElementById('modalMessage').value.trim(),
-          })
+          body: JSON.stringify(body)
         });
         if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Failed to send proposal');
+          var err = await res.json();
+          throw new Error(err.error || 'Failed to start conversation');
         }
-        closeProposalModal();
+        closeConversationModal();
         switchTab('inbox');
-        currentInboxTab = 'sent';
-        loadInbox();
+        currentInboxTab = 'buying';
+        loadConversations();
       } catch (err) {
-        document.getElementById('modalMsg').innerHTML = '<div class="msg err">' + escapeHtml(err.message) + '</div>';
+        document.getElementById('convModalMsg').innerHTML = '<div class="msg err">' + escapeHtml(err.message) + '</div>';
       } finally {
         btn.disabled = false;
       }
     };
 
-    // ===== Negotiations =====
-    let cachedIncoming = [];
-    let cachedOutgoing = [];
+    // Legacy alias
+    window.sendProposal = window.startConversation;
 
-    // ===== Unified Inbox =====
-    var cachedMessages = [];
-    var cachedResolved = [];
-    var cachedArchivedNegs = [];
+    // ===== Conversations =====
+    var cachedAllConversations = [];
+    var cachedBuyingConversations = [];
+    var cachedSellingConversations = [];
+    var cachedClosedConversations = [];
+    var currentOpenConversationId = null;
+    var chatPollInterval = null;
 
-    function renderNegotiationCards(negs, isSeller) {
-      if (negs.length === 0) return '<p class="empty">No negotiations yet</p>';
-      return negs.map(n => {
-        let actions = '';
-        if (isSeller && n.role === 'seller' && n.status === 'pending') {
-          actions = '<div class="neg-actions">' +
-            '<button class="btn-primary btn-sm" onclick="openRespondModal(\\'' + n.id + '\\', \\'' + escapeJs(n.refName || n.refId.slice(0,8)) + '\\', ' + n.price + ', \\'' + escapeJs(n.priceCurrency) + '\\', \\'' + escapeJs(n.message || '') + '\\')">Respond</button>' +
-            '</div>';
-        } else if (isSeller && n.role === 'seller' && n.status === 'accepted') {
-          actions = '<div class="neg-actions">' +
-            '<button class="btn-primary btn-sm" onclick="markAsSold(\\'' + n.id + '\\')">Mark as Sold</button>' +
-            '</div>';
-        } else if (!isSeller && n.role === 'buyer' && n.status === 'pending') {
-          actions = '<div class="neg-actions"><button class="btn-secondary btn-sm" onclick="withdrawNeg(\\'' + n.id + '\\')">Withdraw</button></div>';
-        }
-
-        const displayStatus = negStatusLabels[n.status] || n.status;
-
-        let details = '<strong>' + escapeHtml(fmtCurrency(n.price, n.priceCurrency)) + '</strong>';
-        if (n.message) details += ' &mdash; ' + escapeHtml(n.message);
-        if (n.counterPrice) details += '<br>Counter: <strong>' + escapeHtml(fmtCurrency(n.counterPrice, n.priceCurrency)) + '</strong>';
-        if (n.responseMessage) details += ' &mdash; ' + escapeHtml(n.responseMessage);
-
-        return '<div class="neg-card ' + n.status + '">' +
-          '<div class="neg-header">' +
-            '<span class="neg-item-name">' + escapeHtml(n.refName || n.refId.slice(0, 8)) + '</span>' +
-            '<span class="neg-status ' + n.status + '">' + displayStatus + '</span>' +
-          '</div>' +
-          '<div class="neg-details">' + details + '</div>' +
-          '<div class="beacon-id">' + (n.role === 'seller' ? 'Buyer' : 'Seller') + ': ' + escapeHtml((n.role === 'seller' ? n.buyerBeaconId : n.sellerBeaconId).slice(0, 16)) + '...</div>' +
-          actions +
-          '</div>';
-      }).join('');
-    }
-
-    function renderInboxRow(item) {
-      var unreadClass = item.unread ? ' unread' : '';
-      var iconClass = item.type === 'message' ? 'message' : (item.iconType || 'offer');
-      var iconLetter = item.type === 'message' ? '&#9993;' : '&#36;';
-      var badgeClass = item.badgeClass || '';
-      var badgeLabel = item.badgeLabel || '';
-      return '<div class="inbox-row' + unreadClass + '" onclick="' + item.onclick + '">' +
+    function renderConversationRow(conv) {
+      var hasOffers = (conv.lastMessageType === 'offer' || conv.lastMessageType === 'counter');
+      var iconClass = hasOffers ? 'offer' : 'message';
+      var iconLetter = hasOffers ? '&#36;' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+      var counterpartId = conv.role === 'buyer' ? (conv.sellerBeaconId || '') : (conv.buyerBeaconId || '');
+      var counterpartShort = counterpartId.slice(0, 12) + (counterpartId.length > 12 ? '...' : '');
+      var preview = conv.lastMessagePreview || '';
+      if (conv.lastMessageType === 'offer') preview = '$' + (conv.lastMessageAmount || '?') + ' offered';
+      else if (conv.lastMessageType === 'counter') preview = '$' + (conv.lastMessageAmount || '?') + ' counter';
+      else if (conv.lastMessageType === 'accept') preview = 'Offer accepted';
+      else if (conv.lastMessageType === 'reject') preview = 'Offer declined';
+      else if (conv.lastMessageType === 'withdraw') preview = 'Offer withdrawn';
+      else if (conv.lastMessageType === 'sold') preview = 'Marked as sold';
+      var date = conv.updatedAt ? new Date(conv.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+      var badgeClass = '';
+      var badgeLabel = '';
+      if (conv.status === 'closed') {
+        badgeClass = 'withdrawn';
+        badgeLabel = 'Closed';
+      } else if (conv.lastMessageType === 'offer' || conv.lastMessageType === 'counter') {
+        badgeClass = 'pending';
+        badgeLabel = 'Pending Offer';
+      } else if (conv.lastMessageType === 'accept') {
+        badgeClass = 'accepted';
+        badgeLabel = 'Accepted';
+      } else if (conv.status === 'open') {
+        badgeClass = 'new-msg';
+        badgeLabel = 'Open';
+      }
+      var unreadClass = conv.hasUnread ? ' unread' : '';
+      return '<div class="inbox-row' + unreadClass + '" onclick="openConversationThread(\\'' + conv.id + '\\')">' +
         '<div class="inbox-icon ' + iconClass + '">' + iconLetter + '</div>' +
         '<div class="inbox-body">' +
-          '<div class="inbox-sender">' + escapeHtml(item.sender) + ' &middot; <span style="color:#4A5568;font-weight:400;">' + escapeHtml(item.refName) + '</span></div>' +
-          '<div class="inbox-preview">' + escapeHtml(item.preview) + '</div>' +
+          '<div class="inbox-sender">' + escapeHtml(conv.refName || (conv.refId || '').slice(0, 8)) + ' &middot; <span style="color:#4A5568;font-weight:400;">' + escapeHtml(counterpartShort) + '</span></div>' +
+          '<div class="inbox-preview">' + escapeHtml(preview) + '</div>' +
         '</div>' +
         '<div class="inbox-meta">' +
-          '<span class="inbox-date">' + item.date + '</span>' +
+          '<span class="inbox-date">' + date + '</span>' +
           (badgeLabel ? '<span class="inbox-badge ' + badgeClass + '">' + badgeLabel + '</span>' : '') +
         '</div>' +
       '</div>';
     }
 
-    function buildInboxItems() {
-      var items = [];
-      // Add incoming negotiations (offers received)
-      cachedIncoming.forEach(function(n) {
-        var displayStatus = negStatusLabels[n.status] || n.status;
-        var preview = escapeHtml(fmtCurrency(n.price, n.priceCurrency));
-        if (n.message) preview += ' — ' + n.message;
-        items.push({
-          type: 'offer',
-          subtype: 'incoming',
-          id: n.id,
-          sender: (n.buyerBeaconId || '').slice(0, 12) + '...',
-          refName: n.refName || n.refId.slice(0, 8),
-          refId: n.refId,
-          preview: preview,
-          date: new Date(n.updatedAt || n.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          sortDate: new Date(n.updatedAt || n.createdAt).getTime(),
-          unread: n.status === 'pending',
-          badgeClass: n.status,
-          badgeLabel: displayStatus,
-          iconType: n.status === 'accepted' ? 'accepted' : (n.status === 'sold' ? 'sold' : 'offer'),
-          status: n.status,
-          onclick: 'openInboxNegThread(\\'' + n.refId + '\\', true)',
-          raw: n
-        });
-      });
-      // Add outgoing negotiations (offers sent)
-      cachedOutgoing.forEach(function(n) {
-        var displayStatus = negStatusLabels[n.status] || n.status;
-        var preview = escapeHtml(fmtCurrency(n.price, n.priceCurrency));
-        if (n.message) preview += ' — ' + n.message;
-        items.push({
-          type: 'offer',
-          subtype: 'sent',
-          id: n.id,
-          sender: 'You',
-          refName: n.refName || n.refId.slice(0, 8),
-          refId: n.refId,
-          preview: preview,
-          date: new Date(n.updatedAt || n.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          sortDate: new Date(n.updatedAt || n.createdAt).getTime(),
-          unread: false,
-          badgeClass: n.status,
-          badgeLabel: displayStatus,
-          iconType: 'offer',
-          status: n.status,
-          onclick: 'openInboxNegThread(\\'' + n.refId + '\\', false)',
-          raw: n
-        });
-      });
-      // Add network messages
-      cachedMessages.forEach(function(m) {
-        items.push({
-          type: 'message',
-          subtype: 'message',
-          id: m.id,
-          sender: m.senderName || 'Anonymous',
-          refName: m.refName || m.refId.slice(0, 8),
-          refId: m.refId,
-          preview: m.message,
-          date: new Date(m.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          sortDate: new Date(m.createdAt).getTime(),
-          unread: !m.read,
-          badgeClass: m.reply ? 'replied' : (!m.read ? 'new-msg' : ''),
-          badgeLabel: m.reply ? 'Replied' : (!m.read ? 'New' : ''),
-          iconType: 'message',
-          status: m.reply ? 'replied' : (m.read ? 'read' : 'new'),
-          onclick: 'openInboxMessage(\\'' + m.id + '\\')',
-          raw: m
-        });
-      });
-      // Sort by date descending
-      items.sort(function(a, b) { return b.sortDate - a.sortDate; });
-      return items;
-    }
-
-    function renderInboxView() {
+    function renderConversationsView() {
       var container = document.getElementById('inboxContainer');
       if (!container) return;
       var tab = currentInboxTab;
-      var items = buildInboxItems();
+      var convs = [];
+      if (tab === 'all') convs = cachedAllConversations;
+      else if (tab === 'buying') convs = cachedBuyingConversations;
+      else if (tab === 'selling') convs = cachedSellingConversations;
+      else if (tab === 'closed') convs = cachedClosedConversations;
 
-      if (tab === 'offers') items = items.filter(function(i) { return i.type === 'offer' && i.subtype === 'incoming'; });
-      else if (tab === 'sent') items = items.filter(function(i) { return i.type === 'offer' && i.subtype === 'sent'; });
-      else if (tab === 'messages') items = items.filter(function(i) { return i.type === 'message'; });
-      else if (tab === 'resolved') {
-        // Show resolved negotiations
-        if (cachedResolved.length === 0) {
-          container.innerHTML = '<p class="empty">No resolved negotiations</p>';
-          return;
-        }
-        container.innerHTML = '<div class="inbox-list">' + cachedResolved.map(function(n) {
-          var displayStatus = negStatusLabels[n.status] || n.status;
-          var preview = escapeHtml(fmtCurrency(n.price, n.priceCurrency));
-          if (n.message) preview += ' — ' + n.message;
-          var roleLabel = n.role === 'seller' ? 'From buyer' : 'To seller';
-          return renderInboxRow({
-            type: 'offer',
-            sender: roleLabel,
-            refName: n.refName || n.refId.slice(0, 8),
-            preview: preview,
-            date: new Date(n.updatedAt || n.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            unread: false,
-            badgeClass: n.status,
-            badgeLabel: displayStatus,
-            iconType: n.status === 'sold' ? 'sold' : (n.status === 'accepted' ? 'accepted' : 'offer'),
-            onclick: 'openInboxResolvedDetail(\\'' + n.id + '\\')'
-          });
-        }).join('') + '</div>';
+      if (!convs || convs.length === 0) {
+        var emptyMsg = tab === 'closed' ? 'No closed conversations' : 'No conversations yet';
+        container.innerHTML = '<p class="empty">' + emptyMsg + '</p>';
         return;
       }
-      else if (tab === 'archived') {
-        if (cachedArchivedNegs.length === 0) {
-          container.innerHTML = '<p class="empty">No archived items</p>';
-          return;
-        }
-        container.innerHTML = '<div class="inbox-list">' + cachedArchivedNegs.map(function(n) {
-          var displayStatus = negStatusLabels[n.status] || n.status;
-          var preview = escapeHtml(fmtCurrency(n.price, n.priceCurrency));
-          return renderInboxRow({
-            type: 'offer',
-            sender: n.role === 'seller' ? 'From buyer' : 'To seller',
-            refName: n.refName || n.refId.slice(0, 8),
-            preview: preview,
-            date: new Date(n.updatedAt || n.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            unread: false,
-            badgeClass: 'withdrawn',
-            badgeLabel: displayStatus,
-            iconType: 'offer',
-            onclick: 'openInboxArchivedDetail(\\'' + n.id + '\\')'
-          });
-        }).join('') + '</div>';
-        return;
-      }
-      // 'all' tab — everything
-      if (items.length === 0) {
-        container.innerHTML = '<p class="empty">No messages or offers yet</p>';
-        return;
-      }
-      // Deduplicate negotiations by refId (show latest per thread)
-      var seenNegThreads = {};
-      var deduped = [];
-      items.forEach(function(item) {
-        if (item.type === 'offer') {
-          var key = item.subtype + ':' + item.refId;
-          if (!seenNegThreads[key]) {
-            seenNegThreads[key] = true;
-            deduped.push(item);
-          }
-        } else {
-          deduped.push(item);
-        }
-      });
-      container.innerHTML = '<div class="inbox-list">' + deduped.map(renderInboxRow).join('') + '</div>';
+      container.innerHTML = '<div class="inbox-list">' + convs.map(renderConversationRow).join('') + '</div>';
     }
 
-    // Open negotiation thread detail inline
-    window.openInboxNegThread = function(refId, isSeller) {
-      var source = isSeller ? cachedIncoming : cachedOutgoing;
-      var filtered = source.filter(function(n) { return n.refId === refId; });
+    function renderChatMessage(msg, myBeaconId) {
+      var isSelf = msg.senderBeaconId === myBeaconId;
+      var sideClass = isSelf ? 'self' : 'other';
+      var time = msg.createdAt ? new Date(msg.createdAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+
+      if (msg.messageType === 'text') {
+        return '<div class="chat-bubble ' + sideClass + '">' + escapeHtml(msg.content || '') + '</div>' +
+          '<div class="chat-msg-time ' + sideClass + '">' + time + '</div>';
+      }
+      if (msg.messageType === 'offer' || msg.messageType === 'counter') {
+        var label = msg.messageType === 'offer' ? 'Offered' : 'Countered at';
+        var amountStr = msg.amount ? fmtCurrency(msg.amount, msg.currency || 'USD') : '?';
+        var html = '<div class="chat-offer-card ' + sideClass + '">';
+        html += '<div style="font-size:12px;font-weight:600;color:#D4922A;text-transform:uppercase;margin-bottom:4px;">' + label + '</div>';
+        html += '<div style="font-size:20px;font-weight:700;color:#1A1A2E;">' + escapeHtml(amountStr) + '</div>';
+        if (msg.content) html += '<div style="font-size:13px;color:#4A5568;margin-top:6px;">' + escapeHtml(msg.content) + '</div>';
+        html += '</div>';
+        html += '<div class="chat-msg-time ' + sideClass + '">' + time + '</div>';
+        return html;
+      }
+      if (msg.messageType === 'accept' || msg.messageType === 'reject' || msg.messageType === 'withdraw' || msg.messageType === 'sold' || msg.messageType === 'system') {
+        var eventLabels = { accept: 'Offer accepted', reject: 'Offer declined', withdraw: 'Offer withdrawn', sold: 'Marked as sold', system: msg.content || 'System message' };
+        var eventText = eventLabels[msg.messageType] || msg.content || msg.messageType;
+        return '<div class="chat-event">' + escapeHtml(eventText) + ' &middot; ' + time + '</div>';
+      }
+      return '<div class="chat-bubble ' + sideClass + '">' + escapeHtml(msg.content || '') + '</div>' +
+        '<div class="chat-msg-time ' + sideClass + '">' + time + '</div>';
+    }
+
+    window.openConversationThread = async function(convId) {
+      currentOpenConversationId = convId;
       var container = document.getElementById('inboxContainer');
-      var refName = filtered.length > 0 ? escapeHtml(filtered[0].refName || refId.slice(0, 8)) : escapeHtml(refId.slice(0, 8));
-      var html = '<span class="inbox-thread-back" onclick="renderInboxView()">';
-      html += '<svg width="6" height="10" viewBox="0 0 4 6" fill="none"><path d="M3.4711 0.2C3.5961 0.325075 3.66632 0.494669 3.66632 0.6715C3.66632 0.848331 3.5961 1.01792 3.4711 1.143L1.6091 3L3.4711 4.862C3.59116 4.98806 3.65718 5.15606 3.65505 5.33013C3.65293 5.5042 3.58284 5.67055 3.45974 5.79364C3.33665 5.91674 3.17031 5.98683 2.99623 5.98895C2.82216 5.99107 2.65416 5.92506 2.5281 5.805L0.200102 3.471C0.0751014 3.34592 0.00488281 3.17633 0.00488281 2.9995C0.00488281 2.82267 0.0751014 2.65308 0.200102 2.528L2.5291 0.2C2.65414 0.0753044 2.82352 0.00527954 3.0001 0.00527954C3.17669 0.00527954 3.34607 0.0753044 3.4711 0.2Z" fill="#0A5E8A"/></svg>';
-      html += ' Back to Inbox</span>';
-      html += '<h3 style="font-size:18px;font-weight:700;color:#1A1A2E;margin-bottom:16px;">' + refName + '</h3>';
-      html += renderNegotiationCards(filtered, isSeller);
-      container.innerHTML = html;
+      if (!container) return;
+      container.innerHTML = '<p class="empty">Loading conversation...</p>';
+
+      try {
+        var results = await Promise.all([
+          fetch('/conversations/' + convId),
+          fetch('/conversations/' + convId + '/messages')
+        ]);
+        var conv = await results[0].json();
+        var messages = await results[1].json();
+        var myBeaconId = window._myBeaconId || '';
+        var isSeller = conv.role === 'seller';
+        var counterpartId = isSeller ? (conv.buyerBeaconId || '') : (conv.sellerBeaconId || '');
+        var counterpartShort = counterpartId.slice(0, 16) + (counterpartId.length > 16 ? '...' : '');
+        var roleLabel = isSeller ? 'Selling' : 'Buying';
+        var roleBadgeClass = isSeller ? 'selling' : 'buying';
+
+        // Find pending offer
+        var pendingOffer = null;
+        if (conv.status === 'open') {
+          for (var i = messages.length - 1; i >= 0; i--) {
+            var m = messages[i];
+            if (m.messageType === 'accept' || m.messageType === 'reject' || m.messageType === 'withdraw') break;
+            if (m.messageType === 'offer' || m.messageType === 'counter') {
+              pendingOffer = m;
+              break;
+            }
+          }
+        }
+
+        var html = '';
+        html += '<span class="inbox-thread-back" onclick="closeConversationThread()">';
+        html += '<svg width="6" height="10" viewBox="0 0 4 6" fill="none"><path d="M3.4711 0.2C3.5961 0.325075 3.66632 0.494669 3.66632 0.6715C3.66632 0.848331 3.5961 1.01792 3.4711 1.143L1.6091 3L3.4711 4.862C3.59116 4.98806 3.65718 5.15606 3.65505 5.33013C3.65293 5.5042 3.58284 5.67055 3.45974 5.79364C3.33665 5.91674 3.17031 5.98683 2.99623 5.98895C2.82216 5.99107 2.65416 5.92506 2.5281 5.805L0.200102 3.471C0.0751014 3.34592 0.00488281 3.17633 0.00488281 2.9995C0.00488281 2.82267 0.0751014 2.65308 0.200102 2.528L2.5291 0.2C2.65414 0.0753044 2.82352 0.00527954 3.0001 0.00527954C3.17669 0.00527954 3.34607 0.0753044 3.4711 0.2Z" fill="#0A5E8A"/></svg>';
+        html += ' Back to Inbox</span>';
+
+        html += '<div class="inbox-thread" style="padding:0;overflow:hidden;">';
+
+        // Header
+        html += '<div class="chat-thread-header">';
+        html += '<div class="thread-info">';
+        html += '<div class="thread-item-name">' + escapeHtml(conv.refName || (conv.refId || '').slice(0, 8)) + '</div>';
+        html += '<div class="thread-meta">';
+        html += '<span>' + escapeHtml(counterpartShort) + '</span>';
+        html += '<span class="chat-role-badge ' + roleBadgeClass + '">' + roleLabel + '</span>';
+        html += '</div></div>';
+        if (conv.status === 'open') {
+          html += '<button class="btn-secondary btn-sm" onclick="closeConversation(\\'' + conv.id + '\\')" style="flex-shrink:0;height:32px;padding:0 12px;font-size:12px;">Close</button>';
+        } else {
+          html += '<span class="inbox-badge withdrawn" style="flex-shrink:0;">Closed</span>';
+        }
+        html += '</div>';
+
+        // Messages
+        html += '<div class="chat-messages" id="chatMessagesArea">';
+        if (messages.length === 0) {
+          html += '<div class="chat-event">Conversation started</div>';
+        } else {
+          messages.forEach(function(msg) {
+            html += renderChatMessage(msg, myBeaconId);
+          });
+        }
+        html += '</div>';
+
+        // Quick actions for seller with pending offer from counterpart
+        if (isSeller && pendingOffer && pendingOffer.senderBeaconId !== myBeaconId && conv.status === 'open') {
+          html += '<div class="chat-quick-actions">';
+          html += '<button class="btn-primary btn-sm" style="flex:1;" onclick="sendConvMessage(\\'' + conv.id + '\\', \\'accept\\')">Accept ' + escapeHtml(fmtCurrency(pendingOffer.amount, pendingOffer.currency || 'USD')) + '</button>';
+          html += '<button class="btn-danger btn-sm" style="flex:1;" onclick="sendConvMessage(\\'' + conv.id + '\\', \\'reject\\')">Decline</button>';
+          html += '<button class="btn-secondary btn-sm" style="flex:1;" onclick="showCounterInput(\\'' + conv.id + '\\')">Counter</button>';
+          html += '</div>';
+        }
+
+        // Buyer withdraw
+        if (!isSeller && pendingOffer && pendingOffer.senderBeaconId === myBeaconId && conv.status === 'open') {
+          html += '<div class="chat-quick-actions">';
+          html += '<button class="btn-secondary btn-sm" onclick="sendConvMessage(\\'' + conv.id + '\\', \\'withdraw\\')">Withdraw Offer</button>';
+          html += '</div>';
+        }
+
+        // Counter input (hidden)
+        html += '<div id="chatCounterRow" class="chat-offer-row" style="display:none;">';
+        html += '<input type="number" id="chatCounterPrice" min="0.01" step="0.01" placeholder="Counter price">';
+        html += '<select id="chatCounterCurrency"><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="CAD">CAD</option></select>';
+        html += '<button class="btn-primary btn-sm" onclick="sendCounterOffer(\\'' + conv.id + '\\')">Send</button>';
+        html += '<button class="btn-secondary btn-sm" onclick="document.getElementById(\\'chatCounterRow\\').style.display=\\'none\\'">Cancel</button>';
+        html += '</div>';
+
+        // Input area
+        if (conv.status === 'open') {
+          html += '<div id="chatOfferInputRow" class="chat-offer-row" style="display:none;">';
+          html += '<input type="number" id="chatOfferPrice" min="0.01" step="0.01" placeholder="Offer amount">';
+          html += '<select id="chatOfferCurrency"><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="CAD">CAD</option></select>';
+          html += '</div>';
+          html += '<div class="chat-input-bar">';
+          html += '<button class="chat-offer-toggle" id="chatOfferToggle" onclick="toggleChatOffer()" title="Include offer">$</button>';
+          html += '<input type="text" id="chatTextInput" placeholder="Type a message..." onkeydown="if(event.key===\\'Enter\\' && !event.shiftKey){event.preventDefault();sendChatMessage(\\'' + conv.id + '\\');}">';
+          html += '<button class="chat-send-btn" onclick="sendChatMessage(\\'' + conv.id + '\\')">';
+          html += '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+          html += '</button></div>';
+        } else {
+          html += '<div style="text-align:center;padding:12px;color:#4A5568;font-size:13px;border-top:1px solid #EDE8E3;">This conversation is closed</div>';
+        }
+
+        html += '</div>';
+        container.innerHTML = html;
+
+        var chatArea = document.getElementById('chatMessagesArea');
+        if (chatArea) chatArea.scrollTop = chatArea.scrollHeight;
+
+        startChatPolling(convId);
+      } catch (err) {
+        container.innerHTML = '<p class="empty">Failed to load conversation</p>';
+      }
     };
 
-    // Open message detail inline
-    window.openInboxMessage = function(msgId) {
-      var msg = cachedMessages.find(function(m) { return m.id === msgId; });
-      if (!msg) return;
-      var container = document.getElementById('inboxContainer');
-      var refName = msg.refName || msg.refId.slice(0, 8);
-      var date = new Date(msg.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    window.closeConversationThread = function() {
+      currentOpenConversationId = null;
+      stopChatPolling();
+      renderConversationsView();
+    };
 
-      // Mark as read
-      if (!msg.read) {
-        fetch('/settings/network-messages/' + msg.id + '/read', { method: 'PATCH' });
-        msg.read = true;
-        updateInboxDots();
-      }
-
-      var replyHtml = '';
-      if (msg.reply) {
-        var replyDate = msg.repliedAt ? new Date(msg.repliedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '';
-        replyHtml = '<div style="margin-top:16px;padding:12px 16px;background:#E6F5F3;border-radius:8px;border-left:3px solid #1A8A7D;">' +
-          '<div style="font-size:12px;color:#1A8A7D;font-weight:600;margin-bottom:4px;">Your reply' + (replyDate ? ' &middot; ' + replyDate : '') + '</div>' +
-          '<div style="font-size:14px;color:#2D3748;line-height:1.6;white-space:pre-wrap;">' + escapeHtml(msg.reply) + '</div>' +
-        '</div>';
+    window.toggleChatOffer = function() {
+      var row = document.getElementById('chatOfferInputRow');
+      var btn = document.getElementById('chatOfferToggle');
+      if (row.style.display === 'none') {
+        row.style.display = 'flex';
+        btn.classList.add('active');
       } else {
-        replyHtml = '<div style="margin-top:16px;" id="replySection_' + msg.id + '">' +
-          '<button onclick="toggleReplyForm(\\'' + msg.id + '\\')" style="font-size:13px;padding:8px 18px;border-radius:20px;border:1px solid #1A8A7D;background:none;cursor:pointer;color:#1A8A7D;font-weight:500;">Reply</button>' +
-          '<div id="replyForm_' + msg.id + '" style="display:none;margin-top:10px;">' +
-            '<textarea id="replyText_' + msg.id + '" placeholder="Write your reply..." rows="3" style="width:100%;padding:10px 14px;border-radius:8px;border:1px solid #CBD5E0;font-size:14px;resize:vertical;margin-bottom:8px;" maxlength="2000"></textarea>' +
-            '<div style="display:flex;gap:8px;">' +
-              '<button onclick="sendReply(\\'' + msg.id + '\\')" style="font-size:13px;padding:8px 20px;border-radius:20px;border:none;background:#1A8A7D;color:#fff;cursor:pointer;font-weight:500;">Send Reply</button>' +
-              '<button onclick="toggleReplyForm(\\'' + msg.id + '\\')" style="font-size:13px;padding:8px 16px;border-radius:20px;border:1px solid #CBD5E0;background:none;cursor:pointer;color:#4A5568;">Cancel</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>';
+        row.style.display = 'none';
+        btn.classList.remove('active');
+      }
+    };
+
+    window.sendChatMessage = async function(convId) {
+      var textInput = document.getElementById('chatTextInput');
+      var content = textInput ? textInput.value.trim() : '';
+      var offerRow = document.getElementById('chatOfferInputRow');
+      var isOfferMode = offerRow && offerRow.style.display !== 'none';
+
+      if (!content && !isOfferMode) return;
+
+      var body = {};
+      if (isOfferMode) {
+        var price = parseFloat(document.getElementById('chatOfferPrice').value);
+        if (isNaN(price) || price <= 0) {
+          showToast('Please enter a valid offer amount', '');
+          return;
+        }
+        body.messageType = 'offer';
+        body.amount = price;
+        body.currency = document.getElementById('chatOfferCurrency').value;
+        body.content = content || undefined;
+      } else {
+        if (!content) return;
+        body.messageType = 'text';
+        body.content = content;
       }
 
-      var html = '<span class="inbox-thread-back" onclick="renderInboxView()">';
-      html += '<svg width="6" height="10" viewBox="0 0 4 6" fill="none"><path d="M3.4711 0.2C3.5961 0.325075 3.66632 0.494669 3.66632 0.6715C3.66632 0.848331 3.5961 1.01792 3.4711 1.143L1.6091 3L3.4711 4.862C3.59116 4.98806 3.65718 5.15606 3.65505 5.33013C3.65293 5.5042 3.58284 5.67055 3.45974 5.79364C3.33665 5.91674 3.17031 5.98683 2.99623 5.98895C2.82216 5.99107 2.65416 5.92506 2.5281 5.805L0.200102 3.471C0.0751014 3.34592 0.00488281 3.17633 0.00488281 2.9995C0.00488281 2.82267 0.0751014 2.65308 0.200102 2.528L2.5291 0.2C2.65414 0.0753044 2.82352 0.00527954 3.0001 0.00527954C3.17669 0.00527954 3.34607 0.0753044 3.4711 0.2Z" fill="#0A5E8A"/></svg>';
-      html += ' Back to Inbox</span>';
-      html += '<div class="inbox-thread">';
-      html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">';
-      html += '<div style="width:36px;height:36px;border-radius:50%;background:#0A5E8A;color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;">' +
-        (msg.senderName ? escapeHtml(msg.senderName.charAt(0).toUpperCase()) : '?') + '</div>';
-      html += '<div><div style="font-size:15px;font-weight:600;color:#1A1A2E;">' + escapeHtml(msg.senderName || 'Anonymous') + '</div>';
-      html += '<div style="font-size:12px;color:#4A5568;">' + date + ' &middot; Re: <span style="cursor:pointer;color:#1A8A7D;" onclick="openDetail(\\'' + msg.refId + '\\')">' + escapeHtml(refName) + '</span></div>';
-      html += '</div></div>';
-      html += '<div style="font-size:14px;color:#2D3748;line-height:1.7;white-space:pre-wrap;padding:12px 0;border-top:1px solid #EDE8E3;">' + escapeHtml(msg.message) + '</div>';
-      html += replyHtml;
-      html += '</div>';
-      container.innerHTML = html;
-    };
-
-    // Open resolved negotiation detail
-    window.openInboxResolvedDetail = function(negId) {
-      var n = cachedResolved.find(function(x) { return x.id === negId; });
-      if (!n) return;
-      var container = document.getElementById('inboxContainer');
-      var html = '<span class="inbox-thread-back" onclick="switchInboxTab(\\'resolved\\')">';
-      html += '<svg width="6" height="10" viewBox="0 0 4 6" fill="none"><path d="M3.4711 0.2C3.5961 0.325075 3.66632 0.494669 3.66632 0.6715C3.66632 0.848331 3.5961 1.01792 3.4711 1.143L1.6091 3L3.4711 4.862C3.59116 4.98806 3.65718 5.15606 3.65505 5.33013C3.65293 5.5042 3.58284 5.67055 3.45974 5.79364C3.33665 5.91674 3.17031 5.98683 2.99623 5.98895C2.82216 5.99107 2.65416 5.92506 2.5281 5.805L0.200102 3.471C0.0751014 3.34592 0.00488281 3.17633 0.00488281 2.9995C0.00488281 2.82267 0.0751014 2.65308 0.200102 2.528L2.5291 0.2C2.65414 0.0753044 2.82352 0.00527954 3.0001 0.00527954C3.17669 0.00527954 3.34607 0.0753044 3.4711 0.2Z" fill="#0A5E8A"/></svg>';
-      html += ' Back to Resolved</span>';
-      html += renderNegotiationCards([n], n.role === 'seller');
-      html += '<div style="margin-top:8px;"><button class="btn-secondary btn-sm" onclick="archiveNeg(\\'' + n.id + '\\')">Archive</button></div>';
-      container.innerHTML = html;
-    };
-
-    // Open archived negotiation detail
-    window.openInboxArchivedDetail = function(negId) {
-      var n = cachedArchivedNegs.find(function(x) { return x.id === negId; });
-      if (!n) return;
-      var container = document.getElementById('inboxContainer');
-      var html = '<span class="inbox-thread-back" onclick="switchInboxTab(\\'archived\\')">';
-      html += '<svg width="6" height="10" viewBox="0 0 4 6" fill="none"><path d="M3.4711 0.2C3.5961 0.325075 3.66632 0.494669 3.66632 0.6715C3.66632 0.848331 3.5961 1.01792 3.4711 1.143L1.6091 3L3.4711 4.862C3.59116 4.98806 3.65718 5.15606 3.65505 5.33013C3.65293 5.5042 3.58284 5.67055 3.45974 5.79364C3.33665 5.91674 3.17031 5.98683 2.99623 5.98895C2.82216 5.99107 2.65416 5.92506 2.5281 5.805L0.200102 3.471C0.0751014 3.34592 0.00488281 3.17633 0.00488281 2.9995C0.00488281 2.82267 0.0751014 2.65308 0.200102 2.528L2.5291 0.2C2.65414 0.0753044 2.82352 0.00527954 3.0001 0.00527954C3.17669 0.00527954 3.34607 0.0753044 3.4711 0.2Z" fill="#0A5E8A"/></svg>';
-      html += ' Back to Archived</span>';
-      html += renderNegotiationCards([n], n.role === 'seller');
-      html += '<div style="margin-top:8px;display:flex;gap:8px;">';
-      html += '<button class="btn-secondary btn-sm" onclick="unarchiveNeg(\\'' + n.id + '\\')">Restore</button>';
-      html += '<button class="btn-danger btn-sm" onclick="deleteNeg(\\'' + n.id + '\\')">Delete</button>';
-      html += '</div>';
-      container.innerHTML = html;
-    };
-
-    window.archiveNeg = async function(id) {
       try {
-        const res = await fetch('/negotiations/' + id + '/archive', { method: 'PATCH' });
-        if (!res.ok) throw new Error('Failed to archive');
-        loadInbox();
+        var res = await fetch('/conversations/' + convId + '/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+          var err = await res.json();
+          throw new Error(err.error || 'Failed to send');
+        }
+        textInput.value = '';
+        if (isOfferMode) {
+          document.getElementById('chatOfferPrice').value = '';
+          document.getElementById('chatOfferInputRow').style.display = 'none';
+          document.getElementById('chatOfferToggle').classList.remove('active');
+        }
+        openConversationThread(convId);
       } catch (err) {
         showToast(err.message, '');
       }
     };
 
-    window.unarchiveNeg = async function(id) {
+    window.sendConvMessage = async function(convId, messageType) {
+      if (messageType === 'accept' && !confirm('Accept this offer?')) return;
+      if (messageType === 'reject' && !confirm('Decline this offer?')) return;
+      if (messageType === 'withdraw' && !confirm('Withdraw your offer?')) return;
       try {
-        const res = await fetch('/negotiations/' + id + '/unarchive', { method: 'PATCH' });
-        if (!res.ok) throw new Error('Failed to restore');
-        loadInbox();
+        var res = await fetch('/conversations/' + convId + '/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messageType: messageType })
+        });
+        if (!res.ok) {
+          var err = await res.json();
+          throw new Error(err.error || 'Failed to send');
+        }
+        if (messageType === 'accept') showToast('Offer accepted!', 'accepted');
+        openConversationThread(convId);
       } catch (err) {
         showToast(err.message, '');
       }
     };
 
-    window.deleteNeg = async function(id) {
-      if (!confirm('Permanently delete this negotiation?')) return;
+    window.showCounterInput = function(convId) {
+      var row = document.getElementById('chatCounterRow');
+      if (row) row.style.display = 'flex';
+    };
+
+    window.sendCounterOffer = async function(convId) {
+      var price = parseFloat(document.getElementById('chatCounterPrice').value);
+      if (isNaN(price) || price <= 0) {
+        showToast('Please enter a valid counter price', '');
+        return;
+      }
       try {
-        const res = await fetch('/negotiations/' + id, { method: 'DELETE' });
-        if (!res.ok) throw new Error('Failed to delete');
-        loadInbox();
+        var res = await fetch('/conversations/' + convId + '/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messageType: 'counter',
+            amount: price,
+            currency: document.getElementById('chatCounterCurrency').value,
+          })
+        });
+        if (!res.ok) {
+          var err = await res.json();
+          throw new Error(err.error || 'Failed to send counter');
+        }
+        openConversationThread(convId);
       } catch (err) {
         showToast(err.message, '');
       }
     };
+
+    window.closeConversation = async function(convId) {
+      if (!confirm('Close this conversation?')) return;
+      try {
+        var res = await fetch('/conversations/' + convId + '/close', { method: 'PATCH' });
+        if (!res.ok) throw new Error('Failed to close conversation');
+        showToast('Conversation closed', '');
+        currentOpenConversationId = null;
+        stopChatPolling();
+        loadConversations();
+      } catch (err) {
+        showToast(err.message, '');
+      }
+    };
+
+    function startChatPolling(convId) {
+      stopChatPolling();
+      chatPollInterval = setInterval(async function() {
+        if (currentOpenConversationId !== convId) { stopChatPolling(); return; }
+        try {
+          var res = await fetch('/conversations/' + convId + '/messages');
+          if (!res.ok) return;
+          var messages = await res.json();
+          var chatArea = document.getElementById('chatMessagesArea');
+          if (!chatArea) return;
+          var myBeaconId = window._myBeaconId || '';
+          var wasAtBottom = chatArea.scrollTop + chatArea.clientHeight >= chatArea.scrollHeight - 20;
+          var html = '';
+          if (messages.length === 0) {
+            html = '<div class="chat-event">Conversation started</div>';
+          } else {
+            messages.forEach(function(msg) {
+              html += renderChatMessage(msg, myBeaconId);
+            });
+          }
+          chatArea.innerHTML = html;
+          if (wasAtBottom) chatArea.scrollTop = chatArea.scrollHeight;
+        } catch(e) {}
+      }, 5000);
+    }
+
+    function stopChatPolling() {
+      if (chatPollInterval) { clearInterval(chatPollInterval); chatPollInterval = null; }
+    }
 
     function updateInboxDots() {
-      var pendingNegs = cachedIncoming.filter(function(n) { return n.status === 'pending'; }).length;
-      var unreadMsgs = cachedMessages.filter(function(m) { return !m.read; }).length;
-      var totalUnread = pendingNegs + unreadMsgs;
+      var totalUnread = 0;
+      cachedAllConversations.forEach(function(c) { if (c.hasUnread) totalUnread++; });
       var headerDot = document.getElementById('headerNotifDot');
       var sidebarDot = document.getElementById('sidebarInboxDot');
       if (headerDot) headerDot.style.display = totalUnread > 0 ? 'block' : 'none';
@@ -5421,218 +5477,56 @@ Website = https://reffo.ai</pre>
       if (svg) svg.style.animation = 'spin 0.6s linear infinite';
       try {
         var minSpin = new Promise(function(r) { setTimeout(r, 600); });
-        await Promise.all([loadInbox(), minSpin]);
+        await Promise.all([loadConversations(), minSpin]);
       } finally {
         if (btn) btn.disabled = false;
         if (svg) svg.style.animation = '';
       }
     }
 
-    async function loadInbox() {
+    async function loadConversations() {
       try {
-        // Fetch refs for message refName enrichment
-        var refsRes = await fetch('/refs');
-        var refsData = await refsRes.json();
-        var refMap = {};
-        (refsData.refs || []).forEach(function(r) { refMap[r.id] = r; });
-
-        // Fetch negotiations, messages, resolved, archived in parallel
         var results = await Promise.all([
-          fetch('/negotiations?role=seller'),
-          fetch('/negotiations?role=buyer'),
-          fetch('/settings/network-messages'),
-          fetch('/negotiations?role=resolved'),
-          fetch('/negotiations?role=archived')
+          fetch('/conversations'),
+          fetch('/conversations?role=buyer'),
+          fetch('/conversations?role=seller'),
+          fetch('/conversations?role=closed')
         ]);
-        cachedIncoming = await results[0].json();
-        cachedOutgoing = await results[1].json();
-        var rawMessages = await results[2].json();
-        cachedResolved = await results[3].json();
-        cachedArchivedNegs = await results[4].json();
-
-        // Enrich messages with ref names
-        cachedMessages = rawMessages.map(function(m) {
-          var ref = refMap[m.refId];
-          m.refName = ref ? ref.name : (m.refId || '').slice(0, 8);
-          return m;
-        });
+        cachedAllConversations = await results[0].json();
+        cachedBuyingConversations = await results[1].json();
+        cachedSellingConversations = await results[2].json();
+        cachedClosedConversations = await results[3].json();
 
         updateInboxDots();
-        renderInboxView();
+        if (currentOpenConversationId) {
+          // Don't replace the view if a thread is open
+        } else {
+          renderConversationsView();
+        }
       } catch (err) {
         var container = document.getElementById('inboxContainer');
-        if (container) container.innerHTML = '<p class="empty">Failed to load inbox</p>';
+        if (container && !currentOpenConversationId) container.innerHTML = '<p class="empty">Failed to load conversations</p>';
       }
     }
 
-    // Keep loadNegotiations as alias for inbox (called from home page, etc.)
-    async function loadNegotiations() { return loadInbox(); }
+    // Legacy aliases
+    async function loadInbox() { return loadConversations(); }
+    async function loadNegotiations() { return loadConversations(); }
 
-    // ===== Respond Modal (seller) =====
-    window.openRespondModal = function(negId, refName, price, currency, message) {
-      document.getElementById('respondNegId').value = negId;
-      document.getElementById('respondModalTitle').textContent = 'Respond: ' + refName;
-      document.getElementById('respondOfferPrice').textContent = fmtCurrency(parseFloat(price), currency);
-      document.getElementById('respondOfferMessage').textContent = message || '';
-      document.getElementById('respondOfferMessage').style.display = message ? 'block' : 'none';
-      document.getElementById('respondCounterPrice').value = '';
-      document.getElementById('respondMessage').value = '';
-      document.getElementById('respondCounterFields').classList.add('hidden');
-      document.getElementById('respondMsg').innerHTML = '';
-      // Show accept/reject/counter buttons, hide send counter
-      document.getElementById('respondAcceptBtn').classList.remove('hidden');
-      document.getElementById('respondRejectBtn').classList.remove('hidden');
-      document.getElementById('respondCounterBtn').classList.remove('hidden');
-      document.getElementById('respondCounterBtn').textContent = 'Counter';
-      document.getElementById('respondCounterBtn').onclick = function() { toggleCounterFields(); };
-      document.getElementById('respondModal').classList.remove('hidden');
-    };
-
-    window.toggleCounterFields = function() {
-      const fields = document.getElementById('respondCounterFields');
-      const btn = document.getElementById('respondCounterBtn');
-      if (fields.classList.contains('hidden')) {
-        // Show counter fields, change button to "Send Counter"
-        fields.classList.remove('hidden');
-        btn.textContent = 'Send Counter';
-        btn.onclick = function() { submitRespond('countered'); };
-        document.getElementById('respondCounterPrice').focus();
-      } else {
-        // Hide counter fields, revert button
-        fields.classList.add('hidden');
-        btn.textContent = 'Counter';
-        btn.onclick = function() { toggleCounterFields(); };
-      }
-    };
-
-    window.closeRespondModal = function() {
-      document.getElementById('respondModal').classList.add('hidden');
-    };
-
-    window.submitRespond = async function(status) {
-      const negId = document.getElementById('respondNegId').value;
-      const body = { status };
-
-      if (status === 'countered') {
-        const cp = parseFloat(document.getElementById('respondCounterPrice').value);
-        if (isNaN(cp) || cp <= 0) {
-          document.getElementById('respondMsg').innerHTML = '<div class="msg err">Please enter a valid counter price</div>';
-          return;
-        }
-        body.counterPrice = cp;
-        body.responseMessage = document.getElementById('respondMessage').value.trim();
-      }
-
-      // Disable all buttons during request
-      const btns = document.querySelectorAll('#respondModal button');
-      btns.forEach(b => b.disabled = true);
-
-      try {
-        const res = await fetch('/negotiations/' + negId + '/respond', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error);
-
-        if (data.delivered === false) {
-          document.getElementById('respondMsg').innerHTML = '<div class="msg err">Response saved but buyer appears offline. They will not see this until you are both online.</div>';
-          setTimeout(() => {
-            closeRespondModal();
-            loadNegotiations();
-          }, 3000);
-        } else {
-          closeRespondModal();
-          loadNegotiations();
-        }
-      } catch (err) {
-        document.getElementById('respondMsg').innerHTML = '<div class="msg err">' + escapeHtml(err.message) + '</div>';
-      } finally {
-        btns.forEach(b => b.disabled = false);
-      }
-    };
-
-    window.withdrawNeg = async function(negId) {
-      if (!confirm('Withdraw this proposal?')) return;
-      try {
-        const res = await fetch('/negotiations/' + negId + '/withdraw', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
-        loadNegotiations();
-      } catch (err) {
-        alert(err.message);
-      }
-    };
-
-    window.markAsSold = async function(negId) {
-      if (!confirm('Mark this deal as sold? This will decrement the ref quantity.')) return;
-      try {
-        const res = await fetch('/negotiations/' + negId + '/mark-sold', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        if (!res.ok) { const err = await res.json(); throw new Error(err.error); }
-        showToast('Deal marked as sold!', 'sold');
-        loadNegotiations();
-        loadMyRefs();
-      } catch (err) {
-        showToast('Failed: ' + err.message, 'rejected');
-      }
-    };
+    // Legacy stubs (no-ops for backward compat)
+    window.openRespondModal = function() {};
+    window.toggleCounterFields = function() {};
+    window.closeRespondModal = function() {};
+    window.submitRespond = function() {};
+    window.withdrawNeg = function() {};
+    window.markAsSold = function() {};
 
     // ===== Settings =====
     const userSvgPlaceholder = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
     const previewSvgPlaceholder = '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#718096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
 
-    // Legacy loadMessages — now handled by loadInbox
-    async function loadMessages() { return loadInbox(); }
-
-    window.markMessageRead = async function(id, btn) {
-      try {
-        await fetch('/settings/network-messages/' + id + '/read', { method: 'PATCH' });
-        if (btn) btn.remove();
-        var msg = cachedMessages.find(function(m) { return m.id === id; });
-        if (msg) msg.read = true;
-        updateInboxDots();
-      } catch {}
-    };
-
-    window.toggleReplyForm = function(id) {
-      var form = document.getElementById('replyForm_' + id);
-      if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
-    };
-
-    window.sendReply = async function(id) {
-      var textarea = document.getElementById('replyText_' + id);
-      var reply = textarea ? textarea.value.trim() : '';
-      if (!reply) return;
-      try {
-        var res = await fetch('/settings/network-messages/' + id + '/reply', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reply: reply })
-        });
-        if (res.ok) {
-          // Replace the reply section with the sent reply
-          var section = document.getElementById('replySection_' + id);
-          var replyDate = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-          if (section) {
-            section.innerHTML = '<div style="padding:10px 12px;background:#E6F5F3;border-radius:8px;border-left:3px solid #1A8A7D;">' +
-              '<div style="font-size:11px;color:#1A8A7D;font-weight:600;margin-bottom:4px;">Your reply · ' + replyDate + '</div>' +
-              '<div style="font-size:13px;color:#2D3748;line-height:1.5;white-space:pre-wrap;">' + escapeHtml(reply) + '</div>' +
-            '</div>';
-          }
-        } else {
-          var data = await res.json().catch(function() { return {}; });
-          alert(data.error || 'Failed to send reply');
-        }
-      } catch (err) {
-        alert('Failed to send reply');
-      }
-    };
+    // Legacy aliases
+    async function loadMessages() { return loadConversations(); }
 
     async function loadSettings() {
       try {

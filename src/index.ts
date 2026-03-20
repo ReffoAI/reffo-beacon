@@ -7,6 +7,7 @@ import { DhtDiscovery } from './dht';
 import { getDb } from './db';
 import { SyncManager } from './sync';
 import { NetworkPublisher } from './sync/network-publisher';
+import { ConversationPoller } from './sync/conversation-poller';
 import { searchReffo } from './sync/reffo-client';
 import { getVersion } from './version';
 import { SkillLoader, createSkillRegistryRouter, createSkillExportRouter } from './skills';
@@ -67,6 +68,11 @@ async function main(): Promise<void> {
   networkPublisher.startHeartbeat();
   console.log('[Network] Publisher initialized — public items will be mirrored to', webappUrl);
 
+  // Poll for conversation messages from webapp (no API key needed)
+  const conversationPoller = new ConversationPoller(BEACON_ID, webappUrl);
+  conversationPoller.start();
+  app.set('conversationPoller', conversationPoller);
+
   // Initialize Reffo.ai sync if API key is configured
   const reffoApiKey = process.env.REFFO_API_KEY;
   if (reffoApiKey) {
@@ -98,6 +104,24 @@ async function main(): Promise<void> {
   const dht = new DhtDiscovery(BEACON_ID);
   dht.httpPort = PORT;
   app.set('dht', dht);
+
+  // Wire DHT conversation sync: when a chat message is received via DHT, also push to webapp
+  const syncMgr = app.get('syncManager') as SyncManager | undefined;
+  if (syncMgr) {
+    dht.setOnChatMessageReceived((data) => {
+      syncMgr.pushConversationMessage({
+        conversationId: data.conversationId,
+        messageId: data.messageId,
+        refId: data.refId,
+        refName: data.refName,
+        buyerBeaconId: data.senderBeaconId,
+        messageType: data.messageType,
+        content: data.content,
+        amount: data.amount,
+        currency: data.currency,
+      }).catch(() => {});
+    });
+  }
 
   // Load skill plugins
   const db = getDb();
@@ -208,8 +232,8 @@ async function main(): Promise<void> {
     console.log(`            POST /refs/:id/media - Upload media`);
     console.log(`            GET  /offers        - List offers`);
     console.log(`            POST /offers        - Create offer`);
-    console.log(`            GET  /negotiations  - List negotiations`);
-    console.log(`            POST /negotiations  - Create proposal`);
+    console.log(`            GET  /conversations  - List conversations`);
+    console.log(`            POST /conversations  - Start conversation`);
     console.log(`            GET  /search?q=...  - Search peer network`);
   });
 
@@ -218,6 +242,7 @@ async function main(): Promise<void> {
     console.log('\n[Pelagora] Shutting down...');
     server.close();
     networkPublisher.stop();
+    conversationPoller.stop();
     // Force exit after 2s if DHT hangs
     const forceExit = setTimeout(() => process.exit(0), 2000);
     try { await dht.stop(); } catch {}
