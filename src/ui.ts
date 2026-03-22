@@ -5467,12 +5467,16 @@ Website = https://reffo.ai</pre>
 
         // Input area
         if (conv.status === 'open') {
-          html += '<div id="chatOfferInputRow" class="chat-offer-row" style="display:none;">';
-          html += '<input type="number" id="chatOfferPrice" min="0.01" step="0.01" placeholder="Offer amount">';
-          html += '<select id="chatOfferCurrency"><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="CAD">CAD</option></select>';
-          html += '</div>';
+          if (!isSeller) {
+            html += '<div id="chatOfferInputRow" class="chat-offer-row" style="display:none;">';
+            html += '<input type="number" id="chatOfferPrice" min="0.01" step="0.01" placeholder="Offer amount">';
+            html += '<select id="chatOfferCurrency"><option value="USD">USD</option><option value="EUR">EUR</option><option value="GBP">GBP</option><option value="CAD">CAD</option></select>';
+            html += '</div>';
+          }
           html += '<div class="chat-input-bar">';
-          html += '<button class="chat-offer-toggle" id="chatOfferToggle" onclick="toggleChatOffer()" title="Include offer">$</button>';
+          if (!isSeller) {
+            html += '<button class="chat-offer-toggle" id="chatOfferToggle" onclick="toggleChatOffer()" title="Include offer">$</button>';
+          }
           html += '<input type="text" id="chatTextInput" placeholder="Type a message..." onkeydown="if(event.key===\\'Enter\\' && !event.shiftKey){event.preventDefault();sendChatMessage(\\'' + conv.id + '\\');}">';
           html += '<button class="chat-send-btn" onclick="sendChatMessage(\\'' + conv.id + '\\')">';
           html += '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
