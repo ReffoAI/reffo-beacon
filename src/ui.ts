@@ -42,7 +42,8 @@ export function renderUI(localToken?: string): string {
     .app-header { position: sticky; top: 0; z-index: 100; background: #1A1A2E; border-bottom: 3px solid #D4602A; padding: 0 24px; margin-left: 240px; width: calc(100% - 240px); transition: margin-left 0.3s, width 0.3s; }
     body.sidebar-collapsed .app-header { margin-left: 60px; width: calc(100% - 60px); }
     .app-header .app-header-logo { display: none; }
-    .app-header-inner { display: flex; align-items: center; justify-content: space-between; min-height: 64px; gap: 16px; padding: 8px 0; }
+    .app-header-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; transition: height 0.25s; }
+    .app-header.search-expanded .app-header-inner { height: 80px; }
     .app-header-logo { display: flex; align-items: center; gap: 10px; cursor: pointer; flex-shrink: 0; }
     .app-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
     .header-settings-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; position: relative; color: rgba(255,255,255,0.6); }
@@ -762,7 +763,8 @@ export function renderUI(localToken?: string): string {
     .neg-group-back:hover { color: #B8521F; }
 
     /* Footer */
-    .app-footer { border-top: 1px solid #CBD5E0; background: #FFFFFF; padding: 0; margin-left: 240px; }
+    .app-footer { border-top: 1px solid #CBD5E0; background: #FFFFFF; padding: 0; margin-left: 240px; transition: margin-left 0.3s; }
+    body.sidebar-collapsed .app-footer { margin-left: 60px; }
     .app-footer-inner { max-width: 1100px; margin: 0 auto; padding: 48px 24px; }
     .app-footer-grid { display: grid; grid-template-columns: 140px 1fr 1fr 1fr; gap: 40px; }
     .app-footer-brand { display: flex; flex-direction: column; gap: 16px; }
@@ -4885,6 +4887,7 @@ Website = https://reffo.ai</pre>
       _headerSearchExpanded = true;
       document.getElementById('headerSearchPill').style.display = 'none';
       document.getElementById('headerSearchExpanded').style.display = '';
+      document.querySelector('.app-header').classList.add('search-expanded');
       // Populate category dropdown from taxonomy
       var catSelect = document.getElementById('hdrSearchCat');
       if (catSelect && catSelect.options.length <= 1) {
@@ -4907,6 +4910,7 @@ Website = https://reffo.ai</pre>
       _headerSearchExpanded = false;
       document.getElementById('headerSearchPill').style.display = '';
       document.getElementById('headerSearchExpanded').style.display = 'none';
+      document.querySelector('.app-header').classList.remove('search-expanded');
     };
 
     window.runHeaderSearch = function() {
