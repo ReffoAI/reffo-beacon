@@ -42,7 +42,7 @@ export function renderUI(localToken?: string): string {
     .app-header { position: sticky; top: 0; z-index: 100; background: #1A1A2E; border-bottom: 3px solid #D4602A; padding: 0 24px; margin-left: 240px; width: calc(100% - 240px); transition: margin-left 0.3s, width 0.3s; }
     body.sidebar-collapsed .app-header { margin-left: 60px; width: calc(100% - 60px); }
     .app-header .app-header-logo { display: none; }
-    .app-header-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
+    .app-header-inner { display: flex; align-items: center; justify-content: space-between; min-height: 64px; gap: 16px; padding: 8px 0; }
     .app-header-logo { display: flex; align-items: center; gap: 10px; cursor: pointer; flex-shrink: 0; }
     .app-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
     .header-settings-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; position: relative; color: rgba(255,255,255,0.6); }
@@ -621,6 +621,7 @@ export function renderUI(localToken?: string): string {
       .app-header { margin-left: 0 !important; width: 100% !important; }
       .app-header .app-header-logo { display: flex !important; }
       .sidebar-collapse-btn { display: none !important; }
+      .sidebar-logo-overlay { display: none !important; }
     }
 
     /* Dashboard stat cards */
@@ -662,7 +663,11 @@ export function renderUI(localToken?: string): string {
     .ai-quickstart-llm-btn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 16px; border-radius: 8px; border: 1px solid #CBD5E0; background: #FFFFFF; font-size: 13px; font-weight: 500; color: #1A1A2E; cursor: pointer; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
     .ai-quickstart-llm-btn:hover { border-color: #0A5E8A; color: #0A5E8A; }
     .ai-quickstart-llm-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
-    .ai-quickstart-sidebar-card { margin: 16px 16px 8px; padding: 12px; border-radius: 12px; border: 1px solid rgba(10,94,138,0.2); background: linear-gradient(135deg, rgba(10,94,138,0.04), rgba(10,94,138,0.04)); cursor: pointer; transition: all 0.2s; }
+    .ai-quickstart-sidebar-card { margin: 16px 16px 8px; padding: 12px; border-radius: 12px; border: 1px solid rgba(10,94,138,0.2); background: linear-gradient(135deg, rgba(10,94,138,0.04), rgba(10,94,138,0.04)); cursor: pointer; transition: all 0.2s; overflow: hidden; }
+    .sidebar.collapsed .ai-quickstart-sidebar-card { margin: 4px 8px; padding: 8px; border-radius: 8px; }
+    .sidebar.collapsed .ai-quickstart-sidebar-card .qs-title span { display: none; }
+    .sidebar.collapsed .ai-quickstart-sidebar-card .qs-sub { display: none; }
+    .sidebar.collapsed .ai-quickstart-sidebar-card .qs-title { justify-content: center; margin: 0; }
     .ai-quickstart-sidebar-card:hover { border-color: rgba(10,94,138,0.4); box-shadow: 0 2px 8px rgba(10,94,138,0.08); }
     .ai-quickstart-sidebar-card .qs-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: #1A1A2E; margin-bottom: 2px; }
     .ai-quickstart-sidebar-card .qs-sub { font-size: 11px; color: #4A5568; }
@@ -918,17 +923,19 @@ export function renderUI(localToken?: string): string {
 
   <div class="app-content">
   <div class="dashboard-layout">
-  <aside class="sidebar" id="sidebar">
-    <!-- Logo + collapse toggle -->
-    <div style="position:relative;display:flex;align-items:center;padding:8px 16px 12px;gap:8px;" id="sidebarLogoArea">
+  <!-- Sidebar collapse toggle — outside aside so overflow doesn't clip -->
+  <div id="sidebarLogoOverlay" class="sidebar-logo-overlay" style="position:fixed;top:0;left:0;z-index:112;transition:width 0.3s;pointer-events:none;width:240px;">
+    <div style="position:relative;display:flex;align-items:center;padding:14px 16px 12px;gap:8px;pointer-events:auto;">
       <a onclick="sidebarNav('home')" style="cursor:pointer;display:flex;align-items:center;gap:6px;text-decoration:none;">
-        <svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="48" fill="#1A1A2E"/><path d="M50 20 L55 45 L75 50 L55 55 L50 80 L45 55 L25 50 L45 45 Z" fill="#D4602A"/></svg>
+        <img src="/header-logo.png" alt="Pelagora" style="height:28px;width:auto;">
         <span class="sidebar-logo-text" style="font-family:'Fira Sans',sans-serif;font-size:18px;font-weight:700;color:#1A1A2E;">Pelagora</span>
       </a>
-      <button type="button" onclick="toggleSidebarCollapse()" class="sidebar-collapse-btn" title="Collapse sidebar" style="position:absolute;right:-12px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;border:1px solid #CBD5E0;background:#FFFFFF;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#4A5568;box-shadow:0 1px 4px rgba(0,0,0,0.08);z-index:1;transition:all 0.2s;">
+      <button type="button" onclick="toggleSidebarCollapse()" class="sidebar-collapse-btn" title="Collapse sidebar" style="position:absolute;right:-12px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:50%;border:1px solid #CBD5E0;background:#FFFFFF;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#4A5568;box-shadow:0 1px 4px rgba(0,0,0,0.08);transition:all 0.2s;">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="collapseChevron" style="transition:transform 0.3s;"><polyline points="15 18 9 12 15 6"/></svg>
       </button>
     </div>
+  </div>
+  <aside class="sidebar" id="sidebar" style="padding-top:52px;">
     <div class="sidebar-section-title">Actions</div>
     <button class="sidebar-nav-item" data-sidebar="list" onclick="sidebarNav('list')">
       <span style="width:18px;height:18px;border-radius:4px;background:linear-gradient(135deg,#0A5E8A 0%,#1A8A7D 100%);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></span>
@@ -1803,7 +1810,7 @@ export function renderUI(localToken?: string): string {
       </div>
       <h3 style="margin:0 0 20px;font-size:1.5rem;font-weight:700;">List a Ref</h3>
     </div>
-    <section style="max-width:1100px;margin:0 auto;padding:0 24px 24px;">
+    <section style="max-width:1100px;margin:0 auto;padding:0 24px 60px;">
       <div style="padding-top:30px;">
       <div id="listMsg"></div>
       <form id="listForm">
@@ -2580,13 +2587,12 @@ Website = https://reffo.ai</pre>
     window.toggleSidebarCollapse = function() {
       var sidebar = document.getElementById('sidebar');
       var chevron = document.getElementById('collapseChevron');
+      var overlay = document.getElementById('sidebarLogoOverlay');
       sidebar.classList.toggle('collapsed');
       document.body.classList.toggle('sidebar-collapsed');
-      if (sidebar.classList.contains('collapsed')) {
-        chevron.style.transform = 'rotate(180deg)';
-      } else {
-        chevron.style.transform = '';
-      }
+      var isCollapsed = sidebar.classList.contains('collapsed');
+      chevron.style.transform = isCollapsed ? 'rotate(180deg)' : '';
+      overlay.style.width = isCollapsed ? '74px' : '240px';
     };
 
     // ===== Sidebar navigation =====
