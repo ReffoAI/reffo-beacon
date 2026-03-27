@@ -201,16 +201,22 @@ export function renderUI(localToken?: string): string {
     @media (max-width: 1023px) { .cards { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 639px) { .cards { grid-template-columns: 1fr; } }
 
-    /* Ref card — Card.module.sass: 16px radius, deep shadow, image hover scale */
-    .card { background: #FFFFFF; border-radius: 16px; box-shadow: 0 16px 32px -8px rgba(15,15,15,0.12); overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+    /* Ref card — consistent-height with fixed slots */
+    .card { background: #FFFFFF; border-radius: 16px; box-shadow: 0 16px 32px -8px rgba(15,15,15,0.12); overflow: hidden; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; height: 100%; }
     .card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px -8px rgba(15,15,15,0.18); }
-    .card-img { width: 100%; height: 180px; position: relative; overflow: hidden; background: #EDE8E3; display: flex; align-items: center; justify-content: center; }
-    .card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 1s; }
-    .card:hover .card-img img { transform: scale(1.1); }
+    .card-img { width: 100%; aspect-ratio: 4/3; position: relative; overflow: hidden; background: #EDE8E3; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+    .card:hover .card-img img { transform: scale(1.05); }
     .card-img .placeholder { color: #718096; font-size: 2.5rem; }
-    .card-body { padding: 20px; }
-    .card-body h3 { font-size: 16px; font-weight: 600; color: #1A1A2E; margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.2s; }
+    /* Status badge overlaid on image */
+    .card-img .card-status { position: absolute; top: 10px; left: 10px; z-index: 2; }
+    .card-body { padding: 16px; display: flex; flex-direction: column; min-height: 148px; flex: 1; }
+    .card-body .card-category { font-size: 11px; color: #4A5568; text-transform: uppercase; letter-spacing: 0.04em; height: 16px; line-height: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 4px; }
+    .card-body h3 { font-size: 14px; font-weight: 600; color: #1A1A2E; height: 20px; line-height: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 4px; transition: color 0.2s; }
     .card:hover .card-body h3 { color: #0A5E8A; }
+    .card-body .card-attrs { font-size: 11px; color: #4A5568; height: 16px; line-height: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 4px; }
+    .card-body .card-location { font-size: 11px; color: #4A5568; height: 16px; line-height: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+    .card-body .card-spacer { flex: 1; }
     .card-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
     /* Badges — status.sass: inline-block, 12px bold uppercase, 13px radius, 26px line-height */
     .badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 4px 14px; border-radius: 20px; line-height: 1; text-transform: uppercase; letter-spacing: 0.06em; }
@@ -219,8 +225,9 @@ export function renderUI(localToken?: string): string {
     .badge-for-sale { background: #2D8A6E; color: #FFFFFF; }
     .badge-willing { background: #D4922A; color: #FFFFFF; }
     .badge-for-rent { background: #4A90D9; color: #FFFFFF; }
-    .card-price { font-size: 16px; font-weight: 700; color: #2D8A6E; margin-top: 4px; }
+    .card-price { font-size: 16px; font-weight: 700; color: #1A1A2E; }
     .card-qty { font-size: 12px; color: #4A5568; margin-top: 4px; font-weight: 500; }
+    .card-bottom-badges { display: flex; align-items: center; gap: 6px; height: 22px; overflow: hidden; margin-top: 4px; }
     .card-desc { font-size: 14px; color: #4A5568; margin-top: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.71; }
 
     /* Status segmented control */
@@ -3829,20 +3836,26 @@ Website = https://reffo.ai</pre>
             const cardAttrSummary = buildAttributeSummary(ref.category, ref.subcategory, ref.attributes, ref.condition);
 
             const imgHtml = firstPhoto
-              ? '<div class="card-img"><img src="/' + escapeHtml(firstPhoto.filePath) + '" alt=""></div>'
-              : '<div class="card-img"><span class="placeholder"><svg width="40" height="40" viewBox="0 0 40 71" fill="none"><path d="M36.3314 2.40738C36.3314 2.40738 36.8264 1.42463 36.4263 0.662012C36.0263 -0.10061 35.0534 0.00517205 35.0534 0.00517205H11.1756C11.1756 0.00517205 10.5428 -0.0279334 10.1477 0.343949C9.75251 0.715831 9.59304 1.49138 9.59304 1.49138L0.238015 32.5907C0.238015 32.5907 -0.24866 33.7655 0.169465 34.6704C0.58759 35.5752 1.5753 35.4965 1.5753 35.4965H10.0645L0.5629 66.8837C0.5629 66.8837 -0.162543 68.519 1.00281 69.3381C2.16816 70.1572 3.37309 68.9223 3.37309 68.9223L37.7402 24.6034C37.7402 24.6034 38.3085 23.9493 37.9286 22.9371C37.5486 21.9249 36.7018 22.0235 36.7018 22.0235H26.875L36.3314 2.40738Z" fill="#CBD5E0"/></svg></span></div>';
+              ? '<div class="card-img"><img src="/' + escapeHtml(firstPhoto.filePath) + '" alt=""><div class="card-status"><span class="badge ' + statusClass + '">' + statusLabel + '</span></div></div>'
+              : '<div class="card-img"><span class="placeholder"><svg width="40" height="40" viewBox="0 0 40 71" fill="none"><path d="M36.3314 2.40738C36.3314 2.40738 36.8264 1.42463 36.4263 0.662012C36.0263 -0.10061 35.0534 0.00517205 35.0534 0.00517205H11.1756C11.1756 0.00517205 10.5428 -0.0279334 10.1477 0.343949C9.75251 0.715831 9.59304 1.49138 9.59304 1.49138L0.238015 32.5907C0.238015 32.5907 -0.24866 33.7655 0.169465 34.6704C0.58759 35.5752 1.5753 35.4965 1.5753 35.4965H10.0645L0.5629 66.8837C0.5629 66.8837 -0.162543 68.519 1.00281 69.3381C2.16816 70.1572 3.37309 68.9223 3.37309 68.9223L37.7402 24.6034C37.7402 24.6034 38.3085 23.9493 37.9286 22.9371C37.5486 21.9249 36.7018 22.0235 36.7018 22.0235H26.875L36.3314 2.40738Z" fill="#CBD5E0"/></svg></span><div class="card-status"><span class="badge ' + statusClass + '">' + statusLabel + '</span></div></div>';
+
+            const locParts = [ref.locationCity, ref.locationState].filter(Boolean);
 
             return '<div class="card" onclick="openDetail(\\'' + ref.id + '\\')">' +
               imgHtml +
               '<div class="card-body">' +
+                '<div class="card-category">' + escapeHtml(ref.category || '') + '</div>' +
                 '<h3>' + escapeHtml(ref.name) + '</h3>' +
-                '<div class="card-meta"><span class="badge ' + statusClass + '">' + statusLabel + '</span>' + catBadges +
-                (ref.networkPublished ? '<span class="badge" style="background:#1A8A7D;color:#fff;">Published</span>' : '') +
-                (ref.reffoSynced ? '<span class="badge badge-synced">Synced</span>' : '') + '</div>' +
-                (priceStr ? '<div class="card-price">' + escapeHtml(priceStr) + '</div>' : '') +
-                (cardAttrSummary ? '<div class="card-desc" style="font-size:12px;color:#4A5568;margin-top:4px;">' + escapeHtml(cardAttrSummary) + '</div>' : '') +
-                (ref.quantity > 1 ? '<div class="card-qty">Qty: ' + ref.quantity + '</div>' : '') +
-                (ref.description ? '<div class="card-desc">' + escapeHtml(ref.description) + '</div>' : '') +
+                '<div class="card-attrs">' + escapeHtml(cardAttrSummary || '') + '</div>' +
+                '<div class="card-location">' + (locParts.length > 0 ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>' + escapeHtml(locParts.join(', ')) : '') + '</div>' +
+                '<div class="card-spacer"></div>' +
+                '<div class="card-price">' + escapeHtml(priceStr || '') + '</div>' +
+                '<div class="card-bottom-badges">' +
+                  (ref.condition ? '<span class="badge" style="font-size:10px;padding:2px 10px;background:#EDE8E3;color:#4A5568;">' + escapeHtml(ref.condition.replace(/_/g, ' ')) + '</span>' : '') +
+                  (ref.networkPublished ? '<span class="badge" style="font-size:10px;padding:2px 10px;background:#1A8A7D;color:#fff;">Published</span>' : '') +
+                  (ref.reffoSynced ? '<span class="badge badge-synced" style="font-size:10px;padding:2px 10px;">Synced</span>' : '') +
+                  (ref.quantity > 1 ? '<span style="font-size:10px;color:#4A5568;font-weight:500;margin-left:auto;">Qty: ' + ref.quantity + '</span>' : '') +
+                '</div>' +
               '</div></div>';
           }).join('') + '</div>';
         }
@@ -4706,29 +4719,34 @@ Website = https://reffo.ai</pre>
             ? '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#1A8A7D;font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:#1A8A7D;display:inline-block;"></span>Reffo</span>'
             : '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#45B26B;font-weight:500;"><span style="width:6px;height:6px;border-radius:50%;background:#45B26B;display:inline-block;"></span>Beacon</span>';
 
+          // Build status badge overlay for image
+          const statusBadgeHtml = '<div class="card-status"><span class="badge ' + statusClass + '">' + statusLabel + '</span></div>';
+
           // For Reffo results, filePath is a full URL; for DHT, it's relative
           let cardImgHtml;
           if (firstPhoto && entrySource === 'reffo') {
-            cardImgHtml = '<div class="card-img" style="position:relative;"><img src="' + escapeHtml(firstPhoto.filePath) + '" alt="">' + heartBtn + '</div>';
+            cardImgHtml = '<div class="card-img"><img src="' + escapeHtml(firstPhoto.filePath) + '" alt="">' + statusBadgeHtml + heartBtn + '</div>';
           } else if (firstPhoto && peerHttpPort) {
-            cardImgHtml = '<div class="card-img" style="position:relative;"><img src="http://' + location.hostname + ':' + peerHttpPort + '/' + escapeHtml(firstPhoto.filePath) + '" alt="">' + heartBtn + '</div>';
+            cardImgHtml = '<div class="card-img"><img src="http://' + location.hostname + ':' + peerHttpPort + '/' + escapeHtml(firstPhoto.filePath) + '" alt="">' + statusBadgeHtml + heartBtn + '</div>';
           } else {
-            cardImgHtml = '<div class="card-img" style="position:relative;"><span class="placeholder"><svg width="40" height="40" viewBox="0 0 40 71" fill="none"><path d="M36.3314 2.40738C36.3314 2.40738 36.8264 1.42463 36.4263 0.662012C36.0263 -0.10061 35.0534 0.00517205 35.0534 0.00517205H11.1756C11.1756 0.00517205 10.5428 -0.0279334 10.1477 0.343949C9.75251 0.715831 9.59304 1.49138 9.59304 1.49138L0.238015 32.5907C0.238015 32.5907 -0.24866 33.7655 0.169465 34.6704C0.58759 35.5752 1.5753 35.4965 1.5753 35.4965H10.0645L0.5629 66.8837C0.5629 66.8837 -0.162543 68.519 1.00281 69.3381C2.16816 70.1572 3.37309 68.9223 3.37309 68.9223L37.7402 24.6034C37.7402 24.6034 38.3085 23.9493 37.9286 22.9371C37.5486 21.9249 36.7018 22.0235 36.7018 22.0235H26.875L36.3314 2.40738Z" fill="#CBD5E0"/></svg></span>' + heartBtn + '</div>';
+            cardImgHtml = '<div class="card-img"><span class="placeholder"><svg width="40" height="40" viewBox="0 0 40 71" fill="none"><path d="M36.3314 2.40738C36.3314 2.40738 36.8264 1.42463 36.4263 0.662012C36.0263 -0.10061 35.0534 0.00517205 35.0534 0.00517205H11.1756C11.1756 0.00517205 10.5428 -0.0279334 10.1477 0.343949C9.75251 0.715831 9.59304 1.49138 9.59304 1.49138L0.238015 32.5907C0.238015 32.5907 -0.24866 33.7655 0.169465 34.6704C0.58759 35.5752 1.5753 35.4965 1.5753 35.4965H10.0645L0.5629 66.8837C0.5629 66.8837 -0.162543 68.519 1.00281 69.3381C2.16816 70.1572 3.37309 68.9223 3.37309 68.9223L37.7402 24.6034C37.7402 24.6034 38.3085 23.9493 37.9286 22.9371C37.5486 21.9249 36.7018 22.0235 36.7018 22.0235H26.875L36.3314 2.40738Z" fill="#CBD5E0"/></svg></span>' + statusBadgeHtml + heartBtn + '</div>';
           }
+
+          const searchLocParts = [item.locationCity, item.locationState].filter(Boolean);
 
           cards += '<div class="card result-card" data-source="' + entrySource + '" onclick="openRemoteDetail(' + idx + ')">' +
             cardImgHtml +
             '<div class="card-body">' +
+              '<div class="card-category">' + escapeHtml(item.category || '') + '</div>' +
               '<h3>' + escapeHtml(item.name) + '</h3>' +
-              '<div class="card-meta"><span class="badge ' + statusClass + '">' + statusLabel + '</span>' + badges + ' ' + sourceDot + '</div>' +
-              (priceStr ? '<div class="card-price">' + escapeHtml(priceStr) + '</div>' : '') +
-              (item.description ? '<div class="card-desc">' + escapeHtml(item.description) + '</div>' : '') +
-              (function() {
-                const lp = [item.locationCity, item.locationState, item.locationZip].filter(Boolean);
-                return lp.length > 0 ? '<div style="font-size:12px;color:#4A5568;margin-top:4px;font-weight:500;">Near ' + escapeHtml(lp.join(', ')) + '</div>' : '';
-              })() +
-              '<div class="beacon-id">Beacon: ' + escapeHtml(peer.beaconId.slice(0, 16)) + '...</div>' +
-              (actionBtn ? '<div style="margin-top:10px;">' + actionBtn + '</div>' : '') +
+              '<div class="card-attrs"></div>' +
+              '<div class="card-location">' + (searchLocParts.length > 0 ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>' + escapeHtml(searchLocParts.join(', ')) : '') + '</div>' +
+              '<div class="card-spacer"></div>' +
+              '<div class="card-price">' + escapeHtml(priceStr || '') + '</div>' +
+              '<div class="card-bottom-badges">' +
+                (item.condition ? '<span class="badge" style="font-size:10px;padding:2px 10px;background:#EDE8E3;color:#4A5568;">' + escapeHtml(item.condition.replace(/_/g, ' ')) + '</span>' : '') +
+                sourceDot +
+              '</div>' +
             '</div></div>';
 
           // Row view
