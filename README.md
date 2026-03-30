@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./icon.png" />
-    <source media="(prefers-color-scheme: light)" srcset="./icon-reverse.png" />
+    <source media="(prefers-color-scheme: dark)" srcset="./icon-reverse.png" />
+    <source media="(prefers-color-scheme: light)" srcset="./icon.png" />
     <img src="./logo-dark.png" alt="Pelagora" width="200" />
   </picture>
 </p>
