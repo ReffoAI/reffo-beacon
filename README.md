@@ -1,3 +1,11 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./logo-light.png" />
+    <source media="(prefers-color-scheme: light)" srcset="./logo-dark.png" />
+    <img src="./logo-dark.png" alt="Pelagora" width="200" />
+  </picture>
+</p>
+
 # Pelagora
 
 Self-hosted node for the Pelagora peer-to-peer commerce network.
