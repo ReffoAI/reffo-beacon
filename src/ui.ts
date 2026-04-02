@@ -852,6 +852,11 @@ export function renderUI(localToken?: string): string {
     <button onclick="this.parentElement.style.display='none';document.body.style.paddingTop='0';" style="margin-left:16px;background:transparent;border:1px solid #FCA5A5;color:#FEE2E2;padding:2px 10px;border-radius:4px;cursor:pointer;font-size:12px;">Dismiss</button>
   </div>
 
+  <!-- Pre-release banner -->
+  <div style="background:#000;color:#fff;text-align:center;padding:8px 16px;font-size:13px;line-height:1.4;">
+    <strong>Pre-release</strong> — This project is under active development. Features and functionality may change before the official launch.
+  </div>
+
   <!-- App Header -->
   <div class="app-header">
     <div class="app-header-inner">
