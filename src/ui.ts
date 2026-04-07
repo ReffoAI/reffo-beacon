@@ -927,7 +927,7 @@ export function renderUI(localToken?: string): string {
             <a class="dd-item" href="https://reffo.ai/agents" target="_blank" rel="noopener noreferrer">AI Agents</a>
             <a class="dd-item" href="https://reffo.ai/skills" target="_blank" rel="noopener noreferrer">Skills</a>
             <a class="dd-item" href="https://reffo.ai/support?source=beacon" target="_blank" rel="noopener noreferrer">Support</a>
-            <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('for-bots');">&#x1F916; For Bots</button>
+            <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('ai-skill');">&#x1F916; AI Skill</button>
             <div class="dd-divider"></div>
             <div class="dd-label">Legal</div>
             <button class="dd-item" onclick="closeAvatarDropdown(); switchTab('terms');">Terms of Service</button>
@@ -2266,17 +2266,17 @@ export function renderUI(localToken?: string): string {
     </section>
   </div>
 
-  <!-- For Bots -->
-  <div id="tab-for-bots" class="hidden">
+  <!-- AI Skill -->
+  <div id="tab-ai-skill" class="hidden">
     <section>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;cursor:pointer;" onclick="switchTab('refs')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4A5568" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
         <span style="font-size:13px;color:#4A5568;">Back</span>
       </div>
-      <h2 style="border-bottom:none;margin-bottom:4px;">&#x1F916; For Bots Only</h2>
-      <p style="font-size:13px;color:#4A5568;margin-bottom:24px;">Structured info for AI agents, crawlers, and bots. Humans: you probably want <a href="https://reffo.ai/docs" target="_blank" rel="noopener noreferrer" style="color:#1A8A7D;">Docs</a> or <a href="https://reffo.ai/agents" target="_blank" rel="noopener noreferrer" style="color:#1A8A7D;">AI Agents</a>.</p>
+      <h2 style="border-bottom:none;margin-bottom:4px;">&#x1F916; AI Skill</h2>
+      <p style="font-size:13px;color:#4A5568;margin-bottom:24px;">Learn how AI agents interact with the Pelagora network. Humans: you probably want <a href="https://reffo.ai/docs" target="_blank" rel="noopener noreferrer" style="color:#1A8A7D;">Docs</a> or <a href="https://reffo.ai/agents" target="_blank" rel="noopener noreferrer" style="color:#1A8A7D;">AI Agents</a>.</p>
       <div style="font-size:14px;color:#1A1A2E;line-height:1.7;">
-        <p>For full bot-readable documentation, visit <a href="https://reffo.ai/for-bots" target="_blank" rel="noopener noreferrer" style="color:#1A8A7D;">reffo.ai/for-bots</a></p>
+        <p>For full AI skill documentation, visit <a href="https://pelagora.org/ai-skill" target="_blank" rel="noopener noreferrer" style="color:#1A8A7D;">pelagora.org/ai-skill</a></p>
         <pre style="background:#1a1a2e;color:#e0e0e0;border-radius:12px;padding:20px;overflow-x:auto;font-size:13px;line-height:1.6;margin-top:16px;">Pelagora = open peer-to-peer commerce network (pelagora.net)
 Beacon = self-hosted marketplace node (Express + SQLite + DHT)
 MCP = @pelagora/mcp &mdash; connect AI agents to a beacon
@@ -2457,7 +2457,7 @@ Website = https://reffo.ai</pre>
     const DEFAULT_SCHEMA_UI = ${JSON.stringify(defaultSchemaForUI)};
 
     // ===== AI Quick Start =====
-    var AI_QUICKSTART_PROMPT = 'I want to learn about the Pelagora network, a peer-to-peer marketplace for buying and selling items. Please read this page first: https://reffo.ai/for-bots \\u2014 it contains everything you need to know about how the Pelagora network works, including the beacon app, the webapp, listings, offers, and negotiations. Then help me get started with creating listings and finding items.';
+    var AI_QUICKSTART_PROMPT = 'I want to learn about the Pelagora network, a peer-to-peer marketplace for buying and selling items. Please read this page first: https://pelagora.org/ai-skill \\u2014 it contains everything you need to know about how the Pelagora network works, including the beacon app, the webapp, listings, offers, and negotiations. Then help me get started with creating listings and finding items.';
 
     // Populate prompt text elements on load
     (function() {
@@ -2519,7 +2519,7 @@ Website = https://reffo.ai</pre>
 
     // ===== Tab switching =====
     function switchTab(tab) {
-      var tabs = ['home','dashboard','refs','detail','search','inbox','settings','list','scan','collections','terms','privacy','acceptable-use','for-bots'];
+      var tabs = ['home','dashboard','refs','detail','search','inbox','settings','list','scan','collections','terms','privacy','acceptable-use','ai-skill'];
       tabs.forEach(function(t) {
         var el = document.getElementById('tab-' + t);
         if (el) el.classList.toggle('hidden', tab !== t);
