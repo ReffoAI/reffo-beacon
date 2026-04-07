@@ -4,6 +4,22 @@ All notable changes to **pelagora** will be documented in this file.
 
 This project follows [Keep a Changelog](https://keepachangelog.com/) and [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] — 2026-04-03
+
+### Added
+- Helmet.js for security headers (CSP, X-Frame-Options, etc.)
+- Express rate limiting: 200 req/15min general, 30 req/15min for write endpoints
+- JSON body size limit (1 MB)
+- SSRF protection on media `/from-url`: block non-http/https schemes and localhost/internal IPs
+- `validateCoordinates` for lat/lng bounds checking on settings `/location`
+- `sanitizeObject` applied to previously unsanitized routes: favorites, collections, scans
+
+### Changed
+- Upgraded `@pelagora/pim-protocol` to `^0.4.0`
+- `SanitizationError` now handled in global error middleware
+
+---
+
 ## [0.2.6] — 2026-04-02
 
 ### Added
