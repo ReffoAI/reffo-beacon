@@ -3398,6 +3398,85 @@ Website = https://reffo.ai</pre>
       overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
     }
 
+    function showRestockModal(refId) {
+      var overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.innerHTML = '<div class="modal" style="padding:32px 28px;width:420px;text-align:center;">' +
+        '<h3 style="font-size:20px;margin-bottom:8px;">Restock Item</h3>' +
+        '<p style="font-size:14px;color:#4A5568;margin-bottom:16px;line-height:1.6;">How many units are you adding back?</p>' +
+        '<input type="number" id="restockQtyInput" min="1" value="1" style="width:120px;text-align:center;margin:0 auto 24px;display:block;">' +
+        '<div style="display:flex;gap:10px;justify-content:center;">' +
+          '<button class="btn-secondary btn-sm" id="restockCancel">Cancel</button>' +
+          '<button class="btn-sm" id="restockOk" style="background:#2D8A6E;color:#fff;border:none;height:40px;padding:0 20px;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Restock</button>' +
+        '</div></div>';
+      document.body.appendChild(overlay);
+      overlay.querySelector('#restockCancel').onclick = function() { overlay.remove(); };
+      overlay.querySelector('#restockOk').onclick = async function() {
+        var qty = parseInt(overlay.querySelector('#restockQtyInput').value) || 1;
+        overlay.remove();
+        try {
+          var res = await fetch('/refs/' + refId, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listingStatus: 'for_sale', quantity: qty }) });
+          if (!res.ok) throw new Error('Failed');
+          showToast('Restocked with ' + qty + ' units', 'accepted');
+          homeLoaded = false;
+          await openDetail(refId);
+        } catch(e) {
+          showToast('Failed to restock', 'rejected');
+        }
+      };
+      overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+    }
+
+    function showRecordSaleModal(refId, currentQty) {
+      var overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      var saleQty = 1;
+      function render() {
+        var newQty = currentQty - saleQty;
+        var note = newQty <= 0 ? '<span style="color:#C94444;">This will archive the item (0 remaining).</span>' : newQty + ' remaining after sale.';
+        overlay.innerHTML = '<div class="modal" style="padding:32px 28px;width:420px;text-align:center;">' +
+          '<h3 style="font-size:20px;margin-bottom:8px;">Record a Sale</h3>' +
+          '<p style="font-size:14px;color:#4A5568;margin-bottom:16px;line-height:1.6;">How many units were sold?</p>' +
+          '<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:8px;">' +
+            '<button id="saleDecBtn" style="width:40px;height:40px;border-radius:50%;border:1.5px solid #CBD5E0;background:#fff;font-size:20px;font-weight:700;cursor:pointer;color:#1A1A2E;display:flex;align-items:center;justify-content:center;">&minus;</button>' +
+            '<span style="font-size:32px;font-weight:700;color:#1A1A2E;min-width:48px;">' + saleQty + '</span>' +
+            '<button id="saleIncBtn" style="width:40px;height:40px;border-radius:50%;border:1.5px solid #CBD5E0;background:#fff;font-size:20px;font-weight:700;cursor:pointer;color:#1A1A2E;display:flex;align-items:center;justify-content:center;">+</button>' +
+          '</div>' +
+          '<p style="font-size:13px;color:#4A5568;margin-bottom:24px;">' + note + '</p>' +
+          '<div style="display:flex;gap:10px;justify-content:center;">' +
+            '<button class="btn-secondary btn-sm" id="saleCancel">Cancel</button>' +
+            '<button class="btn-sm" id="saleOk" style="background:#C94444;color:#fff;border:none;height:40px;padding:0 20px;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Record Sale</button>' +
+          '</div></div>';
+        overlay.querySelector('#saleDecBtn').onclick = function() { if (saleQty > 1) { saleQty--; render(); } };
+        overlay.querySelector('#saleIncBtn').onclick = function() { if (saleQty < currentQty) { saleQty++; render(); } };
+        overlay.querySelector('#saleCancel').onclick = function() { overlay.remove(); };
+        overlay.querySelector('#saleOk').onclick = async function() {
+          overlay.remove();
+          var newQty = Math.max(0, currentQty - saleQty);
+          try {
+            if (newQty <= 0) {
+              var res = await fetch('/refs/' + refId, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listingStatus: 'archived_sold', quantity: 0 }) });
+              if (!res.ok) throw new Error('Failed');
+              showToast('All units sold — item archived', 'sold');
+              homeLoaded = false;
+              await loadMyRefs();
+            } else {
+              var res = await fetch('/refs/' + refId, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quantity: newQty }) });
+              if (!res.ok) throw new Error('Failed');
+              showToast('Sold ' + saleQty + ' — ' + newQty + ' remaining', 'accepted');
+              homeLoaded = false;
+              await openDetail(refId);
+            }
+          } catch(e) {
+            showToast('Failed to record sale', 'rejected');
+          }
+        };
+      }
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+      render();
+    }
+
     function showSyncModal(refId) {
       var modal = document.getElementById('syncModal');
       modal.classList.remove('hidden');
@@ -4043,11 +4122,19 @@ Website = https://reffo.ai</pre>
         html += '<button title="Save"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>';
         // Sold / Sold Out / Restock action buttons
         if (ref.listingStatus === 'sold_out') {
-          html += '<button class="action-pill" onclick="restockRef(\\'' + ref.id + '\\')" style="background:#2D8A6E;color:#fff;" title="Restock"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Restock</button>';
+          var isTrackedSoldOut = ref.stockType !== 'unlimited';
+          if (isTrackedSoldOut) {
+            html += '<button class="action-pill" onclick="showRestockModal(\\'' + ref.id + '\\')" style="background:#2D8A6E;color:#fff;" title="Restock"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Restock</button>';
+          } else {
+            html += '<button class="action-pill" onclick="restockRef(\\'' + ref.id + '\\')" style="background:#2D8A6E;color:#fff;" title="Restock"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Restock</button>';
+          }
         } else if (['for_sale', 'willing_to_sell', 'for_rent'].includes(ref.listingStatus)) {
           var isUnlimited = ref.stockType === 'unlimited';
           var isMultiQty = ref.quantity > 1;
-          if (isUnlimited || isMultiQty) {
+          if (isUnlimited) {
+            html += '<button class="action-pill" onclick="markSoldOut(\\'' + ref.id + '\\')" style="background:transparent;color:#C94444;border:1.5px solid #C94444 !important;" title="Mark as Sold Out">Mark Sold Out</button>';
+          } else if (isMultiQty) {
+            html += '<button class="action-pill" onclick="showRecordSaleModal(\\'' + ref.id + '\\', ' + ref.quantity + ')" style="background:transparent;color:#4A5568;border:1.5px solid #CBD5E0 !important;" title="Record a Sale">Record Sale</button>';
             html += '<button class="action-pill" onclick="markSoldOut(\\'' + ref.id + '\\')" style="background:transparent;color:#C94444;border:1.5px solid #C94444 !important;" title="Mark as Sold Out">Mark Sold Out</button>';
           } else {
             html += '<button class="action-pill" onclick="markAsSold(\\'' + ref.id + '\\')" style="background:transparent;color:#C94444;border:1.5px solid #C94444 !important;" title="Mark as Sold">Mark as Sold</button>';
