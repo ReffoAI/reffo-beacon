@@ -40,7 +40,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@pelagora/pim-protocol": "^0.4.0",
+    "@pelagora/pim-protocol": "^0.5.0",
     "@pelagora/skill-reverse-auction": "^1.0.0",
     "b4a": "^1.6.7",
     "better-sqlite3": "^11.7.0",
