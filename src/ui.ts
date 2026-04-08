@@ -549,7 +549,7 @@ export function renderUI(localToken?: string): string {
       justify-content: center; color: #4A5568; transition: all 0.2s;
     }
     .detail-title-actions button:hover { border-color: #1A1A2E; color: #1A1A2E; }
-    .detail-title-actions .action-pill { width: auto !important; height: 32px !important; border-radius: 16px !important; padding: 0 14px !important; font-size: 12px !important; font-weight: 600 !important; white-space: nowrap !important; border: none !important; font-family: 'DM Sans', sans-serif; }
+    .detail-title-actions .action-pill { width: auto !important; height: 32px !important; border-radius: 16px !important; padding: 0 14px !important; font-size: 12px !important; font-weight: 600 !important; white-space: nowrap !important; border: none !important; font-family: 'DM Sans', sans-serif; gap: 6px !important; }
     .detail-title-actions .action-pill:hover { opacity: 0.9; border-color: transparent !important; }
 
     .detail-posted-line {

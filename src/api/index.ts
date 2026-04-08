@@ -27,10 +27,10 @@ export function createApp(localToken?: string): express.Express {
   app.use(express.json({ limit: '1mb' }));
 
   // --- Security: Rate limiting ---
-  // General limiter: 2000 requests per 15 minutes per IP (generous for local UI polling)
+  // General limiter: 10000 requests per 15 minutes per IP (local app — UI polls heavily)
   const generalLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 2000,
+    max: 10000,
     standardHeaders: true,
     legacyHeaders: false,
     message: { error: 'Too many requests, please try again later' },
