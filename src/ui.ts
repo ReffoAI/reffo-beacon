@@ -3000,30 +3000,32 @@ Website = https://reffo.ai</pre>
       }
     };
 
-    window.markAsSold = async function(refId) {
-      if (!confirm('Mark this item as sold? It will be archived.')) return;
-      try {
-        var res = await fetch('/refs/' + refId, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listingStatus: 'archived_sold' }) });
-        if (!res.ok) throw new Error('Failed');
-        showToast('Marked as Sold', 'sold');
-        homeLoaded = false;
-        await loadMyRefs();
-      } catch(e) {
-        showToast('Failed to mark as sold', 'rejected');
-      }
+    window.markAsSold = function(refId) {
+      showConfirmModal('Mark as Sold', 'This item will be archived and removed from your active listings.', 'Mark as Sold', '#C94444', async function() {
+        try {
+          var res = await fetch('/refs/' + refId, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listingStatus: 'archived_sold' }) });
+          if (!res.ok) throw new Error('Failed');
+          showToast('Marked as Sold', 'sold');
+          homeLoaded = false;
+          await loadMyRefs();
+        } catch(e) {
+          showToast('Failed to mark as sold', 'rejected');
+        }
+      });
     };
 
-    window.markSoldOut = async function(refId) {
-      if (!confirm('Mark this item as Sold Out?')) return;
-      try {
-        var res = await fetch('/refs/' + refId, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listingStatus: 'sold_out' }) });
-        if (!res.ok) throw new Error('Failed');
-        showToast('Marked as Sold Out', 'rejected');
-        homeLoaded = false;
-        await openDetail(refId);
-      } catch(e) {
-        showToast('Failed to mark as sold out', 'rejected');
-      }
+    window.markSoldOut = function(refId) {
+      showConfirmModal('Mark as Sold Out', 'This item will stay visible to buyers but won\\u2019t accept new offers or messages.', 'Mark Sold Out', '#C94444', async function() {
+        try {
+          var res = await fetch('/refs/' + refId, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ listingStatus: 'sold_out' }) });
+          if (!res.ok) throw new Error('Failed');
+          showToast('Marked as Sold Out', 'rejected');
+          homeLoaded = false;
+          await openDetail(refId);
+        } catch(e) {
+          showToast('Failed to mark as sold out', 'rejected');
+        }
+      });
     };
 
     window.restockRef = async function(refId) {
@@ -3378,6 +3380,22 @@ Website = https://reffo.ai</pre>
         t.classList.remove('show');
         setTimeout(() => t.remove(), 300);
       }, 5000);
+    }
+
+    function showConfirmModal(title, message, confirmLabel, confirmColor, onConfirm) {
+      var overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+      overlay.innerHTML = '<div class="modal" style="padding:32px 28px;width:420px;text-align:center;">' +
+        '<h3 style="font-size:20px;margin-bottom:8px;">' + title + '</h3>' +
+        '<p style="font-size:14px;color:#4A5568;margin-bottom:24px;line-height:1.6;">' + message + '</p>' +
+        '<div style="display:flex;gap:10px;justify-content:center;">' +
+          '<button class="btn-secondary btn-sm" id="confirmModalCancel">Cancel</button>' +
+          '<button class="btn-sm" id="confirmModalOk" style="background:' + (confirmColor || '#C94444') + ';color:#fff;border:none;height:40px;padding:0 20px;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">' + (confirmLabel || 'Confirm') + '</button>' +
+        '</div></div>';
+      document.body.appendChild(overlay);
+      overlay.querySelector('#confirmModalCancel').onclick = function() { overlay.remove(); };
+      overlay.querySelector('#confirmModalOk').onclick = function() { overlay.remove(); onConfirm(); };
+      overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
     }
 
     function showSyncModal(refId) {
